@@ -1,0 +1,2 @@
+- ALWAYS use an existing Salesforce DX MCP Server tool before calling the sf CLI.
+- When calling the Salesforce CLI, always use sf. NEVER use the deprecated sfdx CLI or the sfdx-style commands.

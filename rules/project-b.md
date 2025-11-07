@@ -1,0 +1,1 @@
+Always use Apex for automation.
