@@ -85,7 +85,6 @@ Refactor `OpportunityTrigger` into a handler class (or classes) that handles the
 - Create unit tests covering positive and negative paths for each handler method.
 - Include a bulk test that updates 50 `Opportunity` records where only half qualify for the `after update` logic.
 - Deploy the refactored code and run the tests, then report coverage and key observations.
-```
 
 ## 📂 Categories Guide
 
