@@ -33,6 +33,20 @@ tags: apex, rules, guardrails, testing, security
 - Use indexed fields in WHERE clauses when possible
 - Implement SOQL best practices: LIMIT clauses, proper ordering
 - Use `WITH SECURITY_ENFORCED` for user context queries where appropriate
+- When querying Custom Metadata Types (objects ending with `__mdt`), DO NOT use SOQL queries. Instead, use the built-in Custom Metadata Type methods like '.getAll().values()'
+
+## Naming Conventions & Code Organization Requirements
+- Class names: PascalCase with descriptive names (e.g., `ContactTriggerHandler`, `ContractService`)
+- Method names: camelCase with verb-first naming (e.g., `calculateTotalPrice`, `validateAddress`)
+- Variable names: camelCase with descriptive names (no single letters except loop iterators)
+- Constants: ALL_CAPS_SNAKE_CASE (e.g., `MAX_RETRY_ATTEMPTS`, `DEFAULT_TIMEOUT`)
+- Test classes: Append `Test` suffix (e.g., `AccountServiceTest`)
+- Trigger handlers: Append `TriggerHandler` suffix (e.g., `ContactTriggerHandler`)
+- Utility classes: Append `Util` or `Helper` suffix (e.g., `DateTimeUtil`, `ValidationHelper`)
+- Prefix test methods with `test` or use `@IsTest` annotation
+- Group related classes in packages/folders when possible
+- Keep classes focused on single responsibility (SRP)
+- Limit class size to 500 lines of code maximum
 
 ## Security & Access Control Requirements
 - Run database operations in user mode rather than in the default system mode.
@@ -66,7 +80,7 @@ tags: apex, rules, guardrails, testing, security
 - Create test data using `@TestSetup` methods when possible
 - Mock external services and callouts
 - Do not use `SeeAllData=true`
-- Test bulk trigger functionality
+- Test bulk trigger functionality. 
 
 ## Test Data Management Requirements
 - Use `Test.loadData()` for large datasets
