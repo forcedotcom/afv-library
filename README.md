@@ -4,13 +4,45 @@ AI prompts and rules library for Agentforce Vibes development, content creation,
 
 ## 📚 About
 
-This repository curates Salesforce-focused prompts and system rules from the wider developer community to accelerate Agentforce Vibes agentic workflows. Collections are organized by development discipline—Apex, LWC, flows, deployments, testing, investigation, spec-driven delivery, and more—so contributors can share reusable prompts, scaffolds, and guardrails that other teams can adapt and extend.
+This repository curates Salesforce-focused prompts, system rules, and executable skills from the wider developer community to accelerate Agentforce Vibes agentic workflows. Collections are organized by development discipline—Apex, LWC, flows, deployments, testing, investigation, spec-driven delivery, and more—so contributors can share reusable prompts, scaffolds, guardrails, and workflows that other teams can adapt and extend.
+
+## 🗂️ Structure
+
+```
+afv-library/
+├── prompts/              # Single-file instructions for straightforward tasks
+│   ├── apex-development/
+│   ├── lwc-development/
+│   ├── flow-development/
+│   ├── getting-started/
+│   └── ...
+├── rules/                # Single-file guardrails and standards
+│   ├── apex-development/
+│   ├── lwc-development/
+│   ├── spec-driven-dev/
+│   └── ...
+├── skills/               # Directory-based executable workflows
+│   ├── apex-development/
+│   │   └── trigger-refactor-pipeline/
+│   │       ├── SKILL.md
+│   │       ├── scripts/
+│   │       ├── references/
+│   │       └── assets/
+│   ├── metadata-deployments/
+│   ├── testing-automation/
+│   └── ...
+└── README.md
+```
 
 ## 🚀 Quick Start
 
 ### Using with VS Code Extension
 
-Coming soon!
+1. Install the Agentforce Vibes VS Code extension (preview or later).
+2. Open the command palette and run `Agentforce Vibes: Add Library`.
+3. Provide the Git URL (or local path) to this repository; the extension indexes every folder and `.md` file under `prompts/`, `rules/`, and `skills/`.
+4. The extension displays prompts, rules, and skills organized by category. Select any item to preview the metadata and copy instructions into the editor.
+5. Use the refresh command whenever new prompts, rules, or skills are added.
 
 ### Manual Usage
 
@@ -20,8 +52,9 @@ Browse the repository and copy/paste any prompt or rule directly into Agenforce 
 
 You can register additional repos with the extension as long as they mirror this structure:
 
-- Root folders named `prompts/` and `rules/`, each containing category subfolders (e.g., `prompts/apex-development/`).
+- Root folders named `prompts/`, `rules/`, and `skills/`, each containing category subfolders (e.g., `prompts/apex-development/`).
 - Each prompt or rule stored in its own Markdown file with YAML frontmatter (`name`, `description`, `tags`, optional setup metadata).
+- Each skill stored in its own directory containing a `SKILL.md` file with required frontmatter, plus optional `scripts/`, `references/`, and `assets/` subdirectories.
 - Category folders may include a `README.md` describing their focus; empty folders are allowed for future content.
 
 When you add a new library:
@@ -85,10 +118,130 @@ Refactor `OpportunityTrigger` into a handler class (or classes) that handles the
 - Create unit tests covering positive and negative paths for each handler method.
 - Include a bulk test that updates 50 `Opportunity` records where only half qualify for the `after update` logic.
 - Deploy the refactored code and run the tests, then report coverage and key observations.
+```
+
+## 🛠️ Agent Skills Format
+
+Agent Skills extend prompts and rules by bundling executable workflows, scripts, and reference materials into self-contained directories. Skills follow the open [Agent Skills specification](https://agentskills.io/) and are portable across many agent tools (Cursor, Claude Code, VS Code extensions, etc.).
+
+### Directory Structure
+
+Each skill is a folder containing:
+- `SKILL.md` (required) - instructions + YAML frontmatter
+- `scripts/` (optional) - executable Python/Bash/JS
+- `references/` (optional) - additional documentation
+- `assets/` (optional) - templates, schemas, lookup data
+
+### Required Frontmatter
+
+```yaml
+---
+name: skill-name-here          # lowercase, hyphens, matches folder name
+description: What this skill does and when to use it (1-1024 chars)
+license: Apache-2.0            # optional
+compatibility: Requires...     # optional
+metadata:                      # optional
+  author: your-org
+  version: "1.0"
+allowed-tools: Bash Read Write # optional, space-delimited
+---
+```
+
+The `name` must:
+- Be 1-64 characters
+- Use only lowercase letters, numbers, and hyphens
+- Match the parent directory name
+- Not start or end with hyphens
+
+The `description` should explain both what the skill does and when to use it, including keywords that help agents identify relevant tasks.
+
+### Progressive Disclosure
+
+Skills are designed for efficient context use:
+
+1. **Discovery** - agents load only name + description at startup
+2. **Activation** - full SKILL.md loaded when needed
+3. **Execution** - scripts/references loaded on-demand
+
+Keep your main `SKILL.md` under 500 lines and move detailed reference material to separate files.
+
+### Example Skill Structure
+
+**File:** `skills/apex-development/trigger-refactor-pipeline/SKILL.md`
+
+```markdown
+---
+name: trigger-refactor-pipeline
+description: Refactor Salesforce triggers into handler patterns with automated test generation and deployment. Use when modernizing legacy triggers with DML/SOQL in loops.
+license: Apache-2.0
+compatibility: Requires Salesforce CLI, Python 3.9+, jq
+metadata:
+  author: afv-library
+  version: "1.0"
+---
+
+## When to Use This Skill
+
+Use when you need to modernize legacy triggers with DML/SOQL in loops or inconsistent patterns.
+
+## Step 1: Analyze Trigger
+
+Run `scripts/analyze_trigger.py <TriggerName>` to identify anti-patterns:
+- DML operations inside loops
+- SOQL queries inside loops
+- Missing bulkification
+
+The script outputs a report showing:
+- Line numbers with issues
+- Recommended refactoring approach
+- Complexity score
+
+## Step 2: Generate Handler
+
+See [handler patterns reference](references/handler_patterns.md) for templates that match your trigger context:
+- Before insert/update patterns
+- After insert/update/delete patterns
+- Bulk collection strategies
+
+Copy the appropriate template from `assets/` and customize.
+
+## Step 3: Create Tests
+
+Use `assets/test_template.apex` as a scaffold. Ensure coverage includes:
+- Single record operations
+- Bulk operations (200+ records)
+- Mixed scenarios
+- Negative cases
+
+## Step 4: Deploy and Validate
+
+Deploy using Salesforce CLI and run all tests. Verify:
+- All tests pass with 100% coverage
+- No new governor limit issues
+- Behavior matches original trigger
+```
+
+### Validation
+
+Skills can be validated using the [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) tool:
+
+```bash
+skills-ref validate ./skills/apex-development/trigger-refactor-pipeline
+```
+
+This checks that your `SKILL.md` frontmatter is valid and follows all naming conventions.
 
 ## 📂 Categories Guide
 
 These starter categories reflect the current repository layout. Contributors are welcome to propose new ones or reorganize as long as the structure stays consistent for the VS Code extension.
+
+### When to Use Each Format
+
+| Format | Use When | Example |
+|--------|----------|---------|
+| **Prompt** | Single-shot instruction for a straightforward task | "Create a validation rule on Account that prevents blank NumberOfEmployees" |
+| **Rule** | Ongoing guardrail or standard to enforce | "Apex triggers must delegate to handler classes with bulk-safe patterns" |
+| **Skill** | Multi-step workflow requiring scripts, templates, or reference docs | "Refactor trigger → analyze anti-patterns → generate handler → create tests → deploy" |
 
 ### Prompts
 
@@ -214,6 +367,30 @@ See [Contributing](./CONTRIBUTING.md) for complete details.
 - Add a short note on how others can adapt the prompt, especially for varying Salesforce environments
 - Verify the content respects licensing and attribution requirements
 - Provide any supporting references or context in the pull request description
+
+### Creating New Skills
+
+Skills are more complex than prompts and require additional setup:
+
+1. **Create a folder** under the appropriate `skills/<category>/` directory using lowercase + hyphens (e.g., `trigger-refactor-pipeline`).
+2. **Add a `SKILL.md` file** with required frontmatter:
+   - `name` - must match the folder name (lowercase, hyphens only)
+   - `description` - explain what the skill does and when to use it (1-1024 characters)
+   - Optional: `license`, `compatibility`, `metadata`, `allowed-tools`
+3. **Optionally add subdirectories**:
+   - `scripts/` - executable Python, Bash, or JavaScript files
+   - `references/` - additional documentation files
+   - `assets/` - templates, schemas, or lookup data
+4. **Validate your skill** using the [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) tool:
+   ```bash
+   skills-ref validate ./skills/<category>/<skill-name>
+   ```
+5. **Test the skill end-to-end** before submitting. Ensure:
+   - The skill activates correctly when the description keywords match
+   - All scripts execute without errors
+   - Reference files are accessible and well-organized
+   - The workflow produces the expected outcomes
+6. **Document dependencies** clearly in the `compatibility` field if your skill requires specific tools or system packages.
 
 ### Feedback
 
