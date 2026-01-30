@@ -9,8 +9,8 @@
 ### Basic Batch Test
 
 ```apex
-@isTest
-static void shouldProcessAllRecords_WhenBatchExecutes() {
+@IsTest
+private static void shouldProcessAllRecords_WhenBatchExecutes() {
     // Given: Create test data
     List<Account> accounts = TestDataFactory.createAccounts(200, true);
     
@@ -23,7 +23,7 @@ static void shouldProcessAllRecords_WhenBatchExecutes() {
     // Then: Verify results
     List<Account> updated = [SELECT Id, Status__c FROM Account];
     for (Account acc : updated) {
-        System.assertEquals('Processed', acc.Status__c, 
+        System.Assert.areEqual('Processed', acc.Status__c, 
             'Batch should update all account statuses');
     }
 }
@@ -32,8 +32,8 @@ static void shouldProcessAllRecords_WhenBatchExecutes() {
 ### Testing Batch with Failures
 
 ```apex
-@isTest
-static void shouldLogErrors_WhenRecordsFail() {
+@IsTest
+private static void shouldLogErrors_WhenRecordsFail() {
     // Given: Create mix of valid and invalid records
     List<Account> accounts = TestDataFactory.createAccounts(198, true);
     
@@ -55,15 +55,15 @@ static void shouldLogErrors_WhenRecordsFail() {
     
     // Then
     List<Error_Log__c> errors = [SELECT Id, Message__c FROM Error_Log__c];
-    System.assertEquals(2, errors.size(), 'Should log 2 failed records');
+    System.Assert.areEqual(2, errors.size(), 'Should log 2 failed records');
 }
 ```
 
 ### Testing Batch Scope
 
 ```apex
-@isTest
-static void shouldRespectBatchSize() {
+@IsTest
+private static void shouldRespectBatchSize() {
     // Given
     List<Account> accounts = TestDataFactory.createAccounts(250, true);
     
@@ -74,7 +74,7 @@ static void shouldRespectBatchSize() {
     
     // Note: In tests, all batches execute but you can verify total processing
     List<Account> processed = [SELECT Id FROM Account WHERE Processed__c = true];
-    System.assertEquals(250, processed.size(), 'All records should be processed');
+    System.Assert.areEqual(250, processed.size(), 'All records should be processed');
 }
 ```
 
@@ -83,8 +83,8 @@ static void shouldRespectBatchSize() {
 ### Basic Queueable Test
 
 ```apex
-@isTest
-static void shouldCompleteProcessing_WhenQueueableEnqueued() {
+@IsTest
+private static void shouldCompleteProcessing_WhenQueueableEnqueued() {
     // Given
     Account acc = TestDataFactory.createAccount(true);
     
@@ -96,7 +96,7 @@ static void shouldCompleteProcessing_WhenQueueableEnqueued() {
     
     // Then
     Account updated = [SELECT Id, Status__c FROM Account WHERE Id = :acc.Id];
-    System.assertEquals('Processed', updated.Status__c, 
+    System.Assert.areEqual('Processed', updated.Status__c, 
         'Queueable should update account status');
 }
 ```
@@ -106,8 +106,8 @@ static void shouldCompleteProcessing_WhenQueueableEnqueued() {
 Chained queueables only execute the first job in tests:
 
 ```apex
-@isTest
-static void shouldChainNextJob_WhenMoreRecordsExist() {
+@IsTest
+private static void shouldChainNextJob_WhenMoreRecordsExist() {
     // Given: More records than one queueable can process
     List<Account> accounts = TestDataFactory.createAccounts(500, true);
     
@@ -119,7 +119,7 @@ static void shouldChainNextJob_WhenMoreRecordsExist() {
     
     // Verify first batch processed
     List<Account> processed = [SELECT Id FROM Account WHERE Processed__c = true];
-    System.assertEquals(100, processed.size(), 'First batch should process 100 records');
+    System.Assert.areEqual(100, processed.size(), 'First batch should process 100 records');
     
     // Verify chain was enqueued (check AsyncApexJob)
     List<AsyncApexJob> jobs = [
@@ -127,15 +127,15 @@ static void shouldChainNextJob_WhenMoreRecordsExist() {
         FROM AsyncApexJob 
         WHERE ApexClass.Name = 'MyChainedQueueable'
     ];
-    System.assert(jobs.size() >= 1, 'Chained job should be enqueued');
+    System.Assert.isTrue(jobs.size() >= 1, 'Chained job should be enqueued');
 }
 ```
 
 ### Testing Queueable with Callouts
 
 ```apex
-@isTest
-static void shouldMakeCallout_WhenQueueableWithCallout() {
+@IsTest
+private static void shouldMakeCallout_WhenQueueableWithCallout() {
     // Given
     Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, '{"status":"ok"}'));
     Account acc = TestDataFactory.createAccount(true);
@@ -148,7 +148,7 @@ static void shouldMakeCallout_WhenQueueableWithCallout() {
     
     // Then
     Account updated = [SELECT Id, External_Status__c FROM Account WHERE Id = :acc.Id];
-    System.assertEquals('Synced', updated.External_Status__c, 
+    System.Assert.areEqual('Synced', updated.External_Status__c, 
         'Should update status after successful callout');
 }
 ```
@@ -156,8 +156,8 @@ static void shouldMakeCallout_WhenQueueableWithCallout() {
 ## Future Method Testing
 
 ```apex
-@isTest
-static void shouldExecuteFutureMethod() {
+@IsTest
+private static void shouldExecuteFutureMethod() {
     // Given
     Account acc = TestDataFactory.createAccount(true);
     
@@ -168,7 +168,7 @@ static void shouldExecuteFutureMethod() {
     
     // Then
     Account updated = [SELECT Id, Processed__c FROM Account WHERE Id = :acc.Id];
-    System.assertEquals(true, updated.Processed__c, 'Future should process record');
+    System.Assert.areEqual(true, updated.Processed__c, 'Future should process record');
 }
 ```
 
@@ -177,8 +177,8 @@ static void shouldExecuteFutureMethod() {
 ### Testing Scheduled Execution
 
 ```apex
-@isTest
-static void shouldExecuteScheduledJob() {
+@IsTest
+private static void shouldExecuteScheduledJob() {
     // Given
     List<Account> accounts = TestDataFactory.createAccounts(50, true);
     
@@ -194,15 +194,15 @@ static void shouldExecuteScheduledJob() {
     
     // Then
     List<Account> processed = [SELECT Id FROM Account WHERE Processed__c = true];
-    System.assertEquals(50, processed.size(), 'Scheduled job should process records');
+    System.Assert.areEqual(50, processed.size(), 'Scheduled job should process records');
 }
 ```
 
 ### Testing Schedule Registration
 
 ```apex
-@isTest
-static void shouldScheduleJob() {
+@IsTest
+private static void shouldScheduleJob() {
     Test.startTest();
     String cronExp = '0 0 6 * * ?'; // Daily at 6 AM
     String jobId = System.schedule('Daily Processing', cronExp, new MyScheduledClass());
@@ -214,16 +214,16 @@ static void shouldScheduleJob() {
         FROM CronTrigger 
         WHERE Id = :jobId
     ];
-    System.assertEquals('0 0 6 * * ?', ct.CronExpression, 'CRON should match');
-    System.assertEquals('WAITING', ct.State, 'Job should be waiting');
+    System.Assert.areEqual('0 0 6 * * ?', ct.CronExpression, 'CRON should match');
+    System.Assert.areEqual('WAITING', ct.State, 'Job should be waiting');
 }
 ```
 
 ## Testing Async Limits
 
 ```apex
-@isTest
-static void shouldNotExceedQueueableLimits() {
+@IsTest
+private static void shouldNotExceedQueueableLimits() {
     // Given: Setup that might enqueue multiple jobs
     List<Account> accounts = TestDataFactory.createAccounts(100, true);
     
@@ -236,7 +236,7 @@ static void shouldNotExceedQueueableLimits() {
     Test.stopTest();
     
     // Verify limit not exceeded (50 in synchronous context, 1 in queueable)
-    System.assert(queueablesUsed <= 50, 
+    System.Assert.isTrue(queueablesUsed <= 50, 
         'Should not exceed queueable limit. Used: ' + queueablesUsed);
 }
 ```
@@ -252,7 +252,7 @@ System.enqueueJob(new MyQueueable());
 // Missing Test.stopTest()!
 
 List<Account> results = [SELECT Id FROM Account WHERE Processed__c = true];
-System.assertEquals(100, results.size()); // FAILS - queueable didn't run
+System.Assert.areEqual(100, results.size()); // FAILS - queueable didn't run
 ```
 
 ### ❌ Testing chained jobs without understanding limits
