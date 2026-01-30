@@ -16,7 +16,7 @@ description: Apex test class generation with TestDataFactory patterns, bulk test
 ## Test Class Structure
 
 ```apex
-@isTest
+@IsTest
 private class MyServiceTest {
 
     @TestSetup
@@ -25,7 +25,7 @@ private class MyServiceTest {
         List<Account> accounts = TestDataFactory.createAccounts(200, true);
     }
 
-    @isTest
+    @IsTest
     static void shouldPerformExpectedBehavior_WhenValidInput() {
         // Given: Setup specific test state
         List<Account> accounts = [SELECT Id, Name FROM Account];
@@ -37,13 +37,13 @@ private class MyServiceTest {
         
         // Then: Assert expected outcomes
         List<Account> updated = [SELECT Id, Status__c FROM Account];
-        System.assertEquals(200, updated.size(), 'All accounts should be processed');
+        System.Assert.areEqual(200, updated.size(), 'All accounts should be processed');
         for (Account acc : updated) {
-            System.assertEquals('Processed', acc.Status__c, 'Status should be updated');
+            System.Assert.areEqual('Processed', acc.Status__c, 'Status should be updated');
         }
     }
 
-    @isTest
+    @IsTest
     static void shouldThrowException_WhenInvalidInput() {
         // Given
         List<Account> emptyList = new List<Account>();
@@ -52,9 +52,9 @@ private class MyServiceTest {
         Test.startTest();
         try {
             MyService.processAccounts(emptyList);
-            System.assert(false, 'Expected MyCustomException to be thrown');
+            System.Assert.fail('Expected MyCustomException to be thrown');
         } catch (MyCustomException e) {
-            System.assert(e.getMessage().contains('cannot be empty'), 
+            System.Assert.isTrue(e.getMessage().contains('cannot be empty'), 
                 'Exception message should indicate empty input');
         }
         Test.stopTest();
