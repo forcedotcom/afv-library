@@ -7,7 +7,7 @@ Apex doesn't allow real HTTP callouts in tests. Use `HttpCalloutMock` interface.
 ### Basic Mock Implementation
 
 ```apex
-@isTest
+@IsTest
 public class MockHttpResponse implements HttpCalloutMock {
     
     private Integer statusCode;
@@ -31,8 +31,8 @@ public class MockHttpResponse implements HttpCalloutMock {
 ### Using the Mock
 
 ```apex
-@isTest
-static void shouldProcessApiResponse_WhenCalloutSucceeds() {
+@IsTest
+private static void shouldProcessApiResponse_WhenCalloutSucceeds() {
     // Given
     String mockResponse = '{"status": "success", "data": [{"id": "123"}]}';
     Test.setMock(HttpCalloutMock.class, new MockHttpResponse(200, mockResponse));
@@ -43,12 +43,12 @@ static void shouldProcessApiResponse_WhenCalloutSucceeds() {
     Test.stopTest();
     
     // Then
-    System.assertEquals(1, results.size(), 'Should parse one record from response');
-    System.assertEquals('123', results[0].externalId, 'Should extract correct ID');
+    System.Assert.areEqual(1, results.size(), 'Should parse one record from response');
+    System.Assert.areEqual('123', results[0].externalId, 'Should extract correct ID');
 }
 
-@isTest
-static void shouldHandleError_WhenCalloutFails() {
+@IsTest
+private static void shouldHandleError_WhenCalloutFails() {
     // Given
     String errorResponse = '{"error": "Unauthorized"}';
     Test.setMock(HttpCalloutMock.class, new MockHttpResponse(401, errorResponse));
@@ -59,8 +59,8 @@ static void shouldHandleError_WhenCalloutFails() {
     Test.stopTest();
     
     // Then
-    System.assertEquals(false, result.isSuccess, 'Should indicate failure');
-    System.assert(result.errorMessage.contains('Unauthorized'), 'Should capture error');
+    System.Assert.areEqual(false, result.isSuccess, 'Should indicate failure');
+    System.Assert.isTrue(result.errorMessage.contains('Unauthorized'), 'Should capture error');
 }
 ```
 
@@ -69,7 +69,7 @@ static void shouldHandleError_WhenCalloutFails() {
 For services making multiple callouts:
 
 ```apex
-@isTest
+@IsTest
 public class MultiRequestMock implements HttpCalloutMock {
     
     private Map<String, HttpResponse> endpointResponses;
@@ -116,8 +116,8 @@ Test.setMock(HttpCalloutMock.class, new MultiRequestMock(mocks));
 For complex response bodies, store JSON in Static Resources:
 
 ```apex
-@isTest
-static void shouldParseComplexResponse() {
+@IsTest
+private static void shouldParseComplexResponse() {
     StaticResourceCalloutMock mock = new StaticResourceCalloutMock();
     mock.setStaticResource('TestApiResponse'); // Static Resource name
     mock.setStatusCode(200);
@@ -129,7 +129,7 @@ static void shouldParseComplexResponse() {
     Result r = MyService.callExternalApi();
     Test.stopTest();
     
-    System.assertNotEquals(null, r, 'Should parse response');
+    System.Assert.isNotNull(r, 'Should parse response');
 }
 ```
 
@@ -138,7 +138,7 @@ static void shouldParseComplexResponse() {
 For mocking Apex class dependencies using `System.StubProvider`:
 
 ```apex
-@isTest
+@IsTest
 public class MyServiceMock implements System.StubProvider {
     
     public Object handleMethodCall(
@@ -157,8 +157,8 @@ public class MyServiceMock implements System.StubProvider {
 }
 
 // Usage in test:
-@isTest
-static void shouldUseAccountData() {
+@IsTest
+private static void shouldUseAccountData() {
     MyServiceMock mockProvider = new MyServiceMock();
     IMyService mockService = (IMyService)Test.createStub(IMyService.class, mockProvider);
     
@@ -169,7 +169,7 @@ static void shouldUseAccountData() {
     String result = controller.displayAccountInfo();
     Test.stopTest();
     
-    System.assert(result.contains('Mock Account'), 'Should use mocked data');
+    System.Assert.isTrue(result.contains('Mock Account'), 'Should use mocked data');
 }
 ```
 
@@ -178,8 +178,8 @@ static void shouldUseAccountData() {
 Apex sends real emails by default. Use limits to verify:
 
 ```apex
-@isTest
-static void shouldSendEmail_WhenTriggered() {
+@IsTest
+private static void shouldSendEmail_WhenTriggered() {
     Integer emailsBefore = Limits.getEmailInvocations();
     
     Test.startTest();
@@ -187,7 +187,7 @@ static void shouldSendEmail_WhenTriggered() {
     Test.stopTest();
     
     // Verify email was queued (not actually sent in tests)
-    System.assertEquals(
+    System.Assert.areEqual(
         emailsBefore + 1, 
         Limits.getEmailInvocations(), 
         'One email should be sent'
@@ -198,8 +198,8 @@ static void shouldSendEmail_WhenTriggered() {
 ## Platform Event Testing
 
 ```apex
-@isTest
-static void shouldPublishEvent_WhenRecordCreated() {
+@IsTest
+private static void shouldPublishEvent_WhenRecordCreated() {
     Test.startTest();
     
     // Enable event delivery in test context
@@ -214,6 +214,6 @@ static void shouldPublishEvent_WhenRecordCreated() {
     
     // Query platform event trigger results
     List<EventLog__c> logs = [SELECT Id FROM EventLog__c WHERE AccountId__c = :acc.Id];
-    System.assertEquals(1, logs.size(), 'Event handler should create log record');
+    System.Assert.areEqual(1, logs.size(), 'Event handler should create log record');
 }
 ```

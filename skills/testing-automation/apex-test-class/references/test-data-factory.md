@@ -7,7 +7,7 @@ TestDataFactory is a centralized utility class for creating test records with se
 ## Base Template
 
 ```apex
-@isTest
+@IsTest
 public class TestDataFactory {
     
     // ============ ACCOUNTS ============

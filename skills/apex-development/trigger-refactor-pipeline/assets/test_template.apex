@@ -54,7 +54,7 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Add assertions
         // List<Opportunity> inserted = [SELECT Id, Name FROM Opportunity WHERE Name = 'Valid Opp'];
-        // System.assertEquals(1, inserted.size(), 'Should insert 1 record');
+        // System.Assert.areEqual(1, inserted.size(), 'Should insert 1 record');
     }
     
     /**
@@ -82,13 +82,13 @@ private class [ObjectName]TriggerHandlerTest {
         } catch (DmlException e) {
             exceptionThrown = true;
             // TODO: Assert error message
-            // System.assert(e.getMessage().contains('must have Amount'),
+            // System.Assert.isTrue(e.getMessage().contains('must have Amount'),
             //     'Should throw validation error');
         }
         
         Test.stopTest();
         
-        // System.assert(exceptionThrown, 'Should have thrown an exception');
+        // System.Assert.isTrue(exceptionThrown, 'Should have thrown an exception');
     }
     
     /**
@@ -109,7 +109,7 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Add assertions
         // Opportunity updated = [SELECT Description FROM Opportunity WHERE Id = :testOpps[0].Id];
-        // System.assert(updated.Description.contains('Stage changed'),
+        // System.Assert.isTrue(updated.Description.contains('Stage changed'),
         //     'Description should be updated');
     }
     
@@ -141,7 +141,7 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Query for related records created by handler
         // List<Task> createdTasks = [SELECT Id FROM Task];
-        // System.assertEquals(1, createdTasks.size(), 'Should create 1 task');
+        // System.Assert.areEqual(1, createdTasks.size(), 'Should create 1 task');
     }
     
     /**
@@ -162,8 +162,8 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Query for side effects (e.g., Tasks created)
         // List<Task> tasks = [SELECT Id, Subject FROM Task WHERE WhatId = :testOpps[0].Id];
-        // System.assertEquals(1, tasks.size(), 'Should create 1 task');
-        // System.assertEquals('Send thank-you', tasks[0].Subject);
+        // System.Assert.areEqual(1, tasks.size(), 'Should create 1 task');
+        // System.Assert.areEqual('Send thank-you', tasks[0].Subject);
     }
     
     /**
@@ -191,7 +191,7 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Assert all records inserted successfully
         // List<Opportunity> inserted = [SELECT Id FROM Opportunity WHERE Name LIKE 'Bulk Opp%'];
-        // System.assertEquals(200, inserted.size(), 'Should insert all 200 records');
+        // System.Assert.areEqual(200, inserted.size(), 'Should insert all 200 records');
     }
     
     /**
@@ -231,7 +231,7 @@ private class [ObjectName]TriggerHandlerTest {
         
         // TODO: Assert only qualifying records triggered side effects
         // List<Task> tasks = [SELECT Id FROM Task WHERE WhatId IN :testOpps];
-        // System.assertEquals(25, tasks.size(), 'Should create tasks for 25 qualifying records');
+        // System.Assert.areEqual(25, tasks.size(), 'Should create tasks for 25 qualifying records');
     }
     
     /**
@@ -257,9 +257,9 @@ private class [ObjectName]TriggerHandlerTest {
         Test.stopTest();
         
         // Assert we're under governor limits
-        System.assert(Limits.getDmlStatements() < Limits.getLimitDmlStatements(),
+        System.Assert.isTrue(Limits.getDmlStatements() < Limits.getLimitDmlStatements(),
             'Should not exceed DML statement limit');
-        System.assert(Limits.getQueries() < Limits.getLimitQueries(),
+        System.Assert.isTrue(Limits.getQueries() < Limits.getLimitQueries(),
             'Should not exceed SOQL query limit');
     }
     
@@ -278,7 +278,7 @@ private class [ObjectName]TriggerHandlerTest {
         Test.stopTest();
         
         // If we get here without exception, test passes
-        System.assert(true, 'Handler should handle empty collections gracefully');
+        System.Assert.isTrue(true, 'Handler should handle empty collections gracefully');
     }
     
     /**
@@ -310,11 +310,11 @@ private class [ObjectName]TriggerHandlerTest {
             WHERE WhatId IN :oppIds
         ];
         
-        System.assertEquals(expectedCount, tasks.size(),
+        System.Assert.areEqual(expectedCount, tasks.size(),
             'Should create ' + expectedCount + ' task(s)');
         
         if (expectedCount > 0) {
-            System.assertEquals(subject, tasks[0].Subject,
+            System.Assert.areEqual(subject, tasks[0].Subject,
                 'Task subject should match');
         }
     }
