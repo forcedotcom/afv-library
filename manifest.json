@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-02-17T20:20:12.807Z",
+  "generatedAt": "2026-02-17T21:01:05.349Z",
   "branch": "main",
   "prompts": [
     {
@@ -350,13 +350,38 @@
     {
       "name": "apex-class",
       "path": "skills/apex-development/apex-class/SKILL.md",
+      "folderPath": "skills/apex-development/apex-class",
       "category": "apex-development",
+      "files": [
+        "SKILL.md",
+        "examples/AccountDeduplicationBatch.cls",
+        "examples/AccountSelector.cls",
+        "examples/AccountService.cls",
+        "templates/abstract.cls",
+        "templates/batch.cls",
+        "templates/domain.cls",
+        "templates/dto.cls",
+        "templates/exception.cls",
+        "templates/interface.cls",
+        "templates/queueable.cls",
+        "templates/schedulable.cls",
+        "templates/selector.cls",
+        "templates/service.cls",
+        "templates/utility.cls"
+      ],
       "description": "Generate production-ready Apex classes for Salesforce following enterprise best practices. Covers service classes, selectors, domain classes, batch/queueable/schedulable, DTOs, utilities, interfaces, abstract classes, and custom exceptions. Not for triggers or unit tests."
     },
     {
       "name": "trigger-refactor-pipeline",
       "path": "skills/apex-development/trigger-refactor-pipeline/SKILL.md",
+      "folderPath": "skills/apex-development/trigger-refactor-pipeline",
       "category": "apex-development",
+      "files": [
+        "SKILL.md",
+        "assets/test_template.apex",
+        "references/handler_patterns.md",
+        "scripts/analyze_trigger.py"
+      ],
       "description": "Refactor Salesforce triggers into handler patterns with automated test generation and deployment. Use when modernizing legacy triggers with DML/SOQL in loops or inconsistent patterns.",
       "license": "Apache-2.0",
       "compatibility": "Requires Salesforce CLI, Python 3.9+",
@@ -365,7 +390,14 @@
     {
       "name": "deployment-readiness-check",
       "path": "skills/metadata-deployments/deployment-readiness-check/SKILL.md",
+      "folderPath": "skills/metadata-deployments/deployment-readiness-check",
       "category": "metadata-deployments",
+      "files": [
+        "SKILL.md",
+        "assets/deployment_checklist.md",
+        "references/rollback_procedures.md",
+        "scripts/check_metadata.sh"
+      ],
       "description": "Comprehensive pre-deployment validation checklist for Salesforce releases. Use before deploying to production to catch metadata issues, test coverage gaps, and configuration errors.",
       "license": "Apache-2.0",
       "compatibility": "Requires Salesforce CLI, jq, bash",
@@ -374,7 +406,15 @@
     {
       "name": "apex-test-class",
       "path": "skills/testing-automation/apex-test-class/SKILL.md",
+      "folderPath": "skills/testing-automation/apex-test-class",
       "category": "testing-automation",
+      "files": [
+        "SKILL.md",
+        "references/assertion-patterns.md",
+        "references/async-testing.md",
+        "references/mocking-patterns.md",
+        "references/test-data-factory.md"
+      ],
       "description": "Apex test class generation with TestDataFactory patterns, bulk testing (200+ records), mocking strategies for callouts and async operations, and assertion best practices. Use when creating new Apex test classes, improving test coverage, refactoring existing tests, or implementing proper testing patterns for triggers, services, controllers, batch jobs, queueables, and integrations."
     }
   ]
