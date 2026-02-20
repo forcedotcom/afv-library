@@ -13,4 +13,4 @@ Before generating ANY Salesforce code or metadata, check available Skills and us
 - **Field-level security requests** → Use FLS Matrix Generator skill.
 
 ## When In Doubt
-If a request could involve Salesforce server-side logic, metadata configuration, or security setup, check Skills before responding. Prefer a Skill over general knowledge — Skills contain curated best practices specific to this org's standards.
+If a request could involve Salesforce server-side logic, metadata configuration, or security setup, check Skills before responding. Prefer a Skill over general knowledge — Skills contain curated best practices specific to this org's standards. 
