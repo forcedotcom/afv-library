@@ -1,6 +1,6 @@
 ---
 name: apex-class
-description: Generate production-ready Apex classes for Salesforce following enterprise best practices. Covers service classes, selectors, domain classes, batch/queueable/schedulable, DTOs, utilities, interfaces, abstract classes, and custom exceptions. Not for triggers or unit tests.
+description: Generate production-ready Apex classes for Salesforce following enterprise best practices. Covers service classes, selectors, domain classes, batch/queueable/schedulable, DTOs, utilities, interfaces, abstract classes, and custom exceptions. Not for triggers or unit tests. Use this skill whenever the user asks to create, write, build, generate, or scaffold any Apex class — including when they describe functionality that would require an Apex class without explicitly saying "Apex class." Trigger on phrases like "build a service for," "create a handler," "I need a class that," "write Apex to," "scaffold a batch job," "create a queueable," or any request involving Salesforce server-side logic. Also use when the user asks to refactor, improve, or restructure existing Apex classes. Even if the request is vague like "I need something that processes Opportunities nightly," use this skill if the solution would involve an Apex class.
 ---
 
 # Apex Class

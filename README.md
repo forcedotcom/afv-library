@@ -46,7 +46,7 @@ afv-library/
 
 ### Manual Usage
 
-Browse the repository and copy/paste any prompt or rule directly into Agenforce Vibes.
+Browse the repository and copy/paste any prompt, rule, or skill directly into Agentforce Vibes or your preferred AI tool.
 
 ### Connecting Team or Personal Libraries
 
@@ -59,10 +59,16 @@ You can register additional repos with the extension as long as they mirror this
 
 When you add a new library:
 
-1. Ensure the folder layout matches the table in `## 🗂️ Structure`.
-2. Follow the naming conventions and prompt format outlined below.
-3. Register the repository with `Agentforce Vibes: Add Library` in VS Code.
-4. Refresh the extension to surface the new content instantly.
+1. **Structure your repository** with the same folder layout shown in `## 🗂️ Structure`:
+   - `prompts/` folder with category subfolders containing `.md` files
+   - `rules/` folder with category subfolders containing `.md` files  
+   - `skills/` folder with category subfolders, each containing skill directories with `SKILL.md`
+2. **Follow format requirements**:
+   - Prompts and rules: YAML frontmatter (`name`, `description`, `tags`) + markdown body
+   - Skills: Directory with `SKILL.md` + optional `scripts/`, `references/`, `assets/` subdirectories
+3. **Ensure script executability** for skills: Mark Python/Bash scripts as executable (`chmod +x`)
+4. **Register the repository** with `Agentforce Vibes: Add Library` in VS Code
+5. **Refresh the extension** to index and display the new content
 
 ## 📝 Prompt Format
 
@@ -259,6 +265,21 @@ These starter categories reflect the current repository layout. Contributors are
 | **integration-fabric** | Coordinate external services | API design, middleware coordination, error recovery |
 | **enablement-docs** | Share knowledge and runbooks | Onboarding guides, release notes, changelog automation |
 
+### Skills
+
+Skills mirror the same category structure as prompts and rules. Each skill is a directory containing executable workflows.
+
+| Category | Purpose | Example Skills |
+|----------|---------|----------------|
+| **apex-development** | Automated Apex refactoring and analysis | Trigger refactor pipeline, bulk operation optimizer |
+| **lwc-development** | Lightning Web Component workflows | Component generator, accessibility audit |
+| **flow-development** | Flow automation and optimization | Flow analyzer, subflow extractor |
+| **metadata-deployments** | Release management automation | Deployment readiness check, rollback automation |
+| **testing-automation** | Test generation and execution | Test data factory, coverage analyzer |
+| **investigation-triage** | Debugging and diagnostics | Log parser, governor limit analyzer |
+| **data-operations** | Data pipeline automation | ETL validator, data quality checker |
+| **spec-driven-dev** | Specification-to-code workflows | Requirements parser, test case generator |
+
 ### Rules
 
 | Category | Focus | Example Assets |
@@ -306,19 +327,19 @@ These starter categories reflect the current repository layout. Contributors are
 ### Prompt Engineering
 
 - ✅ **Clarify the objective** – Capture the outcome, stakeholders, and success metrics directly in the frontmatter
-- ✅ **Share context** – Provide links, metadata, or sample records so Agentforce can ground its reasoning
+- ✅ **Share context** – Provide links, metadata, or sample records so the agent can ground its reasoning
 - ✅ **Set guardrails** – Define tone, compliance boundaries, what to avoid, and when to ask for confirmation
 - ✅ **Guide the workflow** – Break the request into staged checkpoints (ideate → propose → confirm → deliver)
-- ✅ **Capture feedback loops** – Invite GPT-5 to flag assumptions, pose questions, and suggest validation steps
+- ✅ **Capture feedback loops** – Invite the agent to flag assumptions, pose questions, and suggest validation steps
 - ✅ **Encourage adaptability** – Note how the prompt or rule can flex across org types, industries, and data volumes
 
 #### Structuring Prompts
 
 - **Prime with examples**: Include concise samples that illustrate the desired format or code pattern
-- **Model the format**: Provide headings and numbered steps so Agentforce mirrors the final artifact
-- **Address ambiguity**: Explicitly call out unknowns and ask Agentforce to gather missing inputs
+- **Model the format**: Provide headings and numbered steps so the agent mirrors the final artifact
+- **Address ambiguity**: Explicitly call out unknowns and ask the agent to gather missing inputs
 - **Control verbosity**: Specify length limits, number of alternatives, or time horizons
-- **Request diagnostics**: Ask Agentforce to share reasoning, risks, and verification plans when appropriate
+- **Request diagnostics**: Ask the agent to share reasoning, risks, and verification plans when appropriate
 
 #### Template: Multi-Step Prompt
 
@@ -412,6 +433,17 @@ To update an existing prompt:
 ### Adding New Categories
 
 To add a new category:
-1. Create a new folder in `prompts/` or `rules/`
-2. Add a `README.md` explaining the category
-3. Add initial prompts/rules
+1. Create new folders in `prompts/`, `rules/`, and `skills/` with matching names
+2. Add a `README.md` in each folder explaining the category's purpose
+3. Add initial prompts, rules, or skills following the format guidelines
+4. Update the main README with the new category in the appropriate tables
+5. Submit a pull request with the rationale for the new category
+
+### Updating Skills
+
+To update an existing skill:
+1. Modify the `SKILL.md` or supporting files (`scripts/`, `references/`, `assets/`)
+2. Update the `metadata.version` field in the frontmatter
+3. Test all scripts and workflows end-to-end
+4. Validate using `skills-ref validate ./skills/<category>/<skill-name>`
+5. Commit with clear message: `Update [skill-name]: [what changed]`
