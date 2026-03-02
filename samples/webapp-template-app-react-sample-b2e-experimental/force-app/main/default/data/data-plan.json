@@ -1,0 +1,38 @@
+[
+  {
+    "sobject": "Maintenance_Worker__c",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Maintenance_Worker__c.json"]
+  },
+  {
+    "sobject": "Property__c",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Property__c.json"]
+  },
+  {
+    "sobject": "Tenant__c",
+    "saveRefs": true,
+    "resolveRefs": true,
+    "files": ["Tenant__c.json"]
+  },
+  {
+    "sobject": "Application__c",
+    "saveRefs": true,
+    "resolveRefs": true,
+    "files": ["Application__c.json"]
+  },
+  {
+    "sobject": "Maintenance_Request__c",
+    "saveRefs": true,
+    "resolveRefs": true,
+    "files": ["Maintenance_Request__c.json"]
+  },
+  {
+    "sobject": "Notification__c",
+    "saveRefs": true,
+    "resolveRefs": true,
+    "files": ["Notification__c.json"]
+  }
+]
