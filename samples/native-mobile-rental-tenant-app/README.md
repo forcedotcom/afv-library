@@ -38,20 +38,25 @@ This sample demonstrates a rental tenant experience—browse properties, submit 
 
 ```
 force-app/main/default/
-├── digitalExperiences/           # Vibes app metadata and MCF screens
+├── digitalExperiences/           # CAMA app metadata and screens
 │   └── experiencecontainer/
-│       └── rental_app/
-│           ├── experience__vibesAppMetadata/
-│           │   └── rental_app_metadata/   # App config: tabs, theme, toolbar
-│           └── experience__vibesScreen/
-│               ├── rental_app_home/       # Home screen (Today, Upcoming, Tenants)
-│               ├── rental_app_tenants/    # Tenants list
-│               └── rental_app_properties/ # Properties list
+│       └── rentalApp/
+│           ├── experience__camaAppMetadata/
+│           │   └── appMetadata/           # App config: tabs, theme, toolbar
+│           ├── experience__camaBuildMetadata/
+│           │   └── buildMetadata/         # Build settings (biometric, notifications)
+│           ├── experience__camaECDefinition/
+│           │   └── rentalApp/             # Experience Cloud definition
+│           ├── experience__camaScreen/
+│           │   ├── homeScreen/            # Home (Today, Upcoming, Tenants)
+│           │   ├── tenantsScreen/         # Tenants list
+│           │   └── propertiesScreen/      # Properties list
+│           └── rentalApp.digitalExperience-meta.xml
 ├── aura/                         # Aura components (if needed)
 └── lwc/                          # Lightning Web Components for MCF
 ```
 
-The `digitalExperiences` metadata defines the **Homestead** app with three tabs (Home, Tenants, Properties), a custom theme, and MCF-based screens using SharedUI components (`ui/card`, `ui/baseRow`, `ui/badge`, etc.).
+The `digitalExperiences` metadata defines the **Homestead** app with three tabs (Home, Tenants, Properties), a custom theme, and MCF-based screens using SharedUI components (`ui/card`, `ui/baseRow`, `ui/badge`, etc.). Metadata is synced from [cama-mcp-server](https://git.soma.salesforce.com/khawkins/cama-mcp-server) (branch `apply_metadata_updates`).
 
 ## Next Steps
 
