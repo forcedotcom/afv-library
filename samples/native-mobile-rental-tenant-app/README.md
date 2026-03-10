@@ -37,16 +37,25 @@ This sample demonstrates a rental tenant experience—browse properties, submit 
 ## Project Structure
 
 ```
-force-app/
-└── main/
-    └── default/
-        ├── aura/          # Aura components (if needed)
-        └── lwc/           # Lightning Web Components for MCF
+force-app/main/default/
+├── digitalExperiences/           # Vibes app metadata and MCF screens
+│   └── experiencecontainer/
+│       └── rental_app/
+│           ├── experience__vibesAppMetadata/
+│           │   └── rental_app_metadata/   # App config: tabs, theme, toolbar
+│           └── experience__vibesScreen/
+│               ├── rental_app_home/       # Home screen (Today, Upcoming, Tenants)
+│               ├── rental_app_tenants/    # Tenants list
+│               └── rental_app_properties/ # Properties list
+├── aura/                         # Aura components (if needed)
+└── lwc/                          # Lightning Web Components for MCF
 ```
+
+The `digitalExperiences` metadata defines the **Homestead** app with three tabs (Home, Tenants, Properties), a custom theme, and MCF-based screens using SharedUI components (`ui/card`, `ui/baseRow`, `ui/badge`, etc.).
 
 ## Next Steps
 
-- Add MCF components for property listings, maintenance requests, and payments
+- Connect screens to real data (Apex, LWC, or external APIs)
 - Configure Mobile Publisher app settings
 - Customize the SharedUI theme for your brand
 - Deploy to App Store / Play Store via Mobile Publisher

@@ -44,7 +44,10 @@ The file `samples/webapp-template-app-react-sample-b2x-experimental/.version` st
 
 ## native-mobile-rental-tenant-app
 
-A sample Custom Agentic Mobile App (CAMA) for rental property tenants. This sample is maintained directly in this repository (not synced from npm). It provides a scaffold for building native mobile apps with Salesforce Mobile Publisher, MCF, and SharedUI.
+A sample Custom Agentic Mobile App (CAMA) for rental property tenants. This sample is maintained directly in this repository (not synced from npm). It includes:
+
+- **digitalExperiences** metadata: Vibes app config (`experience__vibesAppMetadata`) with tabs (Home, Tenants, Properties), theme, and toolbar settings
+- **Vibes screens** (`experience__vibesScreen`): MCF-based Home, Tenants, and Properties screens using SharedUI components
 
 ### How it's used
 
