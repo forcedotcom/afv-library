@@ -20,9 +20,6 @@
 
 ## Checklist
 
-**Naming**
-- [ ] Name uses gerund form — first word ends in `-ing` (e.g. `generating-apex-tests`)
-
 **Description quality**
 - [ ] Describes what the skill does and the expected output
 - [ ] Includes relevant Salesforce domain keywords (Apex, LWC, SOQL, metadata types, etc.)
@@ -45,3 +42,4 @@
 - Directory is one level deep, named in kebab-case, contains `SKILL.md`
 - Frontmatter `name` matches directory name; `description` is present, ≥ 20 words, and includes trigger language
 - Body is non-empty and under 500 lines
+- Name uses gerund form ⚠ (warning — does not block merge)
