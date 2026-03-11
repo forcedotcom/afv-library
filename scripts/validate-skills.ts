@@ -1,6 +1,10 @@
 #!/usr/bin/env tsx
 // Validates the skills/ directory structure and SKILL.md format.
 // Exits with code 1 if any violations are found.
+//
+// Usage:
+//   tsx scripts/validate-skills.ts              # validate all skills
+//   tsx scripts/validate-skills.ts apex-class   # validate specific skill dirs
 
 import fs from "fs"
 import path from "path"
@@ -143,7 +147,10 @@ function parseFrontmatter(content: string): Record<string, string> | null {
   for (const line of match[1].split(/\r?\n/)) {
     const colonIdx = line.indexOf(":")
     if (colonIdx === -1) continue
-    result[line.slice(0, colonIdx).trim()] = line.slice(colonIdx + 1).trim()
+    const key = line.slice(0, colonIdx).trim()
+    // Strip wrapping single or double quotes to match how consumers read values
+    const raw = line.slice(colonIdx + 1).trim()
+    result[key] = raw.replace(/^(['"])([\s\S]*)\1$/, "$2")
   }
   return result
 }
@@ -158,6 +165,10 @@ function getFrontmatterEnd(content: string): number {
 // ---------------------------------------------------------------------------
 
 function validateSkill(dirName: string, dirPath: string): string[] {
+  if (!fs.existsSync(dirPath)) {
+    return [`skills/${dirName}: directory not found`]
+  }
+
   const errors: string[] = []
 
   for (const check of STRUCTURE_CHECKS) {
@@ -182,13 +193,18 @@ function validateSkill(dirName: string, dirPath: string): string[] {
 }
 
 function main(): void {
-  const allErrors: string[] = []
-  let checked = 0
+  // If skill dir names are passed as arguments, validate only those.
+  // Otherwise validate all entries in skills/.
+  const targets = process.argv.slice(2)
+  const entries = targets.length > 0 ? targets : fs.readdirSync(SKILLS_DIR)
 
-  for (const entry of fs.readdirSync(SKILLS_DIR)) {
+  const allErrors: string[] = []
+  let passed = 0
+
+  for (const entry of entries) {
     const entryErrors = validateSkill(entry, path.join(SKILLS_DIR, entry))
     allErrors.push(...entryErrors)
-    if (entryErrors.length === 0) checked++
+    if (entryErrors.length === 0) passed++
   }
 
   if (allErrors.length > 0) {
@@ -199,7 +215,7 @@ function main(): void {
     console.error("")
     process.exit(1)
   } else {
-    console.log(`Skill validation passed: ${checked} skill(s) checked.`)
+    console.log(`Skill validation passed: ${passed} of ${entries.length} skill(s) checked.`)
   }
 }
 

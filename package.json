@@ -6,13 +6,17 @@
   "files": [
     "skills/"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "devDependencies": {
     "tsx": "^4.21.0",
     "@salesforce/webapp-template-app-react-sample-b2e-experimental": "*",
     "@salesforce/webapp-template-app-react-sample-b2x-experimental": "*"
   },
   "scripts": {
-    "validate": "tsx scripts/validate-skills.ts",
+    "validate:skills": "tsx scripts/validate-skills.ts",
     "sync-react-b2e-sample": "node scripts/sync-react-b2e-sample.js",
     "sync-react-b2x-sample": "node scripts/sync-react-b2x-sample.js"
   }

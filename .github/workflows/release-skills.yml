@@ -6,6 +6,10 @@ on:
     paths: ['skills/**']
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -39,7 +43,7 @@ jobs:
 
       - name: Create Github Release
         id: release
-        uses: ncipollo/release-action@v2
+        uses: ncipollo/release-action@v1
         if: ${{ steps.changelog.outputs.skipped == 'false' }}
         with:
           name: "${{ steps.changelog.outputs.version }}"
@@ -53,6 +57,7 @@ jobs:
           skipIfReleaseExists: true
 
       - name: Publish to npm
+        id: publish
         if: ${{ steps.changelog.outputs.skipped == 'false' && steps.release.outputs.id != '' }}
         run: |
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
@@ -61,7 +66,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Notify cline-fork
-        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        if: ${{ steps.changelog.outputs.skipped == 'false' && steps.release.outputs.id != '' && steps.publish.outcome == 'success' }}
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.IDEE_GH_TOKEN }}
