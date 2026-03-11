@@ -1,6 +1,6 @@
 # Commerce Prompts
 
-Prompts for building and managing Salesforce B2B Commerce and B2C Commerce storefronts.
+Prompts for building and managing Salesforce B2B Commerce storefronts.
 
 ## Overview
 
@@ -33,58 +33,65 @@ Commerce consists of two distinct but connected parts:
 
 ### Correct Workflow
 
+> See full interactive flow in `create-retrieve-b2b-storefront.md`
+
 ```bash
 # 1. Create Commerce Store in org (via UI)
-#    Setup → Commerce → Store Administration → Create Store
+#    Setup → Commerce → Stores → Create Store
 
-# 2. Retrieve the auto-generated storefront metadata
-sf project retrieve start --metadata ExperienceBundle:My_Store_Name
+# 2. List available storefronts
+sf org list metadata --metadata-type DigitalExperienceConfig
 
-# 3. Customize with additional LWCs or pages
+# 3. Retrieve the auto-generated storefront metadata
+sf project retrieve start -m DigitalExperienceBundle:site/My_Store_Name
+
+# 4. Customize with additional LWCs or pages
 #    Add custom components, modify layouts in Experience Builder
 
-# 4. Version control and deploy
-git add force-app/main/default/experiences/
+# 5. Version control and deploy
+git add force-app/main/default/digitalExperiences/
 git commit -m "feat: add My Store storefront"
 ```
 
 ### ❌ Incorrect Approach
 
-Don't manually create StorefrontName.digitalExperience-meta.xml or StorefrontName.digitalExperience-meta.xml from scratch. The Commerce setup wizard generates complex configurations that are difficult to replicate manually.
+Don't manually create StorefrontName.digitalExperience-meta.xml from scratch. The Commerce setup wizard generates complex configurations that are difficult to replicate manually.
 
 ## Available Prompts
 
-### Retrieve Commerce Storefront Metadata
-**Use when:** You've created a Commerce Store in your org and want to download the storefront to version control
+### Create and Retrieve B2B Commerce Storefront
+**Use when:** You want to create a Commerce B2B Store and download the storefront to version control
 
 **Prerequisites:**
-- Commerce Store created via Commerce app
-- Experience Cloud site exists and is associated with store
-- Default org authorized with Salesforce CLI
+- Commerce licenses available in org
+- Experience Cloud enabled
+- Salesforce CLI authorized with default org
 
 **What it does:**
-- Guides you through retrieving ExperienceBundle metadata
-- Explains what files you'll get
-- Provides customization next steps
-- Includes deployment instructions for other orgs
+- Guides through interactive 7-step workflow
+- Explains Store vs Storefront concept
+- Lists available Digital Experiences in org
+- Retrieves ExperienceBundle metadata
+- Provides customization and deployment guidance
 
 ## Related Rules
 
 Before using these prompts, review:
 
-**`rules/commerce/commerce-store-requirements.md`**
+**`rules/commerce/commerce-b2b-store-requirements.md`**
 - Explains Store vs Storefront distinction
 - Details the required creation workflow
 - Lists what is/isn't source-controllable
 - Provides deployment checklist
+- Contains agent guidance for interactive flow
 
 ## Common Scenarios
 
 ### Scenario 1: New B2B Store
 ```
-1. Follow commerce-store-requirements.md rule
+1. Follow commerce-b2b-store-requirements.md rule
 2. Create Store in org via Commerce app
-3. Use "Retrieve Commerce Storefront Metadata" prompt
+3. Use "Create and Retrieve B2B Commerce Storefront" prompt
 4. Customize with custom LWCs (hero banner, promotions)
 5. Commit and deploy to other environments
 ```
@@ -129,34 +136,32 @@ After retrieving a Commerce storefront:
 
 ```
 force-app/main/default/
-├── experiences/
-│   └── My_B2B_Store/
-│       ├── StorefrontName.digitalExperience-meta.xml                  # Site config
-│       ├── StorefrontName.digitalExperience-meta.xml      # Bundle metadata
-│       ├── config/                    # Store settings
-│       ├── views/                     # Page definitions
-│       │   ├── home.json
-│       │   ├── category.json          # PLP
-│       │   ├── product.json           # PDP
-│       │   ├── cart.json
-│       │   └── checkout.json
-│       └── routes/                    # URL routing
-└── lwc/
-    ├── b2bHeroBanner/                 # Custom components
-    ├── b2bPromotionCard/
-    └── b2bNavHelper/
+└── digitalExperiences/
+    └── site/
+        └── My_B2B_Store1/
+            ├── My_B2B_Store1.digitalExperience-meta.xml  # Bundle metadata
+            ├── sfdc_cms__view/                           # Pages
+            │   ├── home/
+            │   ├── current_cart/
+            │   ├── current_checkout/
+            │   ├── detail_*/                            # PDP
+            │   └── list_*/                              # PLP
+            ├── sfdc_cms__route/                         # URL routing
+            ├── sfdc_cms__site/                          # Site settings
+            ├── sfdc_cms__theme/                         # Theme config
+            └── [other sfdc_cms__* directories]
 ```
 
 ## Tags
 
 Commerce prompts use these tags:
-- `commerce` - General Commerce functionality
 - `b2b` - B2B Commerce specific
-- `b2c` - B2C Commerce specific
-- `storefront` - Buyer-facing storefront
-- `store` - Backend store configuration
+- `scom` - Salesforce Commerce
+- `scom b2b` - Salesforce Commerce B2B
+- `commerce b2b` - Commerce B2B specific
+- `storefront` - Buyer-facing storefront (metadata)
+- `store` - Backend store configuration (data)
 - `lwr` - Lightning Web Runtime sites
-- `experience-cloud` - Experience Cloud/Digital Experiences
 - `retrieve` - Metadata retrieval operations
 - `metadata` - Source-controllable assets
 
@@ -164,8 +169,8 @@ Commerce prompts use these tags:
 
 **Salesforce Documentation:**
 - [B2B Commerce Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.b2b_commerce_dev_guide.meta/b2b_commerce_dev_guide/)
-- [B2C Commerce on Core Guide](https://help.salesforce.com/s/articleView?id=sf.comm_digital_overview.htm)
 - [Experience Cloud LWR Sites](https://developer.salesforce.com/docs/platform/lwr-sites/guide/overview.html)
+- [DigitalExperienceBundle Metadata](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_digitalexperiencebundle.htm)
 
 **Trailhead:**
 - [B2B Commerce Basics](https://trailhead.salesforce.com/content/learn/modules/b2b-commerce-basics)
@@ -174,12 +179,11 @@ Commerce prompts use these tags:
 **CLI Commands:**
 ```bash
 # List Commerce metadata
-sf org list metadata --metadata-type DigitalExperience
-sf org list metadata --metadata-type ExperienceBundle
+sf org list metadata --metadata-type DigitalExperienceConfig
 
 # Retrieve storefront
-sf project retrieve start --metadata ExperienceBundle:StoreName
+sf project retrieve start -m DigitalExperienceBundle:site/StoreName
 
 # Deploy storefront
-sf project deploy start --source-dir force-app/main/default/experiences/
+sf project deploy start --source-dir force-app/main/default/digitalExperiences/site/StoreName/
 ```

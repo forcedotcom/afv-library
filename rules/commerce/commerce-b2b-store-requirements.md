@@ -1,12 +1,12 @@
 ---
-name: Commerce Store Creation Requirements
-description: Critical workflow for creating B2B/B2C Commerce stores and storefronts - understand the distinction between Commerce Store (runtime data) and Storefront (LWR site).
-tags: commerce, b2b, b2c, store, storefront, lwr, experience-cloud, rules, scom
+name: Commerce B2B Store Creation Requirements
+description: Critical workflow for creating B2B Commerce stores - understand Store vs Storefront distinction
+tags: commerce, b2b, scom, scom b2b, commerce b2b, store, storefront, lwr, experience-cloud, rules
 ---
 
 ## ⚠️ CRITICAL: Commerce Store vs Storefront Distinction
 
-When creating a Commerce B2B or B2C solution, you must understand the distinction between two separate but related components:
+When creating a Commerce B2B solution, you must understand the distinction between two separate but related components:
 
 ### 1. Commerce Store (For Merchandisers)
 **What it is:**
@@ -51,7 +51,7 @@ When creating a Commerce B2B or B2C solution, you must understand the distinctio
 
 ## 🚫 Common Mistake: Creating Storefront Metadata from Scratch
 
-**DO NOT** attempt to manually create Commerce storefront metadata files (StorefrontName.digitalExperience-meta.xml, StorefrontName.digitalExperience-meta.xml) from scratch in your repository.
+**DO NOT** attempt to manually create Commerce storefront metadata files (StorefrontName.digitalExperience-meta.xml) from scratch in your repository.
 
 **Why this fails:**
 - Commerce storefronts have complex dependencies on the Commerce Store data
@@ -61,7 +61,28 @@ When creating a Commerce B2B or B2C solution, you must understand the distinctio
 
 ---
 
-## ✅ Required Workflow for Creating Commerce B2B/B2C Sites
+## Agent Guidance: Interactive Flow Requirements
+
+**When user asks to create Commerce storefront, agent MUST:**
+
+1. Follow the interactive flow from `prompts/commerce/create-retrieve-b2b-storefront.md`
+2. Explain the Store vs Storefront concept first
+3. Guide user to create B2B Store in org with clear steps
+4. Get explicit confirmation that Store was created
+5. Run `sf org list metadata --metadata-type DigitalExperienceConfig` to list available sites
+6. Let user select from the list (don't assume store name)
+7. Retrieve with: `sf project retrieve start -m DigitalExperienceBundle:site/<store-name>`
+8. Provide next steps with documentation links
+
+**What agents should NEVER do:**
+- Create .digitalExperience-meta.xml files from scratch
+- Skip the Store creation step
+- Assume store name without listing/confirming
+- Deploy without verifying Store exists in target org
+
+---
+
+## ✅ Required Workflow for Creating Commerce B2B Sites
 
 ### Step 1: Create Commerce Store in the Org (MUST BE DONE FIRST)
 
@@ -71,14 +92,12 @@ When creating a Commerce B2B or B2C solution, you must understand the distinctio
 
 2. **Create New Store (via UI):**
    - Click "Create Store" or "Setup New Store"
-   - Choose store type:
-     - **B2B Store** - For business buyers with account hierarchies, buyer groups, negotiated pricing
-     - **B2C Store** - For individual consumers with guest checkout
+   - Choose store type: **B2B Store** - For business buyers with account hierarchies, buyer groups, negotiated pricing
    - Follow the store setup wizard
 
 3. **Store Setup Wizard will create:**
    - WebStore record with unique name
-   - Default buyer group (B2B: associated with Accounts; B2C: AllBuyers)
+   - Default buyer group (associated with Accounts)
    - Default entitlement policies (who can see which products)
    - Default price book association
    - Default checkout flow configuration
@@ -89,8 +108,7 @@ When creating a Commerce B2B or B2C solution, you must understand the distinctio
    - Tax provider (Avalara, Vertex, manual)
    - Shipping methods
    - Search settings
-   - Guest checkout (B2C)
-   - Account-based features (B2B)
+   - Account-based features
 
 5. **Verify Store Creation:**
    - Setup → All Sites → Find your new Experience Cloud site
@@ -103,13 +121,11 @@ After the Commerce Store is created in the org, retrieve the generated Experienc
 
 ```bash
 # List all Digital Experiences in your org
-sf project retrieve start --metadata DigitalExperience
-
-# Or retrieve specific Experience by name
-sf project retrieve start --metadata DigitalExperience:My_B2B_Store
+sf org list metadata --metadata-type DigitalExperienceConfig
 
 # Retrieve the complete ExperienceBundle
-sf project retrieve start --metadata ExperienceBundle:My_B2B_Store
+# Note: Salesforce appends a number suffix (e.g., "My B2B Store" becomes "My_B2B_Store1")
+sf project retrieve start -m DigitalExperienceBundle:site/My_B2B_Store1
 ```
 
 **What you'll get:**
@@ -217,7 +233,7 @@ sf project deploy start --source-dir force-app/main/default/digitalExperiences/s
 
 When deploying your storefront to a new org:
 
-- [ ] Target org has Commerce licenses (B2B Commerce or B2C Commerce)
+- [ ] Target org has Commerce licenses (B2B Commerce)
 - [ ] Experience Cloud is enabled and domain configured
 - [ ] Commerce Store has been created in target org (via Commerce app UI)
 - [ ] WebStore name matches the Experience name in your metadata
@@ -239,12 +255,7 @@ When deploying your storefront to a new org:
 - Configure negotiated pricing and entitlement policies
 - Set up account hierarchies
 
-### For B2C Commerce:
-- Configure guest checkout settings
-- Set up customer registration flows
-- Configure AllBuyers entitlement policy
-
-### For Both:
+### General Setup:
 - Seed product catalog (Products, ProductCategory, ProductCatalog)
 - Create price books and price book entries
 - Configure inventory (ProductItem, LocationInventory)
@@ -261,7 +272,7 @@ When deploying your storefront to a new org:
 2. ✅ Instruct them to create the Commerce Store in their org first
 3. ✅ Provide the Salesforce CLI retrieve commands
 4. ✅ Optionally: Create custom LWCs for extending the retrieved storefront
-5. ❌ DO NOT create StorefrontName.digitalExperience-meta.xml or StorefrontName.digitalExperience-meta.xml from scratch
+5. ❌ DO NOT create StorefrontName.digitalExperience-meta.xml from scratch
 
 **Acceptable to create from scratch:**
 - Custom LWCs for storefront extensions (hero banners, promotions, custom product cards)
@@ -281,7 +292,6 @@ When deploying your storefront to a new org:
 - Setup → Commerce → Stores
 - Commerce app from App Launcher → Create / Select App
 - Help Article: "Set Up a B2B Commerce Store"
-- Help Article: "Set Up a B2C Commerce Store"
 
 **Storefront Customization:**
 - Experience Builder → Open your store site
@@ -291,12 +301,16 @@ When deploying your storefront to a new org:
 **Metadata Retrieval:**
 ```bash
 # List all retrievable metadata types
-sf org list metadata --metadata-type DigitalExperience
-sf org list metadata --metadata-type ExperienceBundle
+sf org list metadata --metadata-type DigitalExperienceConfig
 
 # Retrieve specific experience
-sf project retrieve start --metadata ExperienceBundle:YourStoreName
+sf project retrieve start -m DigitalExperienceBundle:site/YourStoreName
 ```
+
+**Documentation:**
+- [DigitalExperienceBundle Metadata](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_digitalexperiencebundle.htm)
+- [DigitalExperienceBundle Site](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_digitalexperiencebundle_site.htm)
+- [B2B Commerce Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.b2b_commerce_dev_guide.meta/b2b_commerce_dev_guide/)
 
 ---
 

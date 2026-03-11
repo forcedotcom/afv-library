@@ -1,6 +1,6 @@
 # Commerce Rules
 
-Rules and guardrails for developing B2B Commerce and B2C Commerce solutions on Salesforce.
+Rules and guardrails for developing B2B Commerce solutions on Salesforce.
 
 ## Overview
 
@@ -21,10 +21,12 @@ The most important concept in Commerce development is understanding the distinct
 | **Deployment** | Data APIs or manual recreation | Salesforce CLI metadata deploy |
 | **Examples** | Pricing policies, payment settings | Product pages, cart, checkout UI |
 
+> **See:** `commerce-b2b-store-requirements.md` for comprehensive details
+
 ## Available Rules
 
-### Commerce Store Creation Requirements
-**`commerce-store-requirements.md`**
+### Commerce B2B Store Creation Requirements
+**`commerce-b2b-store-requirements.md`**
 
 **Apply when:** Developer is creating a new Commerce storefront
 
@@ -41,17 +43,7 @@ The most important concept in Commerce development is understanding the distinct
 - Confusion about what can/cannot be source-controlled
 
 **Required Workflow:**
-```
-1. Create Commerce Store (org UI)
-   ↓
-2. Store wizard creates Digital Experience
-   ↓
-3. Retrieve Experience metadata to repo
-   ↓
-4. Customize and commit
-   ↓
-5. Deploy to other orgs (after creating Store in target)
-```
+> See full workflow in `commerce-b2b-store-requirements.md`
 
 ## When to Apply These Rules
 
@@ -59,17 +51,17 @@ The most important concept in Commerce development is understanding the distinct
 
 **User says:**
 - "Create a B2B Commerce store"
-- "Build a B2C storefront"
+- "Build a B2B storefront"
 - "Set up Commerce on Core"
 - "Create an LWR Commerce site"
 - "Build a digital storefront"
 
 **Agent should:**
-1. ✅ Cite `rules/commerce/commerce-store-requirements.md`
-2. ✅ Explain Store vs Storefront distinction
-3. ✅ Guide user to create Store in org first
-4. ✅ Provide CLI commands to retrieve metadata
-5. ❌ **DO NOT** create StorefrontName.digitalExperience-meta.xml or StorefrontName.digitalExperience-meta.xml from scratch
+1. ✅ Follow interactive flow from `prompts/commerce/create-retrieve-b2b-storefront.md`
+2. ✅ Explain Store vs Storefront (link to rule file)
+3. ✅ Use `sf org list metadata --metadata-type DigitalExperienceConfig` to list sites
+4. ✅ Get user confirmation at each step
+5. ❌ **DO NOT** create storefront files from scratch
 
 ### Trigger: User asks to deploy storefront
 
@@ -105,7 +97,7 @@ The most important concept in Commerce development is understanding the distinct
 ### ❌ Deploying Without Store
 ```bash
 # WRONG - Will fail if Store doesn't exist in target
-sf project deploy start --source-dir force-app/main/default/experiences/My_Store/
+sf project deploy start --source-dir force-app/main/default/digitalExperiences/My_Store/
 # Error: WebStore not found
 ```
 
@@ -113,7 +105,7 @@ sf project deploy start --source-dir force-app/main/default/experiences/My_Store
 ```bash
 # 1. First create Store in target org (UI or API)
 # 2. THEN deploy
-sf project deploy start --source-dir force-app/main/default/experiences/My_Store/
+sf project deploy start --source-dir force-app/main/default/digitalExperiences/My_Store/
 ```
 
 ### ❌ Trying to Version Control Store Data
@@ -127,7 +119,8 @@ sf project retrieve start --metadata WebStore
 ```bash
 # Use Data Loader, APIs, or manual recreation for Store data
 # Only retrieve Experience metadata
-sf project retrieve start --metadata ExperienceBundle:My_Store
+sf org list metadata --metadata-type DigitalExperienceConfig
+sf project retrieve start -m DigitalExperienceBundle:site/My_Store
 ```
 
 ## Enforcement Guidelines
@@ -137,11 +130,11 @@ sf project retrieve start --metadata ExperienceBundle:My_Store
 When processing Commerce-related requests:
 
 1. **Detection Phase**
-   - Parse user intent for Commerce keywords (store, storefront, B2B, B2C, Commerce)
+   - Parse user intent for Commerce keywords (store, storefront, B2B, Commerce)
    - Identify if request is for creation vs modification vs deployment
 
 2. **Rule Application**
-   - Load `commerce-store-requirements.md` into context
+   - Load `commerce-b2b-store-requirements.md` into context
    - Cite relevant sections in response
    - Enforce the correct workflow order
 
@@ -160,7 +153,7 @@ When processing Commerce-related requests:
 
 **Before starting any Commerce work:**
 
-- [ ] Read `rules/commerce/commerce-store-requirements.md` completely
+- [ ] Read `rules/commerce/commerce-b2b-store-requirements.md` completely
 - [ ] Understand Store (data) vs Storefront (metadata)
 - [ ] Have org access with Commerce licenses
 - [ ] Have Commerce Admin permissions
@@ -231,7 +224,7 @@ When building complete Commerce solutions:
 
 Rules work with these prompts:
 
-- **`prompts/commerce/retrieve-commerce-storefront.md`** - Step-by-step retrieval workflow
+- **`prompts/commerce/create-retrieve-b2b-storefront.md`** - Interactive 7-step retrieval workflow
 - (Future) Create custom Commerce LWC components
 - (Future) Commerce data seeding and migration
 - (Future) Multi-store management
