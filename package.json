@@ -4,7 +4,7 @@
   "description": "Salesforce skills for Agentforce Vibes",
   "license": "CC-BY-NC-4.0",
   "files": [
-    "skills/*/"
+    "skills/"
   ],
   "devDependencies": {
     "tsx": "^4.21.0",
