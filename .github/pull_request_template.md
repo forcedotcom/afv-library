@@ -1,4 +1,4 @@
-**References:** [Contributing guide](../CONTRIBUTING.md) · [Repo structure](../README.md)
+**References:** [Contributing guide](../CONTRIBUTING.md) · [Skill authoring guide](../README.md)
 
 ## What changed
 
@@ -14,11 +14,9 @@
 
 ---
 
-# Skills
+## Skills
 
-**References:** [Skill authoring guide](../README.md) · [Automated checks](../scripts/validate-skills.ts)
-
-## Checklist
+### Manual checklist
 
 **Description quality**
 - [ ] Describes what the skill does and the expected output
@@ -35,9 +33,9 @@
 - [ ] Core instructions are concise — supporting material lives in `templates/`, `examples/`, or `docs/` subdirectories
 - [ ] No unnecessary background explanation in the body
 
----
+### Automated checks
 
-**Automated checks** — enforced by CI ([`npm run validate:skills`](../scripts/validate-skills.ts)):
+Enforced by CI ([`npm run validate:skills`](../scripts/validate-skills.ts)):
 
 - Directory is one level deep, named in kebab-case, contains `SKILL.md`
 - Frontmatter `name` matches directory name; `description` is present, ≥ 20 words, and includes trigger language
