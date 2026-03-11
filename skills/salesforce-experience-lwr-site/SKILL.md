@@ -101,7 +101,7 @@ See [References](#references) for detailed capabilities.
 
 **Steps**:
 
-- [ ] **ALWAYS** read [bootstrap-template-byo-lwr.md](docs/bootstrap-template-byo-lwr.md) within the skill directory
+- [ ] **ALWAYS** read [bootstrap-template-byo-lwr.md](docs/bootstrap-template-byo-lwr.md) within the skill directory. Do not proceed to the next step without loading the file.
 - [ ] follow the bootstrap doc strictly on site creation
 
 ### CUD Operations on DigitalExperience Contents
