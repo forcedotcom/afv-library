@@ -13,10 +13,7 @@ import { parseArgs } from "util"
 
 const SKILLS_DIR = path.join(__dirname, "..", "skills")
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
+/** Parsed context for a single skill directory, built before content checks run. */
 interface SkillContext {
   dirName: string
   dirPath: string
@@ -25,27 +22,29 @@ interface SkillContext {
   body: string
 }
 
+/** Return value of every check function. */
 interface CheckResult {
   errors: string[]
   /** When true and errors is non-empty, skip remaining checks for this entry. */
   fatal?: boolean
 }
 
+/** Runs before SKILL.md is read — validates directory layout. */
 interface StructureCheck {
   description: string
   run(dirName: string, dirPath: string): CheckResult
 }
 
+/** Runs after SKILL.md is read — validates file content. */
 interface ContentCheck {
   description: string
   run(ctx: SkillContext): CheckResult
 }
 
-// ---------------------------------------------------------------------------
-// Structure checks — run on every entry in skills/ before reading SKILL.md.
-// Fatal errors abort content checks for that entry.
-// ---------------------------------------------------------------------------
-
+/**
+ * Structure checks run on every entry in `skills/` before SKILL.md is read.
+ * A fatal error aborts content checks for that entry.
+ */
 const STRUCTURE_CHECKS: StructureCheck[] = [
   {
     description: "Entry must be a directory (no loose files in skills/)",
@@ -82,11 +81,10 @@ const STRUCTURE_CHECKS: StructureCheck[] = [
   },
 ]
 
-// ---------------------------------------------------------------------------
-// Content checks — run only on entries that have SKILL.md.
-// Fatal errors abort remaining content checks for that entry.
-// ---------------------------------------------------------------------------
-
+/**
+ * Content checks run only on entries that have a valid SKILL.md.
+ * A fatal error aborts remaining content checks for that entry.
+ */
 const CONTENT_CHECKS: ContentCheck[] = [
   {
     description: "SKILL.md must have a valid YAML frontmatter block (--- ... ---)",
@@ -138,10 +136,10 @@ const CONTENT_CHECKS: ContentCheck[] = [
   },
 ]
 
-// ---------------------------------------------------------------------------
-// Changed-skills detection
-// ---------------------------------------------------------------------------
-
+/**
+ * Returns the deduplicated list of top-level skill directory names that have
+ * changed relative to `base` (e.g. `origin/main`).
+ */
 function getChangedSkillDirs(base: string): string[] {
   const output = execSync(`git diff --name-only ${base}...HEAD`, { encoding: "utf8" })
   return [
@@ -155,10 +153,11 @@ function getChangedSkillDirs(base: string): string[] {
   ]
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
+/**
+ * Parses the YAML frontmatter block (`--- ... ---`) from a markdown file.
+ * Returns a flat key/value map, or `null` if no valid block is found.
+ * Wrapping quotes on values are stripped.
+ */
 function parseFrontmatter(content: string): Record<string, string> | null {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
   if (!match) return null
@@ -174,15 +173,16 @@ function parseFrontmatter(content: string): Record<string, string> | null {
   return result
 }
 
+/** Returns the character offset immediately after the closing `---` of the frontmatter block, or -1 if absent. */
 function getFrontmatterEnd(content: string): number {
   const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/)
   return match ? match[0].length : -1
 }
 
-// ---------------------------------------------------------------------------
-// Main validation loop
-// ---------------------------------------------------------------------------
-
+/**
+ * Runs all structure and content checks for a single skill directory.
+ * Returns an array of error messages (empty = pass).
+ */
 function validateSkill(dirName: string, dirPath: string): string[] {
   if (!fs.existsSync(dirPath)) {
     return [`skills/${dirName}: directory not found`]
@@ -211,6 +211,7 @@ function validateSkill(dirName: string, dirPath: string): string[] {
   return errors
 }
 
+/** CLI entry point. Parses flags, resolves the list of skills to check, and reports results. */
 function main(): void {
   const { values } = parseArgs({
     args: process.argv.slice(2),
