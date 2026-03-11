@@ -1,3 +1,5 @@
+**References:** [Contributing guide](../CONTRIBUTING.md) · [Repo structure](../README.md)
+
 ## What changed
 
 <!-- Briefly describe what skill(s) were added, updated, or removed. -->
@@ -13,6 +15,8 @@
 ---
 
 # Skills
+
+**References:** [Skill authoring guide](../README.md) · [Automated checks](../scripts/validate-skills.ts)
 
 ## Checklist
 
@@ -36,7 +40,7 @@
 
 ---
 
-**Automated checks** — enforced by CI (`npm run validate:skills`):
+**Automated checks** — enforced by CI ([`npm run validate:skills`](../scripts/validate-skills.ts)):
 
 - Directory is one level deep, named in kebab-case, contains `SKILL.md`
 - Frontmatter `name` matches directory name; `description` is present, ≥ 20 words, and includes trigger language
