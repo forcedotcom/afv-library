@@ -1,7 +1,6 @@
 ---
 name: generate-permission-set
 description: Generates correct, deployable Salesforce permission set metadata (PermissionSet XML) with object, field, user, and app permissions. Use when creating or editing permission set metadata, PermissionSet XML, object permissions, field-level security (FLS), tab visibility, or deploying permission sets.
-license: Apache-2.0
 compatibility: Salesforce Metadata API v60.0+
 metadata:
   author: afv-library
