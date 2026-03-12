@@ -2,16 +2,9 @@ name: Validate Skills
 
 on:
   pull_request:
-    paths:
-      - 'skills/**'
-      - 'scripts/validate-skills.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.nvmrc'
-      - '.github/workflows/validate-skills.yml'
 
 jobs:
-  validate:
+  validate-skills:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
