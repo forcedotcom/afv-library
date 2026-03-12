@@ -2,55 +2,6 @@
 
 **Use when** adding/configuring components to be used in Experience site.
 
-## Table of Contents
-
-- Component Discovery Actions
-- Component Insertion
-
-## Component Discovery Actions
-
-Use these MCP actions in sequence when adding/configuring components.
-
-### 1. discoverUiComponents
-
-Find available OOTB components for page context.
-
-**viewType Values**:
-
-- Standard: `home`, `login-main`, `self-register`, `forgot-password`, `check-password`, `error`, `service-not-available`, `too-many-requests`
-- Record list: `list-{keyPrefix}` (standard) or `list-{ObjectApiName}` (custom)
-  - Example: `list-001` (Account), `list-Movie__c`
-- Record detail: `detail-{keyPrefix}` (standard) or `detail-{ObjectApiName}` (custom)
-  - Example: `detail-001` (Account), `detail-Movie__c`
-- Managed content: `managed-content-{contentType}`
-  - Example: `managed-content-sfdc_cms__news`
-
-**Returns**: `componentDefinitions` array with `definition` (FQN), `label`, `description`.
-
-### 2. getUiComponentSchemas
-
-Get JSON schemas for component attributes.
-
-**Returns**: `componentSchemas` with required/optional properties and data source references.
-
-### 3. getDataSourceValues
-
-Get available values for attribute data sources (picklists, fields, etc.).
-
-**Returns**: `dataSourceValues` map.
-
-### Workflow
-
-1. Call `discoverUiComponents` to find OOTB components
-2. Select component(s) matching requirements
-3. Call `getUiComponentSchemas` for attribute schemas
-4. Call `getDataSourceValues` for data source attributes
-5. Configure components with valid values
-
-**Prioritize OOTB components** - only create custom if no OOTB option fits.
-
----
-
 ## Component Insertion
 
 Insert custom Lightning Web Components (LWC) into views.

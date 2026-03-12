@@ -83,7 +83,7 @@ Before doing anything else, note down the following properties from the local pr
 Reference docs within the skill directory. Note that these are **local** and not MCP.
 
 - [bootstrap-template-byo-lwr.md](docs/bootstrap-template-byo-lwr.md) - Site creation, template defaults
-- [configure-content-route.md](docs/configure-content-route.md) - Route creation/editing (custom/object pages)
+- [configure-content-route.md](docs/configure-content-route.md) - Route creation (custom/object pages)
 - [configure-content-view.md](docs/configure-content-view.md) - View creation/editing (custom/object pages)
 - [configure-content-themeLayout.md](docs/configure-content-themeLayout.md) - Theme layout creation + theme sync
 - [configure-content-brandingSet.md](docs/configure-content-brandingSet.md) - Branding with color patterns/WCAG

@@ -1,6 +1,6 @@
 # Content Type: sfdc_cms__view
 
-**Use when** user explicitly requests creating a new page.
+**Use when** user explicitly requests creating a new page or editing an existing page.
 
 ## Table of Contents
 
