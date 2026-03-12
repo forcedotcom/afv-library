@@ -126,4 +126,4 @@ When generating a new theme layout, ensure:
 - [ ] `urlName` uses lowercase with hyphens (V)
 - [ ] `title` is human-readable (V)
 - [ ] `sfdc_cms__theme/[THEME_API_NAME]/content.json` updated by appending a new `contentBody.layouts` mapping (VI)
-- [ ] **CRITICAL**: Complete all the UUID generation steps per GR.4
+- [ ] **CRITICAL**: Complete all the UUID generation steps. See `docs/handle-component-and-region-ids.md`

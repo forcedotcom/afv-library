@@ -126,7 +126,7 @@ The route's `activeViewId` must match the view's directory name exactly.
 - [ ] Directory and `_meta.json` follow structure (see Directory Structure, _meta.json Structure)
 - [ ] `content.json` has all required fields (A.1)
 - [ ] Component structure correct with both regions (A.1)
-- [ ] **CRITICAL:** Complete all the UUID generation steps per GR.4
+- [ ] **CRITICAL:** Complete all the UUID generation steps. see `docs/handle-component-and-region-ids.md`
 - [ ] `viewType` matches route's `routeType` (CRITICAL)
 
 ### PART B: OBJECT PAGES
@@ -214,7 +214,7 @@ The route's `activeViewId` must match the view's directory name exactly. The `vi
 - [ ] `viewType` matches route's `routeType` for all three views (CRITICAL)
 - [ ] Component structure correct with both regions (see A.1)
 - [ ] SEO assistant configured correctly per view type (B.4)
-- [ ] **CRITICAL:** Complete both UUID generation steps per GR.4
+- [ ] **CRITICAL:** Complete both UUID generation steps. see `docs/handle-component-and-region-ids.md`
 
 ## Purpose B: Editing Existing Views
 
