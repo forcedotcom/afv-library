@@ -69,4 +69,4 @@ Validation Rules are declarative metadata components used to enforce data qualit
     - "Update the formula to also [Action]": Keep the existing logic and append the new requirement (usually by wrapping the logic in an AND() or OR() function).
 
 3. File Format Requirement
-    - Validation rule files must always use the `.validationRule-meta.xml` extension.
+    - Validation rule files MUST always use the `.validationRule-meta.xml` extension.
