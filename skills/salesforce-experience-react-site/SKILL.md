@@ -4,13 +4,11 @@ description: Use this skill when users need to create or configure a Salesforce 
 ---
 
 # Digital Experience Site for React Web Applications
-
 Create and configure Digital Experience Sites that host React web applications on Salesforce. This skill generates the minimum necessary site infrastructure â€” Network, CustomSite, DigitalExperienceConfig, DigitalExperienceBundle, and the `sfdc_cms__site` content type â€” so a React app can be served from Salesforce.
 
 React sites differ from standard LWR sites: they don't need routes, views, theme layouts, or branding sets. The site acts as a thin container (`appContainer: true`) that delegates rendering to the React application referenced by `appSpace`.
 
 ## Required Properties
-
 Resolve all five properties before generating any metadata. Each has a fallback chain â€” work through each option in order until a value is found.
 
 | Property | Format | How to Resolve |
@@ -24,13 +22,10 @@ Resolve all five properties before generating any metadata. Each has a fallback 
 The `appNamespace` and `appDevName` properties connect the site to the correct React application. Getting these wrong means the site deploys but shows a blank page, so take care to resolve them from real project data.
 
 ## Generation Workflow
-
 ### Step 1: Resolve All Required Properties
-
 Determine values for all five properties before constructing anything. Use the resolution strategies in the table above, falling through each option until a value is found.
 
 ### Step 2: Create the Project Structure
-
 Call the `get_metadata_api_context` MCP tool to retrieve schemas for `Network`, `CustomSite`, `DigitalExperienceConfig`, and `DigitalExperienceBundle` metadata types. These schemas define the valid XML structure for each file.
 
 Create any files and directories that don't already exist, using these paths:
@@ -46,11 +41,9 @@ Create any files and directories that don't already exist, using these paths:
 The DigitalExperience directory contains only `_meta.json` and `content.json`. Do not create any directories other than `sfdc_cms__site` inside the bundle.
 
 ### Step 3: Populate All Metadata Fields
-
 Use the templates below. Values in `{braces}` are resolved property references â€” substitute them with the actual values from Step 1.
 
 #### Network
-
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Network xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -114,7 +107,6 @@ Use the templates below. Values in `{braces}` are resolved property references â
 ```
 
 #### CustomSite
-
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomSite xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -147,7 +139,6 @@ Use the templates below. Values in `{braces}` are resolved property references â
 ```
 
 #### DigitalExperienceConfig
-
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <DigitalExperienceConfig xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -160,7 +151,6 @@ Use the templates below. Values in `{braces}` are resolved property references â
 ```
 
 #### DigitalExperienceBundle
-
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <DigitalExperienceBundle xmlns="http://soap.sforce.com/2006/04/metadata">
@@ -169,7 +159,6 @@ Use the templates below. Values in `{braces}` are resolved property references â
 ```
 
 #### DigitalExperience â€” `_meta.json`
-
 ```json
 {
   "apiName": "{siteName}1",
@@ -179,7 +168,6 @@ Use the templates below. Values in `{braces}` are resolved property references â
 ```
 
 #### DigitalExperience â€” `content.json`
-
 ```json
 {
   "type": "sfdc_cms__site",
@@ -196,11 +184,9 @@ Use the templates below. Values in `{braces}` are resolved property references â
 The `appContainer: true` and `appSpace` fields are what make this a React site rather than a standard LWR site. The `appSpace` value follows the format `{namespace}__{developerName}` and must match a deployed `WebApplication` metadata record.
 
 ### Step 4: Resolve Additional Configurations
-
 Address any extra configurations the user requests. Use the schemas returned by `get_metadata_api_context` in Step 2 to understand each field's purpose, and update only the minimum necessary fields.
 
 ## Verification Checklist
-
 Before deploying, confirm:
 
 - [ ] All five required properties are resolved
@@ -208,7 +194,6 @@ Before deploying, confirm:
 - [ ] All metadata fields are populated per the templates and user requests
 - [ ] `appSpace` in `content.json` matches an existing `WebApplication` metadata record
 - [ ] Deployment validates successfully:
-
 ```bash
 sf project deploy validate --metadata Network CustomSite DigitalExperienceConfig DigitalExperienceBundle DigitalExperience --target-org ${usernameOrAlias}
 ```
