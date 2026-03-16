@@ -2,7 +2,8 @@
 name: commerce-b2b-open-code-integration
 description: Integrate Salesforce B2B Commerce open source components from GitHub into B2B Commerce stores. Use when users mention "integrate open code components", "open source B2B commerce", "replace OOTB components", "forcedotcom/b2b-commerce-open-source-components", or want to add/replace commerce components with open source versions. Handles component integration, dependency resolution, and OOTB component replacement.
 license: Apache-2.0
-compatibility: Requires Salesforce CLI (sf), Git, B2B Commerce license, and Experience Builder access
+compatibility: Requires Salesforce CLI (sf), Git, B2B Commerce license, Experience Builder access, and internet connectivity
+allowed-tools: Bash Read Write
 metadata:
   author: afv-library
   version: "1.0"
@@ -16,8 +17,6 @@ Use this skill when you need to:
 - Replace specific OOTB components with open code versions
 - Add open source components to a new or existing B2B Commerce store
 - Copy components with automatic dependency resolution
-
-## Specification
 
 ## Overview
 
@@ -70,6 +69,13 @@ Use the `fullName` value from Step 3.
 - If yes: Run `sf project retrieve start -m DigitalExperienceBundle:site/<selected-store-name>`
 - If no: Proceed with existing local metadata
 
+**Step 7: Safety Check**
+
+Before proceeding with component replacement:
+- Ensure all changes are committed to git: `git status`
+- If uncommitted changes exist, commit or stash them
+- This allows rollback with `git checkout -- <file>` if needed
+
 ---
 
 ## Core Tasks
@@ -80,13 +86,15 @@ Use the `fullName` value from Step 3.
 
 **Steps:**
 
-1. Check if repo already cloned in tmp folder: `/tmp/b2b-commerce-open-source-components`
+1. Check if repo already cloned in tmp folder: `.tmp/b2b-commerce-open-source-components`
 2. If exists:
    - Warn user: "Repository already cloned. Cloning again will overwrite any local changes. Continue? (y/n)"
    - If no: Skip to next task
    - If yes: Remove existing and proceed
-3. Clone: `git clone https://github.com/forcedotcom/b2b-commerce-open-source-components /tmp/b2b-commerce-open-source-components`
+3. Clone: `git clone https://github.com/forcedotcom/b2b-commerce-open-source-components .tmp/b2b-commerce-open-source-components`
 4. Verify clone successful
+5. Verify repo structure: Check for `force-app/main/default/sfdc_cms__lwc` and `sfdc_cms__label` directories
+6. If structure is incorrect: Warn user that repository structure has changed and may require manual intervention
 
 ### Task 2: Copy All Open Code Resources
 
@@ -122,7 +130,7 @@ Use the `fullName` value from Step 3.
 
 **1. Check if Component Exists**
 
-Verify source exists: `/tmp/b2b-commerce-open-source-components/force-app/main/default/sfdc_cms__lwc/<component-name>`
+Verify source exists: `.tmp/b2b-commerce-open-source-components/force-app/main/default/sfdc_cms__lwc/<component-name>`
 
 If not found: Error and list available components
 
@@ -262,7 +270,7 @@ Extract namespace, category, and component name
 
 **3. Verify Open Code Component Exists**
 
-- Check in cloned repo: `/tmp/b2b-commerce-open-source-components/force-app/main/default/sfdc_cms__lwc/`
+- Check in cloned repo: `.tmp/b2b-commerce-open-source-components/force-app/main/default/sfdc_cms__lwc/`
 - Look for camelCase directory name (e.g., "cartBadge" for "site:cartBadge")
 
 **4. If Not Found**
@@ -290,26 +298,15 @@ Extract namespace, category, and component name
 
 **User Intent:** "Integrate open code components to my store"
 
-**Workflow:**
+**Task Sequence:** Prerequisites Flow → Task 1 → Task 2
 
-1. Execute Prerequisites Flow
-2. Execute Task 1: Clone Open Source Repository
-3. Execute Task 2: Copy All Open Code Resources
-4. Provide next steps:
-
+**Output:**
 ```
 ✅ Integration Complete!
 
 Next Steps:
-1. Deploy components to your org:
-   sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
-
-2. Open Experience Builder:
-   - Navigate to your store in Experience Builder
-   - The new components will appear in the component palette
-   - Drag and drop them into your pages
-   - Configure and test each component
-
+1. Deploy: sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
+2. Open Experience Builder and use new components from the palette
 3. Publish your site when ready
 ```
 
@@ -317,18 +314,9 @@ Next Steps:
 
 **User Intent:** "Replace all OOTB components with open code versions"
 
-**Workflow:**
+**Task Sequence:** Prerequisites Flow → Task 1 → Task 2 → Task 4 → For each component: Task 6
 
-1. Execute Prerequisites Flow
-2. Execute Task 1: Clone Open Source Repository
-3. Execute Task 2: Copy All Open Code Resources
-4. Execute Task 4: Extract All OOTB Components
-5. For each OOTB component found:
-   - Execute Task 6: Replace OOTB Component
-   - If successful: Log replacement
-   - If mapping not found: Log warning and continue
-6. Report summary:
-
+**Output:**
 ```
 ✅ Replacement Complete!
 
@@ -337,16 +325,11 @@ Summary:
 - Successfully replaced: Y
 - Could not map: Z (list them)
 
-Modified files:
-- List of all content.json files changed
+Modified files: [list content.json files]
 
 Next Steps:
-1. Review changes:
-   git diff force-app/main/default/digitalExperiences/site/<store-name>
-
-2. Deploy to org:
-   sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
-
+1. Review: git diff force-app/main/default/digitalExperiences/site/<store-name>
+2. Deploy: sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
 3. Test the store thoroughly in Experience Builder
 ```
 
@@ -354,46 +337,46 @@ Next Steps:
 
 **User Intent:** "Replace cartBadge with open code version"
 
-**Workflow:**
+**Task Sequence:** Prerequisites Flow → Task 1 → Determine OOTB format (try commerce_builder:, commerce_cart:, commerce:) → Task 5 → Task 6 → Task 3
 
-1. Execute Prerequisites Flow
-2. Execute Task 1: Clone Open Source Repository
-3. Extract component name from user intent (e.g., "cartBadge")
-4. Determine OOTB format:
-   - If user provides "commerce_builder:cartBadge" → use as-is
-   - If user provides "cartBadge" → try common patterns:
-     - First try: `commerce_builder:cartBadge`
-     - Then try: `commerce_cart:cartBadge`
-     - Then try: `commerce:cartBadge`
-5. Execute Task 5: Find Specific OOTB Component
-6. If found:
-   - Execute Task 6: Replace OOTB Component
-   - Determine open code component name from mapping
-   - Execute Task 3: Copy Specific Open Code Component
-7. Report:
-
+**Output:**
 ```
 ✅ Component Replacement Complete!
 
 Replaced: commerce_builder:cartBadge → site:cartBadge
-
-Copied components:
-- cartBadge (main)
-- cartBadgeUi (dependency)
-- productAddToCartUtils (dependency)
-
-Copied labels:
-- cartBadge labels
-
-Modified files:
-- List of content.json files updated
+Copied: cartBadge + dependencies (cartBadgeUi, productAddToCartUtils)
+Labels: cartBadge labels
+Modified: [list content.json files]
 
 Next Steps:
-1. Review changes and deploy:
-   sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
-
+1. Deploy: sf project deploy start -d force-app/main/default/digitalExperiences/site/<store-name>
 2. Test the component in Experience Builder
 ```
+
+---
+
+## Example Interaction
+
+**User:** "Replace all OOTB components with open code versions"
+
+**Agent:** "Would you like to work with an existing B2B store or create a new one?"
+
+**User:** "Use my existing store"
+
+**Agent:** Lists stores → User selects "MyB2BStore"
+
+**Agent:** "Site metadata already exists locally. Do you want to overwrite with latest from org? (y/n)"
+
+**User:** "n"
+
+**Agent:** Executes Tasks 1-2-4-6 with progress updates:
+- ✓ Cloned repository
+- ✓ Copied 45 components and 38 label sets
+- ✓ Found 12 OOTB components in site
+- ✓ Replaced 10 components successfully
+- ⚠ Could not map: commerce_custom:specialComponent, commerce_custom:anotherOne
+
+**Agent:** Provides completion summary with next steps
 
 ---
 
@@ -441,7 +424,7 @@ Before completing the integration, verify:
 - [ ] Site metadata path exists and is accessible
 
 ### Repository
-- [ ] Open source repository cloned successfully to `/tmp/b2b-commerce-open-source-components`
+- [ ] Open source repository cloned successfully to `.tmp/b2b-commerce-open-source-components`
 - [ ] Repository contains expected directories: `sfdc_cms__lwc` and `sfdc_cms__label`
 
 ### Component Integration
@@ -473,6 +456,7 @@ Before completing the integration, verify:
 - Replace components without verifying they exist in site metadata
 - Skip dependency resolution for specific component copies
 - Deploy without user confirmation
+- Deploy without committing or stashing changes first
 - Continue on error without informing user
 - Clone repository multiple times unnecessarily
 - Modify content.json structure beyond the `definition` value
