@@ -229,7 +229,7 @@ The completed build produces:
 3. **Deployment Manifest** (`package.xml`)
    - Lists all components with proper API version
    - Organized by metadata type in dependency order
-   - Ready for `sfdx force:source:deploy` or Metadata API deployment
+   - Ready for Salesforce CLI deployment or Metadata API deployment
 
 4. **Build Summary Report** - A markdown file listing:
    - Every component created
@@ -268,16 +268,7 @@ METADATA GENERATED:
    - Project_Manager → force-app/main/default/permissionsets/Project_Manager.permissionset-meta.xml
    - Project_User → force-app/main/default/permissionsets/Project_User.permissionset-meta.xml
 
-📋 DEPLOYMENT MANIFEST:
-   - package.xml → Generated with all components
-
 ⚠️  WARNINGS: None
-
-✨ NEXT STEPS:
-   1. Review generated metadata files
-   2. Deploy using: sfdx force:source:deploy -x package.xml
-   3. Assign Permission Sets to users
-   4. Test application functionality
 ```
 
 ---
