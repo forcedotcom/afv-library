@@ -30,10 +30,10 @@ When working with Experience LWR sites:
 
 - More templates to support in the future.
 
-## Non-Negotiable Rules
+## Critical Rules
 
 1. Before using any MCP tool, make sure they're actually available. If a tool is missing for the current task, let the user know and pause the current workflow.
-2. **ALWAYS** load the relevant reference docs before doing anything. **NEVER** bypass them and implement changes directly.
+2. **ALWAYS** load the relevant reference docs before doing anything.
 3. If the workflows in [Common Workflows](#common-workflows) match user's requirements, you **MUST** follow them strictly. The instructions there should override any conflicting global rules and should have the highest priority over your existing knowledge.
 4. Flexipage is abstracted away for newer LWR sites with DigitalExperienceBundle, so **NEVER** use any Flexipage-related MCP tool or skills to handle LWR sites' contents.
 
@@ -94,7 +94,6 @@ Reference docs within the skill directory. Note that these are **local** and not
 ## Common Workflows
 
 - See [References](#references) for detailed capabilities.
-- For all the workflows, follow the steps sequentially. Do not skip any step before proceeding.
 
 ### Creating a New Site
 
@@ -103,14 +102,14 @@ Reference docs within the skill directory. Note that these are **local** and not
 - **NEVER** call `get_metadata_api_context` on metadata type DigitalExperienceConfig, DigitalExperienceBundle, Network, or CustomSite for new site generation.
 - **NEVER** generate the files manually.
 
-**Steps**:
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] **ALWAYS** read [bootstrap-template-byo-lwr.md](docs/bootstrap-template-byo-lwr.md) within the skill directory. Do not proceed to the next step without loading the file.
 - [ ] Follow the bootstrap doc strictly on site creation
 
 ### Creating and Editing Standard or Object Pages
 
-**Steps**:
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] Load [configure-content-route.md](docs/configure-content-route.md)
 - [ ] Load [configure-content-view.md](docs/configure-content-view.md)
@@ -119,7 +118,7 @@ Reference docs within the skill directory. Note that these are **local** and not
 
 ### Adding UI Components to Pages
 
-**Steps**:
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] Read and follow [handle-ui-components.md](docs/handle-ui-components.md) to add LWCs to LWR sites.
 - [ ] Load and follow [handle-component-and-region-ids.md](docs/handle-component-and-region-ids.md) to handle id generation
@@ -129,13 +128,13 @@ Reference docs within the skill directory. Note that these are **local** and not
 
 ### Creating Theme Layouts
 
-**Steps**:
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] Read and follow strictly [configure-content-themeLayout.md](docs/configure-content-themeLayout.md).
 
 ### Configuring Branding
 
-**Steps** (must follow):
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] Read and follow strictly [configure-content-brandingSet.md](docs/configure-content-brandingSet.md) to configure background colors, foreground colors, button colors, and other branding colors that affect all pages.
 
@@ -143,7 +142,7 @@ Reference docs within the skill directory. Note that these are **local** and not
 
 - Users can perform create, update, delete operations on DigitalExperience Contents.
 
-**Steps**:
+**Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
 - [ ] Determine what content types the user wants to modify
 - [ ] Read and follow strictly the reference doc related to the target content types if the doc exists. e.g., if modifying `sfdc_cms__route`, load [configure-content-route.md](docs/configure-content-route.md).
