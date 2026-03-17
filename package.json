@@ -18,6 +18,7 @@
   "scripts": {
     "validate:skills": "tsx scripts/validate-skills.ts",
     "sync-react-b2e-sample": "node scripts/sync-react-b2e-sample.js",
-    "sync-react-b2x-sample": "node scripts/sync-react-b2x-sample.js"
+    "sync-react-b2x-sample": "node scripts/sync-react-b2x-sample.js",
+    "sync-webapp-skills": "node scripts/sync-webapp-skills.js"
   }
 }
