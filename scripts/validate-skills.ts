@@ -96,7 +96,6 @@ const STRUCTURE_CHECKS: StructureCheck[] = [
       if (!dirName.split("-")[0].endsWith("ing")) {
         return {
           errors: [`skills/${dirName}: name should use gerund form (e.g. generating-apex-tests, refactoring-triggers)`],
-          severity: "warning",
         }
       }
       return { errors: [] }
