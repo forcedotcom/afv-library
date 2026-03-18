@@ -1,5 +1,5 @@
 ---
-name: generating-graphql-read-query
+name: generating-webapp-graphql-read-query
 description: Generate Salesforce GraphQL read queries. Use when the query to generate is a read query. Schema exploration must complete first — invoke exploring-graphql-schema first.
 paths:
   - "**/*.ts"

@@ -1,5 +1,5 @@
 ---
-name: building-analytics-charts
+name: building-webapp-analytics-charts
 description: Add or change charts from raw data. Use when the user asks for a chart, graph, or analytics visualization from JSON/data.
 ---
 

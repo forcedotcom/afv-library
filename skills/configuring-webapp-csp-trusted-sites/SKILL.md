@@ -1,5 +1,5 @@
 ---
-name: configuring-csp-trusted-sites
+name: configuring-webapp-csp-trusted-sites
 description: Creates Salesforce CSP Trusted Site metadata when adding external domains. Use when the user adds an external API, CDN, image host, font provider, map tile server, or any third-party URL that the web application needs to load resources from — or when a browser console shows a CSP violation error.
 ---
 

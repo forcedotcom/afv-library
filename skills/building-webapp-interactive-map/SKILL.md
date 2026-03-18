@@ -1,5 +1,5 @@
 ---
-name: building-interactive-map
+name: building-webapp-interactive-map
 description: Adds interactive Leaflet maps with geocoded markers to React pages. Use when the user asks to add a map, show locations on a map, display property pins, add a map view, or integrate mapping into the web application.
 ---
 

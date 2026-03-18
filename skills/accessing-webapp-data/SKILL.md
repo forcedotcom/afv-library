@@ -1,5 +1,5 @@
 ---
-name: accessing-data
+name: accessing-webapp-data
 description: Salesforce data access patterns. Use when adding or modifying any code that fetches data from Salesforce (records, Chatter, Connect API, etc.).
 paths:
   - "**/*.ts"

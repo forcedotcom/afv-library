@@ -1,5 +1,5 @@
 ---
-name: building-react-components
+name: building-webapp-react-components
 description: Use when editing any React code in the web application — creating or modifying components, pages, layout, headers, footers, or any TSX/JSX files. Follow this skill for add component, add page, header/footer, and general React UI implementation patterns (shadcn UI and Tailwind CSS).
 ---
 

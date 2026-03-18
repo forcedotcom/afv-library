@@ -1,5 +1,5 @@
 ---
-name: fetching-rest-api
+name: fetching-webapp-rest-api
 description: REST API usage via the Data SDK fetch method. Use when implementing Chatter, Connect REST, Apex REST, UI API REST, or Einstein LLM calls — only when GraphQL is not sufficient.
 paths:
   - "**/*.ts"

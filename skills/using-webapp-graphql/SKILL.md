@@ -1,5 +1,5 @@
 ---
-name: using-graphql
+name: using-webapp-graphql
 description: Salesforce GraphQL data access. Use when the user asks to fetch, query, or mutate Salesforce data, or add a GraphQL operation for an object like Account, Contact, or Opportunity.
 paths:
   - "**/*.ts"

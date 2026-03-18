@@ -1,5 +1,5 @@
 ---
-name: deploying-to-salesforce
+name: deploying-webapp-to-salesforce
 description: Enforces the correct order for deploying metadata, assigning permission sets, and fetching GraphQL schema. Use for ANY deployment to a Salesforce org — webapps, LWC, Aura, Apex, metadata, schema fetch, or org sync. Codifies setup-cli.mjs.
 paths:
   - "**/*"

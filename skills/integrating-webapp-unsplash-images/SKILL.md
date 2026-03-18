@@ -1,5 +1,5 @@
 ---
-name: integrating-unsplash-images
+name: integrating-webapp-unsplash-images
 description: Adds high-quality Unsplash images to React pages. Use when the user asks to add a hero image, background image, placeholder image, stock photo, decorative image, or any Unsplash-sourced imagery to the web application.
 ---
 

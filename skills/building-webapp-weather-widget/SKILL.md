@@ -1,5 +1,5 @@
 ---
-name: building-weather-widget
+name: building-webapp-weather-widget
 description: Adds a weather widget to React pages using the free Open-Meteo API. Use when the user asks to add weather, show a forecast, display current conditions, add a weather card, or integrate weather data into the web application.
 ---
 

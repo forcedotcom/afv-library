@@ -1,5 +1,5 @@
 ---
-name: exploring-graphql-schema
+name: exploring-webapp-graphql-schema
 description: Explore the Salesforce GraphQL schema via grep-only lookups. Use before generating any GraphQL query — schema exploration must complete first.
 paths:
   - "**/*.ts"

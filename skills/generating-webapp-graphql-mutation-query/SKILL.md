@@ -1,5 +1,5 @@
 ---
-name: generating-graphql-mutation-query
+name: generating-webapp-graphql-mutation-query
 description: Generate Salesforce GraphQL mutation queries. Use when the query to generate is a mutation query. Schema exploration must complete first — invoke exploring-graphql-schema first.
 paths:
   - "**/*.ts"
