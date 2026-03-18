@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Sync webapp skills: pins @salesforce/webapp-template-app-react-sample-b2e-experimental
- * to the latest npm version, runs npm install, then copies skills from
- * dist/.a4drules/skills/ into skills/. Run from repo root.
+ * Sync webapp skills: pins b2e and b2x template packages to latest npm versions,
+ * runs npm install, then copies skills from dist/.a4drules/skills/ into skills/.
+ * Run from repo root.
  */
 
 const fs = require('fs');
@@ -10,29 +10,38 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { copyRecursive } = require('./lib/copy-recursive');
 
-const PACKAGE_NAME = '@salesforce/webapp-template-app-react-sample-b2e-experimental';
+const TEMPLATE_PACKAGES = [
+  '@salesforce/webapp-template-app-react-sample-b2e-experimental',
+  '@salesforce/webapp-template-app-react-sample-b2x-experimental',
+];
+const PACKAGE_NAME = TEMPLATE_PACKAGES[0]; // used for syncing skills
 const SKILLS_SRC = 'dist/.a4drules/skills';
 
 const repoRoot = process.cwd();
 const pkgPath = path.join(repoRoot, 'package.json');
 const skillsDir = path.join(repoRoot, 'skills');
 
-// ── Pin to latest npm version ────────────────────────────────────────
+// ── Pin template packages to latest npm versions ────────────────────
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-const current = (pkg.devDependencies || {})[PACKAGE_NAME];
-if (current && !current.startsWith('file:')) {
+let pkgChanged = false;
+for (const name of TEMPLATE_PACKAGES) {
+  const current = (pkg.devDependencies || {})[name];
+  if (!current || current.startsWith('file:')) continue;
   let latest;
   try {
-    latest = execSync(`npm view ${PACKAGE_NAME} version`, { encoding: 'utf8' }).trim();
+    latest = execSync(`npm view ${name} version`, { encoding: 'utf8' }).trim();
   } catch (_) {
-    console.warn(`Could not resolve ${PACKAGE_NAME} on npm, using current version.`);
-    latest = current;
+    console.warn(`Could not resolve ${name} on npm, using current version.`);
+    continue;
   }
   if (current !== latest) {
-    console.log(`${PACKAGE_NAME}: ${current} -> ${latest}`);
-    pkg.devDependencies[PACKAGE_NAME] = latest;
-    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+    console.log(`${name}: ${current} -> ${latest}`);
+    pkg.devDependencies[name] = latest;
+    pkgChanged = true;
   }
+}
+if (pkgChanged) {
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 }
 
 // ── Install ──────────────────────────────────────────────────────────
@@ -61,6 +70,11 @@ function addWebappPrefix(name) {
   return parts[0] + '-webapp-' + parts.slice(1).join('-');
 }
 
+/** Dirs in skills/ that look like synced webapp skills (e.g. *-webapp-*, creating-webapp). */
+function isSyncedWebappSkillDir(name) {
+  return name.includes('webapp');
+}
+
 /** Set front matter `name` in SKILL.md to match the destination folder name. */
 function setSkillFrontMatterName(skillDir, destName) {
   const skillPath = path.join(skillDir, 'SKILL.md');
@@ -70,11 +84,25 @@ function setSkillFrontMatterName(skillDir, destName) {
   fs.writeFileSync(skillPath, content, 'utf8');
 }
 
-const syncedDirs = [];
-for (const srcName of fs.readdirSync(srcDir)) {
-  const src = path.join(srcDir, srcName);
-  if (!fs.statSync(src).isDirectory()) continue;
+// ── Clean up: remove skills no longer in the package ───────────────────
+const srcNames = fs.readdirSync(srcDir).filter((name) =>
+  fs.statSync(path.join(srcDir, name)).isDirectory()
+);
+const currentDestNames = new Set(srcNames.map(addWebappPrefix));
 
+for (const name of fs.readdirSync(skillsDir)) {
+  const dirPath = path.join(skillsDir, name);
+  if (!fs.statSync(dirPath).isDirectory()) continue;
+  if (!isSyncedWebappSkillDir(name)) continue;
+  if (currentDestNames.has(name)) continue;
+  fs.rmSync(dirPath, { recursive: true });
+  console.log(`Removed skills/${name}/ (no longer in package)`);
+}
+
+// ── Copy each skill from package ──────────────────────────────────────
+const syncedDirs = [];
+for (const srcName of srcNames) {
+  const src = path.join(srcDir, srcName);
   const destName = addWebappPrefix(srcName);
   const dest = path.join(skillsDir, destName);
   if (fs.existsSync(dest)) fs.rmSync(dest, { recursive: true });

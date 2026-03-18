@@ -11,7 +11,10 @@ paths:
 
 # Skills-First (MUST FOLLOW)
 
-**Before writing any code or running any command**, search for relevant skills (`SKILL.md` files) that cover your task. Read the full skill and follow its instructions. Skills live in `.a4drules/skills/` and `feature/*/skills/`. See **webapp-skills-first.md** for the full protocol and a task-to-skill lookup table.
+**Before writing any code or running any command**, search for relevant skills (`SKILL.md` files) that cover your task. Read the full skill and follow its instructions. Skills live in `.a4drules/skills/` and `feature/*/skills/`.
+
+- Do not write custom scripts or complex bash commands for a workflow already covered by a loaded skill.
+- Only proceed with manual execution after confirming no relevant skill exists.
 
 # Deployment Order (MUST FOLLOW)
 
@@ -90,6 +93,25 @@ Agents consistently miss these. **You must not leave them default.**
 | Document title      | `force-app/main/default/webapplications/<appName>/index.html`        |
 | Root page content   | Component at root route (often `Home` in `routes.tsx`)               |
 
+
+# React & TypeScript Constraints
+
+## Routing (React Router)
+
+Use a **single** router package. When using `createBrowserRouter` / `RouterProvider`, all imports MUST come from **`react-router`** — not `react-router-dom`.
+
+## Component Library + Styling
+
+- **shadcn/ui** for components: `import { Button } from '@/components/ui/button';`
+- **Tailwind CSS** utility classes
+
+## URL & Path Handling
+
+Apps run behind dynamic base paths. Router navigation (`<Link to>`, `navigate()`) prefer absolute paths (`/x`). Non-router attributes (`<img src>`) use dot-relative (`./x`) to resolve against `<base>`. Prefer Vite `import` for static assets.
+
+## Module Restrictions
+
+React apps must NOT import Salesforce platform modules like `lightning/*` or `@wire` (LWC-only). For data access, invoke the **accessing-data** skill.
 
 # Frontend Aesthetics
 

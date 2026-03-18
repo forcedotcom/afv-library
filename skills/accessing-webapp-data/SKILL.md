@@ -149,6 +149,19 @@ const res = await sdk.fetch?.("/services/data/v65.0/chatter/users/me");
 
 ---
 
+## Clarifying Vague Data Requests
+
+When a user asks about data and the request is vague, **clarify before implementing**. Ask which of the following they want:
+
+- **Application code** — Add or modify code in a specific web app so the app performs the data interaction at runtime (e.g., GraphQL query in the React app)
+- **Local SF CLI** — Run Salesforce CLI commands locally (e.g., `sf data query`, `sf data import tree`) to interact with the org from the terminal
+- **Local example data** — Update or add local fixture/example data files (e.g., JSON in `data/`) for development or testing
+- **Other** — Data export, report generation, setup script, etc.
+
+Do not assume. A request like "fetch accounts" could mean: (1) add a GraphQL query to the app, (2) run `sf data query` in the terminal, or (3) update sample data files. Confirm the intent before proceeding.
+
+---
+
 ## Decision Flow
 
 1. **Need to query or mutate Salesforce records?** → Use GraphQL via the Data SDK. Invoke the `using-graphql` skill.
