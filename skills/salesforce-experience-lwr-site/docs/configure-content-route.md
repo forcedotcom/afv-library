@@ -125,7 +125,7 @@ Object pages require **three routes** to be created together:
 - **keyPrefix**: 3-character identifier unique to each standard object (Account=001, Contact=003)
 - **ObjectApiName**: Custom object API name including the "__c" suffix
 
-Obtain object information from the `objectList` output:
+Obtain object information from the `objectList` MCP output:
 
 ```json
 [

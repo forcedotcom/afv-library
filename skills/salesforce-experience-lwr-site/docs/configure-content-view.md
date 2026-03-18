@@ -144,7 +144,7 @@ Object pages require **three views**: Detail, List, and Related List. All share 
 | Standard (Account, Contact) | `keyPrefix` (3-char) | `detail-001`, `list-001`, `relatedlist-001` |
 | Custom (Test_Object__c) | API name with `__c` | `detail-Test_Object__c`, `list-Test_Object__c` |
 
-Obtain object information from the `objectList` output from `sfdc_cms__route`:
+Obtain object information from the `objectList` MCP output from `sfdc_cms__route`:
 
 ```json
 [
