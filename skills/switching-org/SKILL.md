@@ -1,6 +1,6 @@
 ---
 name: switching-org
-description: This skill should be used when users need to switch the active Salesforce org (default org) using the Salesforce CLI. Trigger when users say "switch org", "change default org", "set my org to", "use alias", or specify a username/alias they want to use for subsequent CLI operations.
+description: Switches the active Salesforce org (default target-org) using the Salesforce CLI. Use whenever someone wants to change which org CLI commands run against — whether they say "switch org", "change default org", "set my org to", "use alias", "point to", or describe wanting to work against a specific org, scratch org, sandbox, or production.
 compatibility: Salesforce CLI (sf) v2+
 metadata:
   author: afv-library
@@ -9,14 +9,16 @@ metadata:
 
 # switching-org
 
-Switches the active Salesforce org (default org) using the Salesforce CLI (sf). Supports either a username or an alias.
+Switches the active Salesforce org (default target-org) using the Salesforce CLI (sf). Supports either a username or an alias.
 
 ## Steps
 
-1. Read input: `orgIdentifier`, and whether the user wants global scope (default: local)
+1. Identify the org: the user provides a username or alias (`orgIdentifier`). If not provided, run `sf org list` to show authenticated orgs and ask the user which one to use.
 2. Set the default org:
-   - Local (default): `sf config set target-org=<orgIdentifier>`
-   - Global (only if user explicitly requests): `sf config set target-org=<orgIdentifier> --global`
+   - Local (default): `sf config set target-org <orgIdentifier>`
+     - Applies only within the current project directory. Use this for normal project work.
+   - Global (only if user explicitly requests): `sf config set target-org <orgIdentifier> --global`
+     - Applies system-wide across all directories. Use when working outside a project or when the user asks for global scope.
    - If this fails, report the error and suggest running `sf org login web` if the org may not be authorized.
 3. Verify:
    - `sf config get target-org --json`
