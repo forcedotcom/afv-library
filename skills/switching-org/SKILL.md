@@ -6,10 +6,6 @@ metadata:
   version: "1.0"
 ---
 
-# switching-org
-
-Switches the active Salesforce org (default target-org) using the Salesforce CLI (sf). Supports either a username or an alias.
-
 ## Steps
 
 1. Identify the org: the user provides a username or alias (`orgIdentifier`). If not provided, run `sf org list` to show authenticated orgs and ask the user which one to use.
@@ -21,15 +17,12 @@ Switches the active Salesforce org (default target-org) using the Salesforce CLI
    - If this fails, report the error and suggest running `sf org login web` if the org may not be authorized.
 3. Verify:
    - `sf config get target-org --json`
-   - If successful, confirm to the user, e.g.: `Switched org (local): my-scratch-org` or `Switched org (global): user@example.com`
+   - Note: the JSON output does not include a scope/location field — it cannot confirm whether the value is local or global. Confirm the value only, e.g.: `target-org is now set to: <value>`
    - If it fails, report the error and advise running `sf config get target-org`.
-
-## Official Documentation
-
-- Salesforce CLI config (unified) reference (sf):
-  https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_config_commands_unified.htm#cli_reference_config_set_unified
 
 ## Notes
 
 - Unified CLI uses keys like `target-org` and `target-dev-hub`. Legacy sfdx keys (`defaultusername`, `defaultdevhubusername`) are deprecated in this context.
 - The sf CLI does not have `--local` or `--scope` flags for config set. Local scope is the default behavior.
+- If the org does not change after setting the config, check whether `SF_TARGET_ORG` is set — environment variables override config values.
+- Salesforce CLI config (unified) reference: https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_config_commands_unified.htm#cli_reference_config_set_unified
