@@ -79,6 +79,10 @@ Before doing anything else, note down the following properties from the local pr
 
 **Important:** Creating any new pages require BOTH `sfdc_cms__route` AND `sfdc_cms__view`.
 
+#### Object Pages
+
+Object Pages are dedicated pages used to display and manage record-level data for a specific Salesforce entity/object. For example, an custom object "Car" should have "Car_Detail", "Car_List", and "Car_Related_list" views.
+
 ## References
 
 Reference docs within the skill directory. Note that these are **local** and not MCP.
