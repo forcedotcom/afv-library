@@ -9,7 +9,7 @@ Build and configure Salesforce Experience Cloud Lightning Web Runtime (LWR) site
 
 ## IMPORTANT!!
 
-After loading the skill, you MUST copy the selected workflows to your plan as a TODO checklist and work on each of the item carefully to ensure correctness.
+Right after loading the skill, you MUST copy the selected workflows/steps to your plan as a TODO checklist and work on each of the item carefully to ensure correctness.
 
 ## Table of Contents
 
