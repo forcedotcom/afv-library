@@ -1,44 +1,73 @@
 # Rule: Salesforce Metadata Generation
 
-**Description:** Generate deployment-ready Salesforce metadata by leveraging metadata skills and API context tools.
+## Objective
+Enforce: **skill load → API context → file generation** for all Salesforce metadata.
 
-**⚠ Critical:** This workflow is MANDATORY even when the task seems simple. Do NOT rely on your own knowledge of Salesforce metadata XML — always load the skill and fetch context first.
+## Constraints
 
-## Step 1: Metadata Generation Loop
+1. **Never write** without both: metadata type skill loaded AND `Salesforce API Context` MCP Server called for that type
+2. **One type at a time** - complete full cycle before next type
+3. **Child types need own context** - if adding any child metadata inside a parent metadata's file, load skill and call `Salesforce API Context` for each child type (e.g. CustomField inside CustomObject) separately; don't rely on the parent's schema for creating child metadata
+4. **Max one clarifying question** before starting
+5. **Don't call `execute_metadata_action` unless a skill instructs to do so**
 
-Process each metadata type **one at a time, in order**. Complete the full loop (a → b → c) for one type before starting the next — do not mix types.
+## Workflow
 
-**a. Load Skill** — Load the metadata type's skill once (not per metadata file).
+### 1. Detect Intent
+- **App skill** (end-to-end capability like lex/react App) → App Path
+- **Direct metadata** (specific fields/objects/pages) → Direct Path
 
-**b. Get Entity Context** — Use these tools to fetch entity context for the metadata type:
+### 2. App Path
+1. Load App related skill, extract metadata type sequence
+2. For each type, execute loop (a-e below)
+3. Proceed to Step 3
+
+### 2. Direct Path
+1. Identify all needed types
+2. For each type in dependency order, execute loop (a-e below)
+3. Proceed to Step 3
+
+### Loop (a-e) - Execute for Each Type
+
+**a. Load Skill**
+- Load metadata type skill once (not per record)
+- If no skill exists, continue with API context only
+
+**b. Call API Context**
+- Use `Salesforce API Context` and make use of these tools as per requirement:
 - `get_metadata_type_sections`
 - `get_metadata_type_context`
 - `get_metadata_type_fields`
 - `get_metadata_type_fields_properties`
 - `search_metadata_types`
 
-**c. Generate Files** — Generate all files for that type using the skill + context output. If multiple metadata files are needed (e.g., several Custom Fields), generate them all now — do not re-call tools per metadata file.
+**c. Pre-Write Gate**
+- Before EVERY write: confirm API context called for this type
+- If no → stop and call now
 
-**Child metadata:** If a parent file contains child metadata (e.g., fields inside an object), treat the child type separately — load its own skill and call its own context tools.
+**d. Generate Files**
+- Use skill constraints + API context
+- Generate all records for this type now
 
-Do NOT run deployment commands during Step 1.
+**e. Checkpoint**
+- Skill loaded? API context called? All files written?
+- Only proceed to next type when all true
 
-## Step 2: Deployment Verification
-
-After ALL types are generated, run a dry-run deployment of all metadata together (max 3 retries):
-
+### 3. Deploy Verification
 ```bash
 sf project deploy start --dry-run -d "force-app/main/default" --target-org <alias> --test-level NoTestRun --wait 10 --json
 ```
+On failure: attempt to fix the errors and re-run, retrying up to a maximum of 3 times until it succeeds.
 
-On failure: fix the errors and re-run. The task is NOT complete until this command succeeds or all 3 retries are exhausted.
+## Anti-Patterns
 
-## Guardrails
-
-| Rule | Common Violation |
-|------|------------------|
-| ALWAYS load skill + call context tools before writing any file — even for "simple" types| Skipping tools because the task "seems easy", then generating incorrect XML |
-| Complete the full loop (skill → context → generate) for one type before starting the next | Mixing types — e.g., loading skills for two types before generating either |
-| One skill load and one tool-call set per type, not per metadata file | Reloading the skill for each Custom Field |
-| Child types need their own skill + context | Using CustomObject context to generate CustomField metadata |
-| Deploy all metadata together after generation is complete | Running `sf project deploy` after each type |
+| Don't | Why | Do |
+|-------|-----|-----|
+| Write without API context | Missing schema validation | Call API context before first write |
+| Reload skill per record | Wastes tokens | Load once per type |
+| Skip API context for later types | No schema for those types | Call for EVERY type |
+| Skip metadata skills | Missing platform constraints | Load skill for every type |
+| Ask 3+ questions | Token waste | Max 1 question |
+| Skip App skill gates | Wrong artifacts | Follow all mandatory gates |
+| Write despite missing checkpoint | Aware violation | Stop and complete missing step |
+| Batch types in API call | Violates constraint #3 | One type per call |
