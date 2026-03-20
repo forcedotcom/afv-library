@@ -1,5 +1,5 @@
 ---
-name: building-lightning-app-solution
+name: generating-lightning-app-solution
 description: Build complete Salesforce Lightning Experience applications from natural language descriptions. Use this skill when a user requests a "complete app", "Lightning app", "business solution", "management system", or describes a scenario requiring multiple interconnected Salesforce components (objects, fields, pages, tabs, security). Orchestrates all required metadata types in proper dependency order to produce a deployable application.
 metadata:
   category: orchestration
@@ -7,7 +7,7 @@ metadata:
   related-skills: skills/generating-custom-object/SKILL.md, skills/generating-custom-field/SKILL.md, skills/generating-custom-tab/SKILL.md, skills/generating-flexipage/SKILL.md, skills/generating-custom-application/SKILL.md, skills/generating-flow/SKILL.md, skills/generating-validation-rule/SKILL.md, skills/generating-list-view/SKILL.md, skills/generating-permission-set/SKILL.md
 ---
 
-# Building Lightning App Solution
+# Generating Lightning App Solution
 
 ## Overview
 
