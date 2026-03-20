@@ -1,9 +1,9 @@
 ---
 name: searching-media
-description: Use when the user wants to FIND, SEARCH, or RETRIEVE images, photos, pictures, media, visuals, graphics, icons, illustrations, banners, thumbnails, logos, hero images, backgrounds, cover images, feature images, stock photos, product images, or visual assets from available sources. Trigger on requests to search, find, get, fetch, retrieve, browse, look up, locate, or add existing media. This is a ROUTING skill — it discovers which search sources are available (Salesforce CMS, Data Cloud, Unsplash) and lets the user choose. Use even if the user describes needing a visual without explicitly saying "search" (e.g., "I need an image for the header", "get me a background for the hero section"). DO NOT trigger for requests to GENERATE, CREATE, MAKE, DESIGN, or BUILD new images — those require different tools.
+description: Use when the user wants to FIND, SEARCH, or RETRIEVE images, photos, pictures, media, visuals, graphics, icons, illustrations, banners, thumbnails, logos, hero images, backgrounds, or visual assets. Trigger on search, find, get, fetch, retrieve, browse, look up, locate, or add existing media requests. ROUTING skill that presents search source options (Salesforce CMS, Data Cloud, Unsplash) and waits for user selection before calling any search tools. ALWAYS show numbered options first - NEVER call search_electronic_media or search_media_cms_channels directly. DO NOT trigger for GENERATE, CREATE, MAKE, DESIGN, or BUILD requests.
 metadata:
   author: afv-library
-  version: "1.0"
+  version: "1.2"
 ---
 
 # Media Search
@@ -29,34 +29,68 @@ Universal routing skill for searching and retrieving existing images and media.
 
 ## Before You Search
 
-**This is a routing skill, not a direct search skill.** When a user requests to find an image, do NOT immediately call a search tool. Instead:
+**CRITICAL: This is a routing skill, not a direct search skill.**
 
-1. Check which search tools (MCP tools) you have access to
-2. Present the available search sources as numbered options
-3. Wait for the user to select one
-4. Then execute the selected search method
+When a user requests to find an image:
 
-**Never auto-select a search source.** The user must choose from the available options. Similarly, when presenting search results, **never auto-select an image** — let the user choose.
+**DO NOT call any search tool directly.** You MUST follow this sequence:
+
+1. **First response MUST include:** A list of numbered search source options for the user
+2. **Wait for user to reply** with their selected option number
+3. **Only then** call the appropriate search tool
+
+**Example of what NOT to do:**
+- ❌ Immediately calling `search_electronic_media` or `search_media_cms_channels`
+- ❌ Deciding which search source to use without asking
+- ❌ Saying "I'll search for you" and then calling a tool
+
+**Example of what TO do:**
+- ✅ Show numbered list: "1. Search using Data 360 hybrid search, 2. Search using keywords, 3. Other"
+- ✅ Ask: "Which option would you like to use?"
+- ✅ Wait for user to reply with their choice
+- ✅ Then call the tool they selected
+
+**Your first response when this skill triggers MUST present options and ask the user to choose. No exceptions.**
 
 ## Workflow Overview
 
+**The user MUST choose the search source. You CANNOT skip this step.**
+
 1. Identify which search sources (MCP tools) are available
-2. Present those options to the user
-3. Wait for user selection
+2. **Present ALL available options** to the user as a numbered list
+3. **Wait for user to reply** with their selection
 4. Execute the selected search method
 5. Return results for the user to choose from
 
+If you skip steps 2-3 and call a search tool directly, you are not following this skill correctly.
+
 ## Discovering Available Search Sources
 
-Before presenting options, check which MCP tools you have access to and map them to search sources:
+**Step 1: Check your available MCP tools**
 
-| MCP Tool Name | Search Source | Search Type |
-|---|---|---|
-| `search_media_cms_channels` | Search using keywords | Keyword + taxonomy search in Salesforce CMS |
-| `search_electronic_media` | Search using Data 360 hybrid search | Semantic/AI search across CMS + 3rd-party DAMs |
-| Any Unsplash tool | Unsplash | Free stock photos |
+Look at your environment and identify which of these tools you have:
+- Do you have `search_media_cms_channels`? → If YES, include "Search using keywords"
+- Do you have `search_electronic_media`? → If YES, include "Search using Data 360 hybrid search"
+- Do you have any Unsplash tool? → If YES, include "Unsplash"
+- Always include "Other" as the last option
 
-**Your first response** should identify which sources are available and present numbered options to the user. Do not call any search tools yet — just present the options and wait for the user to choose.
+**Step 2: Build your response**
+
+Your first response must follow this structure exactly:
+
+```
+I'll help you find that image. Here are your search options:
+
+[NUMBER]. [SEARCH SOURCE NAME] — [Brief description]
+[NUMBER]. [SEARCH SOURCE NAME] — [Brief description]
+[NUMBER]. Other — Provide your own URL or path
+
+Which option would you like to use?
+```
+
+**Step 3: Stop and wait**
+
+After presenting options, STOP. Do not proceed until the user replies with their choice.
 
 ### Example First Response
 
@@ -103,6 +137,10 @@ No automated media sources are currently configured. Please provide:
 **Wait for the user to select** before proceeding.
 
 ## Executing the Selected Search Method
+
+**⚠️ ONLY reach this step if the user has explicitly selected an option from your numbered list.**
+
+If you haven't shown options yet, go back to the "Discovering Available Search Sources" section first.
 
 After the user selects an option, execute the corresponding search method below.
 
