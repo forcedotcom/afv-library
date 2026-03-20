@@ -290,13 +290,9 @@ When user provides an existing FlexiPage file path:
 
 ### Generating Unique Identifiers
 
-**CRITICAL: Before generating ANY new identifier or facet name, you MUST:**
-1. Read the entire FlexiPage file
-2. Extract ALL existing `<identifier>` values
-3. Extract ALL existing `<name>` values from `<flexiPageRegions>` blocks
-4. Verify your new identifiers/names are unique across the ENTIRE file
+**CRITICAL: Before generating ANY new identifier or facet name, follow the rules in section 5 of "Critical XML Rules" above.**
 
-**Algorithm**:
+**Identifier Generation Algorithm**:
 ```
 1. Extract ALL existing <identifier> AND <name> values from XML
 2. Generate base name: {componentType}_{context}
@@ -305,9 +301,6 @@ When user provides an existing FlexiPage file path:
    - Try "{base}_1"
    - If exists, try "{base}_2", "{base}_3", etc.
    - Use first available
-4. Never use same identifier even if identifier is in different region or in iteminstance or in component
-5. Never use same facet/region name even if in different sections
-6. If adding to existing named facet (e.g., detailTabContent), add itemInstances to that region - don't create new region
 ```
 
 **Examples**:
@@ -329,48 +322,9 @@ When user provides an existing FlexiPage file path:
    - Example: `Facet-66d5a4b3-bf14-4665-ba75-1ceaa71b2cde`
    - Use for field section columns, nested containers, anonymous slots
 
-**Critical Rule - Combining Multiple Components in Same Facet**:
-
-When multiple components logically belong to the same named facet, **combine them in ONE `<flexiPageRegions>` block with multiple `<itemInstances>`** - DO NOT create separate regions with the same name.
-
-**Example - Multiple field sections in detail tab:**
-```xml
-<!-- ✅ CORRECT: One region, multiple itemInstances -->
-<flexiPageRegions>
-   <itemInstances>
-      <componentInstance>
-         <componentName>flexipage:fieldSection</componentName>
-         <identifier>flexipage_property_details_fieldSection</identifier>
-         ...
-      </componentInstance>
-   </itemInstances>
-   <itemInstances>
-      <componentInstance>
-         <componentName>flexipage:fieldSection</componentName>
-         <identifier>flexipage_pricing_fieldSection</identifier>
-         ...
-      </componentInstance>
-   </itemInstances>
-   <name>detailTabContent</name>
-   <type>Facet</type>
-</flexiPageRegions>
-
-<!-- ❌ WRONG: Two regions with same name - DEPLOYMENT FAILS -->
-<flexiPageRegions>
-   <itemInstances>...</itemInstances>
-   <name>detailTabContent</name>
-   <type>Facet</type>
-</flexiPageRegions>
-<flexiPageRegions>
-   <itemInstances>...</itemInstances>
-   <name>detailTabContent</name>  <!-- DUPLICATE - ERROR -->
-   <type>Facet</type>
-</flexiPageRegions>
-```
-
 **When adding components to existing files:**
-- **Check if target facet name already exists**
-- If exists: Add new `<itemInstances>` to that existing region
+- Check if target facet name already exists
+- If exists: Add new `<itemInstances>` to that existing region (see section 5 above for details)
 - If doesn't exist: Create new region with unique name
 
 ---
