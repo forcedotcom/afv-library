@@ -21,8 +21,8 @@ Switches the active Salesforce org (default target-org) using the Salesforce CLI
    - If this fails, report the error and suggest running `sf org login web` if the org may not be authorized.
 3. Verify:
    - `sf config get target-org --json`
-   - Output confirmation: `Switched org (<scope>): <value>`
-4. If verification fails, report the error and advise running `sf config get target-org`.
+   - If successful, confirm to the user, e.g.: `Switched org (local): my-scratch-org` or `Switched org (global): user@example.com`
+   - If it fails, report the error and advise running `sf config get target-org`.
 
 ## Official Documentation
 
