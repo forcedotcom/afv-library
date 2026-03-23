@@ -85,8 +85,8 @@ The `content.json` file must contain:
 
 ### 5. Generation Checklist
 
-- [ ] Directory and `_meta.json` follow naming conventions (1, 2)
-- [ ] `content.json` has all required fields (3)
+- [ ] Directory and `_meta.json` follow naming conventions
+- [ ] `content.json` has all required fields
 - [ ] `contentBody` follows the schema provided by `execute_metadata_action`
 - [ ] **STOP AND VERIFY**: `contentBody.values` honors all **Branding Property Patterns** defined below and explicitly recalculated and updated all dependent tokens based on any token updates requested by the user.
 
