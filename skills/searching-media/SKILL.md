@@ -177,7 +177,7 @@ After the user selects an option, execute the corresponding search method below.
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "contentTypeFqns": "sfdc_cms__image",
+    "contentTypeFqn": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -190,7 +190,7 @@ After the user selects an option, execute the corresponding search method below.
 - `searchLanguage`: Locale with underscore (e.g., `en_US`)
 - `channelIds`: Always empty string
 - `channelType`: Always `"PublicUnauthenticated"`
-- `contentTypeFqns`: Always `"sfdc_cms__image"`
+- ``: Always `"sfdc_cms__image"`
 - `pageOffset`: Start at `0`, increment by `searchLimit` for pagination
 - `searchLimit`: Default `5`, adjust if user requests more
 
@@ -205,7 +205,7 @@ Query: "luxury apartment with river view"
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "contentTypeFqns": "sfdc_cms__image",
+    "": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -221,7 +221,7 @@ Query: "bright spacious room" (no concrete nouns)
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "contentTypeFqns": "sfdc_cms__image",
+    "": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -237,7 +237,7 @@ Query: "car images" (no descriptive terms)
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "contentTypeFqns": "sfdc_cms__image",
+    "": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
