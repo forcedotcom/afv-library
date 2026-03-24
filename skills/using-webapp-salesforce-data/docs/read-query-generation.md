@@ -55,7 +55,6 @@ When you need more than 200 records per page or more than 4,000 total records, s
 
 - **`first` must be 200–2000** when `upperBound` is set. Values below 200 are invalid.
 - **`upperBound`** declares the estimated total record count and enables extended pagination.
-- **Child pagination coupling** — If the parent uses upperBound pagination, the child must also use upperBound. You cannot paginate parent and child simultaneously; if a child uses `after`, the parent must be limited to a single result (`first: 1`).
 
 ```graphql
 # Standard pagination

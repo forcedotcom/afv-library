@@ -255,7 +255,14 @@ const GET_ACCOUNTS = gql`
     uiapi {
       query {
         Account(first: 10) {
-          edges { node { Id Name @optional { value } } }
+          edges {
+            node {
+              Id
+              Name @optional {
+                value
+              }
+            }
+          }
         }
       }
     }
