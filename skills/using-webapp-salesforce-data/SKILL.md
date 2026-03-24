@@ -64,11 +64,11 @@ const res = await sdk.fetch?.("/services/apexrest/my-resource");
 
 These rules exist because Salesforce GraphQL has platform-specific behaviors that differ from standard GraphQL. Violations cause silent runtime failures.
 
-1. **Schema is the single source of truth** — Every entity name, field name, and type must be confirmed via the schema search script before use in a query. Never guess — Salesforce field names are case-sensitive, relationships may be polymorphic, and custom objects use suffixes (`__c`, `__e`). See [Schema Introspection](docs/schema-introspection.md) for entity identification and iterative lookup procedures.
+1. **Schema is the single source of truth** — Every entity name, field name, and type must be confirmed via the schema search script before use in a query. Never guess — Salesforce field names are case-sensitive, relationships may be polymorphic, and custom objects use suffixes (`__c`, `__e`). See [Schema Introspection](references/schema-introspection.md) for entity identification and iterative lookup procedures.
 
 2. **`@optional` on all record fields** (read queries) — Salesforce field-level security (FLS) causes queries to fail entirely if the user lacks access to even one field. The `@optional` directive (v65+) tells the server to omit inaccessible fields instead of failing. Apply it to every scalar field, parent relationship, and child relationship. Consuming code must use optional chaining (`?.`) and nullish coalescing (`??`).
 
-3. **Correct mutation syntax** — Mutations wrap under `uiapi(input: { allOrNone: true/false })`, not bare `uiapi { ... }`. Always set `allOrNone` explicitly. Output fields cannot include child relationships or navigated reference fields. See [Mutation Query Generation](docs/mutation-query-generation.md).
+3. **Correct mutation syntax** — Mutations wrap under `uiapi(input: { allOrNone: true/false })`, not bare `uiapi { ... }`. Always set `allOrNone` explicitly. Output fields cannot include child relationships or navigated reference fields. See [Mutation Query Generation](references/mutation-query-generation.md).
 
 4. **Explicit pagination** — Always include `first:` in every query. If omitted, the server silently defaults to 10 records. Include `pageInfo { hasNextPage endCursor }` for any query that may need pagination.
 
@@ -107,11 +107,11 @@ The script outputs five sections per entity:
 4. **Create input** — fields accepted by create mutations
 5. **Update input** — fields accepted by update mutations
 
-Use this output to determine exact field names before writing any query or mutation. **Maximum 2 script runs.** If the entity still can't be found, ask the user — the object may not be deployed. For entity identification procedures (`_Record` suffix, `__c` conventions) and iterative introspection cycles, see [Schema Introspection](docs/schema-introspection.md).
+Use this output to determine exact field names before writing any query or mutation. **Maximum 2 script runs.** If the entity still can't be found, ask the user — the object may not be deployed. For entity identification procedures (`_Record` suffix, `__c` conventions) and iterative introspection cycles, see [Schema Introspection](references/schema-introspection.md).
 
 ### Step 3: Generate Query
 
-Use the templates below. Every field name **must** be verified from the script output in Step 2. For detailed generation rules, filtering, pagination, ordering, semi-joins, and field value wrappers, see [Read Query Generation](docs/read-query-generation.md). For mutation chaining, input/output constraints, and transactional semantics, see [Mutation Query Generation](docs/mutation-query-generation.md).
+Use the templates below. Every field name **must** be verified from the script output in Step 2. For detailed generation rules, filtering, pagination, ordering, semi-joins, and field value wrappers, see [Read Query Generation](references/read-query-generation.md). For mutation chaining, input/output constraints, and transactional semantics, see [Mutation Query Generation](references/mutation-query-generation.md).
 
 #### Read Query Template
 
@@ -236,7 +236,7 @@ const fields = response?.data?.uiapi?.objectInfos?.[0]?.fields ?? [];
 bash scripts/graphql-search.sh <EntityName>
 ```
 
-Then fix the query using the exact names from the script output. For detailed error categories, status handling, and retry strategy, see [Query Testing](docs/query-testing.md).
+Then fix the query using the exact names from the script output. For detailed error categories, status handling, and retry strategy, see [Query Testing](references/query-testing.md).
 
 ---
 
@@ -277,7 +277,7 @@ if (response?.errors?.length) {
 const accounts = response?.data?.uiapi?.query?.Account?.edges?.map(e => e.node) ?? [];
 ```
 
-For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), see [Webapp Integration](docs/webapp-integration.md).
+For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), see [Webapp Integration](references/webapp-integration.md).
 
 ---
 

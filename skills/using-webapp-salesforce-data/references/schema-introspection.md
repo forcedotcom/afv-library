@@ -11,9 +11,9 @@ Do not use cat, less, more, head, tail, editors (VS Code, vim, nano), or program
 Run the search script from the **SFDX project root** to get all relevant schema info in one step:
 
 ```bash
-bash .a4drules/skills/using-salesforce-data/graphql-search.sh <EntityName>
+bash scripts/graphql-search.sh <EntityName>
 # Multiple entities:
-bash .a4drules/skills/using-salesforce-data/graphql-search.sh Account Contact Opportunity
+bash scripts/graphql-search.sh Account Contact Opportunity
 ```
 
 **Maximum 2 script runs.** If the entity still can't be found after checking naming variations, ask the user.
