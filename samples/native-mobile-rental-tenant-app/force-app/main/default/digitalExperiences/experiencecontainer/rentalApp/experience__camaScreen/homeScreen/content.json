@@ -3,55 +3,51 @@
   "title": "Home Screen",
   "contentBody": {
     "view": {
-      "definition": "homestead/HomeScreen",
-      "properties": {
-        "pullToRefresh": true
-      },
+      "definition": "builder/screen",
+      "name": "Tenant App",
+      "properties": {},
       "regions": {
         "components": {
+          "name": "components",
           "components": [
             {
               "definition": "ui/container",
               "properties": {
-                "padding": "$spacing.spacing4",
-                "backgroundColor": "$colors.surface2"
+                "padding": "0",
+                "backgroundColor": "$colors.accentContainer2",
+                "gap": "$spacing.spacing4"
               },
               "regions": {
                 "components": {
+                  "name": "components",
                   "components": [
                     {
-                      "definition": "ui/card",
-                      "properties": {},
+                      "definition": "ui/column",
+                      "properties": {
+                        "padding": "$spacing.spacing4",
+                        "gap": "$spacing.spacing4"
+                      },
                       "regions": {
                         "components": {
+                          "name": "components",
                           "components": [
                             {
-                              "definition": "ui/column",
+                              "definition": "ui/box",
                               "properties": {
-                                "width": "fill",
-                                "height": "fill",
-                                "alignment": "start",
-                                "gap": "$spacing.spacing4",
-                                "padding": "$spacing.spacing4"
+                                "padding": {
+                                  "top": "$spacing.spacing4"
+                                }
                               },
                               "regions": {
                                 "components": {
+                                  "name": "components",
                                   "components": [
                                     {
                                       "definition": "ui/text",
                                       "properties": {
-                                        "text": "Today",
-                                        "style": "titlesFontScale4Semibold",
-                                        "color": "$colors.onSurface1"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/text",
-                                      "properties": {
-                                        "text": "You have no event.",
-                                        "color": "$colors.onSuccess1",
-                                        "style": "bodyFontScale2Regular"
+                                        "text": "Good evening, Maria",
+                                        "style": "titlesFontScale4Regular",
+                                        "color": "$colors.onSurfaceInverse1"
                                       },
                                       "regions": {}
                                     }
@@ -65,407 +61,662 @@
                     },
                     {
                       "definition": "ui/card",
-                      "properties": {},
+                      "properties": {
+                        "backgroundColor": "$colors.surfaceContainer1",
+                        "padding": "$spacing.spacing4",
+                        "borderColor": null
+                      },
                       "regions": {
                         "components": {
+                          "name": "components",
                           "components": [
                             {
                               "definition": "ui/column",
                               "properties": {
-                                "width": "fill",
-                                "height": "fill",
-                                "alignment": "start",
-                                "gap": "$spacing.spacing4",
-                                "padding": "$spacing.spacing4"
+                                "gap": "$spacing.spacing2"
                               },
                               "regions": {
                                 "components": {
+                                  "name": "components",
                                   "components": [
+                                    {
+                                      "definition": "ui/row",
+                                      "properties": {
+                                        "gap": "spaceBetween"
+                                      },
+                                      "regions": {
+                                        "components": {
+                                          "name": "components",
+                                          "components": [
+                                            {
+                                              "definition": "ui/text",
+                                              "properties": {
+                                                "text": "Latest news",
+                                                "style": "titlesFontScale3Regular",
+                                                "color": "$colors.onSurface2"
+                                              },
+                                              "regions": {}
+                                            },
+                                            {
+                                              "definition": "ui/text",
+                                              "properties": {
+                                                "text": "See all",
+                                                "style": "bodyFontScale1Regular",
+                                                "color": "$colors.accent1"
+                                              },
+                                              "regions": {}
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "definition": "ui/horizontalScroll",
+                                      "properties": {
+                                        "gap": "$spacing.spacing4"
+                                      },
+                                      "regions": {
+                                        "components": {
+                                          "name": "components",
+                                          "components": [
+                                            {
+                                              "definition": "ui/column",
+                                              "properties": {
+                                                "gap": "$spacing.spacing2",
+                                                "alignment": "start"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/box",
+                                                      "properties": {
+                                                        "radius": "$radius.radiusBorder2",
+                                                        "width": "fill"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/image",
+                                                              "properties": {
+                                                                "source": {
+                                                                  "url": "https://picsum.photos/seed/community/220/140"
+                                                                },
+                                                                "alternativeText": "Community Park",
+                                                                "width": "220",
+                                                                "height": "140"
+                                                              },
+                                                              "regions": {}
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "Community Park opens",
+                                                        "style": "bodyFontScale1Semibold",
+                                                        "color": "$colors.onSurface1",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "Mar 1, 2026",
+                                                        "style": "bodyFontScaleNeg1Regular",
+                                                        "color": "$colors.onSurface2",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/column",
+                                              "properties": {
+                                                "gap": "$spacing.spacing2",
+                                                "alignment": "start"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/box",
+                                                      "properties": {
+                                                        "radius": "$radius.radiusBorder2",
+                                                        "width": "fill"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/image",
+                                                              "properties": {
+                                                                "source": {
+                                                                  "url": "https://picsum.photos/seed/treadmills/220/140"
+                                                                },
+                                                                "alternativeText": "New treadmills",
+                                                                "width": "220",
+                                                                "height": "140"
+                                                              },
+                                                              "regions": {}
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "New treadmills!",
+                                                        "style": "bodyFontScale1Semibold",
+                                                        "color": "$colors.onSurface1",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "Feb 12, 2026",
+                                                        "style": "bodyFontScaleNeg1Regular",
+                                                        "color": "$colors.onSurface2",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/column",
+                                              "properties": {
+                                                "gap": "$spacing.spacing2",
+                                                "alignment": "start"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/box",
+                                                      "properties": {
+                                                        "radius": "$radius.radiusBorder2",
+                                                        "width": "fill"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/image",
+                                                              "properties": {
+                                                                "source": {
+                                                                  "url": "https://picsum.photos/seed/pool/220/140"
+                                                                },
+                                                                "alternativeText": "Pool hours extended",
+                                                                "width": "220",
+                                                                "height": "140"
+                                                              },
+                                                              "regions": {}
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "Pool hours extended",
+                                                        "style": "bodyFontScale1Semibold",
+                                                        "color": "$colors.onSurface1",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    },
+                                                    {
+                                                      "definition": "ui/text",
+                                                      "properties": {
+                                                        "text": "Feb 28, 2026",
+                                                        "style": "bodyFontScaleNeg1Regular",
+                                                        "color": "$colors.onSurface2",
+                                                        "textAlign": "start"
+                                                      },
+                                                      "regions": {}
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "definition": "ui/card",
+                                      "properties": {
+                                        "borderColor": "$colors.border1",
+                                        "padding": "$spacing.spacing4"
+                                      },
+                                      "regions": {
+                                        "components": {
+                                          "name": "components",
+                                          "components": [
+                                            {
+                                              "definition": "ui/row",
+                                              "properties": {
+                                                "gap": "$spacing.spacing10",
+                                                "alignment": "center"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/progressRing",
+                                                      "properties": {
+                                                        "value": 85,
+                                                        "size": "large",
+                                                        "showProgressText": true
+                                                      },
+                                                      "regions": {}
+                                                    },
+                                                    {
+                                                      "definition": "ui/column",
+                                                      "properties": {
+                                                        "gap": "$spacing.spacing2",
+                                                        "alignment": "start"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/text",
+                                                              "properties": {
+                                                                "text": "Lease progress",
+                                                                "style": "titlesFontScale3Semibold",
+                                                                "color": "$colors.onSurface1",
+                                                                "textAlign": "start"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/text",
+                                                              "properties": {
+                                                                "text": "Renewal period",
+                                                                "style": "bodyFontScaleBaseRegular",
+                                                                "color": "$colors.onSurface2"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/text",
+                                                              "properties": {
+                                                                "text": "ends Mar 1, 2026",
+                                                                "style": "bodyFontScaleNeg1Regular",
+                                                                "color": "$colors.onSurface2"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/button",
+                                                              "properties": {
+                                                                "label": "Continue",
+                                                                "variant": "brandOutline"
+                                                              },
+                                                              "regions": {}
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
                                     {
                                       "definition": "ui/text",
                                       "properties": {
-                                        "text": "Upcoming",
-                                        "style": "titlesFontScale4Semibold",
-                                        "color": "$colors.onSurface1"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "123 Oak Street",
-                                "subtitle": "Inspection on 01/08/2026"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
+                                        "text": "Recommended for you",
+                                        "style": "titlesFontScale3Regular",
+                                        "color": "$colors.onSurface2",
+                                        "textAlign": "start"
                                       },
                                       "regions": {}
                                     },
                                     {
-                                      "definition": "ui/badge",
+                                      "definition": "ui/column",
                                       "properties": {
-                                        "label": "Scheduled",
-                                        "variant": "success"
+                                        "gap": "$spacing.spacing3"
                                       },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "456 Maple Avenue",
-                                "subtitle": "Lease Signing on 01/10/2026"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Scheduled",
-                                        "variant": "success"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "789 Pine Road",
-                                "subtitle": "Maintenance on 01/15/2026"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Requested",
-                                        "variant": "error"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "321 Elm Street",
-                                "subtitle": "Rent Collection on 01/20/2026"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Scheduled",
-                                        "variant": "success"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Community Center",
-                                "subtitle": "HOA Meeting on 01/22/2026"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Proposed",
-                                        "variant": "warning"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "555 Cedar Lane",
-                                "subtitle": "Background Check"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/nothing"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "In Progress",
-                                        "variant": "warning"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "definition": "ui/card",
-                      "properties": {},
-                      "regions": {
-                        "components": {
-                          "components": [
-                            {
-                              "definition": "ui/column",
-                              "properties": {
-                                "width": "fill",
-                                "height": "fill",
-                                "alignment": "start",
-                                "gap": "$spacing.spacing4",
-                                "padding": "$spacing.spacing4"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/text",
-                                      "properties": {
-                                        "text": "Tenants",
-                                        "style": "titlesFontScale4Semibold",
-                                        "color": "$colors.onSurface1"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Sarah Johnson",
-                                "subtitle": "456 Maple Avenue, Apt 5"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Paid",
-                                        "variant": "success"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Michael Chen",
-                                "subtitle": "789 Pine Road"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Overdue",
-                                        "variant": "error"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Emily Davis",
-                                "subtitle": "321 Elm Street, Unit 5B"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Paid",
-                                        "variant": "success"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Robert Williams",
-                                "subtitle": "555 Cedar Lane"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Paid",
-                                        "variant": "success"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "Jessica Martinez",
-                                "subtitle": "123 Oak Street, Unit 3C"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Moved Out",
-                                        "variant": "warning"
-                                      },
-                                      "regions": {}
-                                    }
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "definition": "ui/baseRow",
-                              "properties": {
-                                "title": "David Lee",
-                                "subtitle": "456 Maple Avenue, Apt 2"
-                              },
-                              "regions": {
-                                "components": {
-                                  "components": [
-                                    {
-                                      "definition": "ui/utilityIcon",
-                                      "properties": {
-                                        "iconName": "utility/user",
-                                        "size": "small"
-                                      },
-                                      "regions": {}
-                                    },
-                                    {
-                                      "definition": "ui/badge",
-                                      "properties": {
-                                        "label": "Signed",
-                                        "variant": "lightest"
-                                      },
-                                      "regions": {}
+                                      "regions": {
+                                        "components": {
+                                          "name": "components",
+                                          "components": [
+                                            {
+                                              "definition": "ui/card",
+                                              "properties": {
+                                                "borderColor": "$colors.border1",
+                                                "padding": "$spacing.spacing4"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/row",
+                                                      "properties": {
+                                                        "gap": "$spacing.spacing3",
+                                                        "alignment": "center"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/icon",
+                                                              "properties": {
+                                                                "iconName": "utility:email",
+                                                                "size": "large",
+                                                                "color": "$colors.success1"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/column",
+                                                              "properties": {
+                                                                "gap": "$spacing.spacing1"
+                                                              },
+                                                              "regions": {
+                                                                "components": {
+                                                                  "name": "components",
+                                                                  "components": [
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "3 packages ready for pickup",
+                                                                        "style": "bodyFontScale1Semibold",
+                                                                        "color": "$colors.onSurface1",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "Locker #104 | Code:8829",
+                                                                        "style": "bodyFontScaleNeg1Regular",
+                                                                        "color": "$colors.onSurface2",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/card",
+                                              "properties": {
+                                                "borderColor": "$colors.border1",
+                                                "padding": "$spacing.spacing4"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/row",
+                                                      "properties": {
+                                                        "gap": "$spacing.spacing3",
+                                                        "alignment": "center"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/icon",
+                                                              "properties": {
+                                                                "iconName": "utility:favorite",
+                                                                "size": "large",
+                                                                "color": "$colors.warning1"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/column",
+                                                              "properties": {
+                                                                "gap": "$spacing.spacing1"
+                                                              },
+                                                              "regions": {
+                                                                "components": {
+                                                                  "name": "components",
+                                                                  "components": [
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "Rate your technician",
+                                                                        "style": "bodyFontScale1Semibold",
+                                                                        "color": "$colors.onSurface1",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "How was your recent dishwasher fix?",
+                                                                        "style": "bodyFontScaleNeg1Regular",
+                                                                        "color": "$colors.onSurface2",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/card",
+                                              "properties": {
+                                                "borderColor": "$colors.border1",
+                                                "padding": "$spacing.spacing4"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/row",
+                                                      "properties": {
+                                                        "gap": "$spacing.spacing3",
+                                                        "alignment": "center"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/icon",
+                                                              "properties": {
+                                                                "iconName": "utility:list",
+                                                                "size": "large",
+                                                                "color": "$colors.information1"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/column",
+                                                              "properties": {
+                                                                "gap": "$spacing.spacing2",
+                                                                "alignment": "start"
+                                                              },
+                                                              "regions": {
+                                                                "components": {
+                                                                  "name": "components",
+                                                                  "components": [
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "Complete Move-In Inspection",
+                                                                        "style": "bodyFontScale1Semibold",
+                                                                        "color": "$colors.onSurface1",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "You've been here 30 days. How is everything?",
+                                                                        "style": "bodyFontScaleNeg1Regular",
+                                                                        "color": "$colors.onSurface2",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/button",
+                                                                      "properties": {
+                                                                        "label": "Take a survey",
+                                                                        "variant": "brandOutline"
+                                                                      },
+                                                                      "regions": {}
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/card",
+                                              "properties": {
+                                                "borderColor": "$colors.border1",
+                                                "padding": "$spacing.spacing4"
+                                              },
+                                              "regions": {
+                                                "components": {
+                                                  "name": "components",
+                                                  "components": [
+                                                    {
+                                                      "definition": "ui/row",
+                                                      "properties": {
+                                                        "gap": "$spacing.spacing3",
+                                                        "alignment": "center"
+                                                      },
+                                                      "regions": {
+                                                        "components": {
+                                                          "name": "components",
+                                                          "components": [
+                                                            {
+                                                              "definition": "ui/icon",
+                                                              "properties": {
+                                                                "iconName": "utility:event",
+                                                                "size": "large",
+                                                                "color": "$colors.accent1"
+                                                              },
+                                                              "regions": {}
+                                                            },
+                                                            {
+                                                              "definition": "ui/column",
+                                                              "properties": {
+                                                                "gap": "$spacing.spacing2",
+                                                                "alignment": "start"
+                                                              },
+                                                              "regions": {
+                                                                "components": {
+                                                                  "name": "components",
+                                                                  "components": [
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "Check out your perks",
+                                                                        "style": "bodyFontScale1Semibold",
+                                                                        "color": "$colors.onSurface1",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/text",
+                                                                      "properties": {
+                                                                        "text": "Schedule a personal tour of amenities",
+                                                                        "style": "bodyFontScaleNeg1Regular",
+                                                                        "color": "$colors.onSurface2",
+                                                                        "textAlign": "start"
+                                                                      },
+                                                                      "regions": {}
+                                                                    },
+                                                                    {
+                                                                      "definition": "ui/button",
+                                                                      "properties": {
+                                                                        "label": "Book a tour",
+                                                                        "variant": "brandOutline"
+                                                                      },
+                                                                      "regions": {}
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "definition": "ui/footer",
+                                              "properties": {
+                                                "label": "More"
+                                              },
+                                              "regions": {}
+                                            }
+                                          ]
+                                        }
+                                      }
                                     }
                                   ]
                                 }
@@ -483,7 +734,9 @@
         }
       }
     },
-    "target": "native__homesteadHome",
-    "apiName": "uem_homesteadHome"
-  }
+    "target": "native__home",
+    "apiName": "homeScreen",
+    "id": "home-001"
+  },
+  "urlName": "home-screen"
 }
