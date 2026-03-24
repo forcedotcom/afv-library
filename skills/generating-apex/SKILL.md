@@ -91,14 +91,24 @@ If any constraint would be violated in generated code, **stop and explain the pr
 | Use Apex-native collections (`List`, `Map`, `Set`) rather than Java types | Prevent compile errors |
 | Verify methods exist in Apex before use | Prevent reliance on non-existent APIs |
 | Use `Assert` class instead of `System.assert*` in test classes | Legacy `System.assert`, `System.assertEquals`, `System.assertNotEquals` are deprecated; use `Assert.areEqual`, `Assert.isTrue`, `Assert.fail`, etc. |
+| No `System.debug()` in production code | Debug statements pollute logs and waste CPU; use a logging framework or Custom Metadata–controlled logger instead |
+| Never use `@future` methods | Use Queueable with `System.Finalizer` for all async work; `@future` cannot be called from Batch, cannot chain, and cannot accept non-primitive types |
 
 ### Bulkification & Governor Limits
 
 - Collect all SOQL and DML outside of loops; operate on `List`, `Set`, `Map`
 - All public APIs accept and process collections; single-record overloads delegate to the bulk method
+- Use `Database` methods (`Database.insert`, `Database.update`, `Database.upsert`, `Database.delete`) instead of bare DML statements; always pair with exception handling
 - In batch/bulk flows, prefer partial-success DML (`Database.update(records, false)`) and process `SaveResult` for errors
 - Use `Map<Id, SObject>` constructor for efficient ID-based lookups from query results
 - Use `Set<Id>` for deduplication and membership checks; prefer `Set.contains()` over `List.contains()`
+
+### SOQL Optimization
+
+- Use selective queries with proper `WHERE` clauses; use indexed fields (`Id`, `Name`, `OwnerId`, lookup/master-detail fields, `ExternalId` fields, custom indexes) in filters when possible
+- `SELECT *` does not exist in SOQL — always specify the exact fields needed
+- Apply `LIMIT` clauses to bound result sets; use `ORDER BY` for deterministic results
+- When querying Custom Metadata Types (objects ending with `__mdt`), do NOT use SOQL — use the built-in methods (`{CustomMdt__mdt}.getAll().values()`, `getInstance()`, etc.)
 
 ### Security
 
@@ -128,6 +138,7 @@ If any constraint would be violated in generated code, **stop and explain the pr
 
 ### Constants & Literals
 
+- Use enums over string constants whenever possible; enum values follow `UPPER_SNAKE_CASE`
 - Extract all literal strings and numbers into `private static final` constants or a dedicated constants class
 - Use `Label.` custom labels for user-facing strings
 - Use Custom Metadata for configurable values (thresholds, mappings, feature flags)
@@ -176,8 +187,12 @@ Prefer current language features:
 ### Code Structure
 
 - Keep each class focused on a single responsibility
+- Limit class size to 500 lines of code maximum; split into collaborating classes when exceeded
+- Use the Return Early pattern — validate preconditions at the top of methods and return/throw immediately to reduce nesting
 - Extract private helpers for methods longer than ~40 lines
 - Prefer interfaces for cross-class contracts to keep coupling loose
+- Use Dependency Injection (constructor or method parameters) to decouple collaborators and improve testability
+- Group related classes in packages/folders when possible (e.g., all Account-related classes together)
 - Maintain consistent abstraction levels within a method — keep orchestration separate from low-level implementation
 
 ---
@@ -192,7 +207,7 @@ Prefer current language features:
 | Recurring schedule | **Scheduled Flow** (preferred) or **Schedulable** | Schedulable has 100-job limit; use only when chaining to Batch or needing complex Apex logic |
 | Post-job cleanup | **Finalizer** (`System.Finalizer`) | Runs regardless of Queueable success/failure |
 | Long-running callouts | **Continuation** | Up to 3 per transaction, 3 parallel |
-| Legacy fire-and-forget | `@future` | Prefer Queueable for new development |
+| Legacy fire-and-forget | `@future` | **Do not use** — replace with Queueable + Finalizer in all new development |
 | Delays > 10 minutes | `System.scheduleBatch()` | Schedule a Batch job at a specific future time |
 
 ---
