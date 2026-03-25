@@ -299,7 +299,7 @@ Prefer current language features:
 
 Deliverables per class:
 - `{ClassName}.cls`
-- `{ClassName}.cls-meta.xml` (default API version `62.0` unless specified)
+- `{ClassName}.cls-meta.xml` (default API version `66.0` or higher unless specified)
 - `{ClassName}Test.cls` (generated via `skills/generating-apex-test/SKILL.md`)
 - `{ClassName}Test.cls-meta.xml` (generated via `skills/generating-apex-test/SKILL.md`)
 
