@@ -438,7 +438,7 @@ public class AccountSelector {
             SELECT Id, Name, Industry
             FROM Account
             WHERE IsActive__c = true
-            WITH SECURITY_ENFORCED
+            WITH USER_MODE
         ];
     }
 
