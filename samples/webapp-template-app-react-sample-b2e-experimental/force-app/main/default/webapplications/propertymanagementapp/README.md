@@ -1,6 +1,6 @@
-# App React Sample B2E
+# Property Management App
 
-A sample B2E (Business-to-Employee) React web app on the Salesforce platform. Includes property management, maintenance requests, tenant applications, a dashboard, and an Agentforce conversation client. Built with React, Vite, TypeScript, and Tailwind/shadcn.
+Property management sample React web app on the Salesforce platform. Includes property management, maintenance requests, tenant applications, a dashboard, and an Agentforce conversation client. Built with React, Vite, TypeScript, and Tailwind/shadcn.
 
 For project-level details (metadata, deploy, sample data), see the [project README](../../../../../../README.md).
 

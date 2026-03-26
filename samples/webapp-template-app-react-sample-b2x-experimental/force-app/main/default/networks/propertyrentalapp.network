@@ -6,7 +6,7 @@
     <communityRoles/>
     <disableReputationRecordConversations>true</disableReputationRecordConversations>
     <emailSenderAddress>trialorgfarmforu@salesforce.com.invalid.invalid</emailSenderAddress>
-    <emailSenderName>appreactsampleb2x</emailSenderName>
+    <emailSenderName>propertyrentalapp</emailSenderName>
     <embeddedLoginEnabled>false</embeddedLoginEnabled>
     <enableApexCDNCaching>true</enableApexCDNCaching>
     <enableCustomVFErrorPageOverrides>false</enableCustomVFErrorPageOverrides>
@@ -45,16 +45,16 @@
         <selfRegProfilePageOverrideSetting>Designer</selfRegProfilePageOverrideSetting>
     </networkPageOverrides>
     <newSenderAddress>trialorgfarmforu@salesforce.com</newSenderAddress>
-    <picassoSite>appreactsampleb2x1</picassoSite>
+    <picassoSite>propertyrentalapp1</picassoSite>
     <selfRegistration>false</selfRegistration>
     <sendWelcomeEmail>true</sendWelcomeEmail>
-    <site>appreactsampleb2x</site>
+    <site>propertyrentalapp</site>
     <siteArchiveStatus>NotArchived</siteArchiveStatus>
     <status>Live</status>
     <tabs>
         <defaultTab>home</defaultTab>
         <standardTab>Chatter</standardTab>
     </tabs>
-    <urlPathPrefix>appreactsampleb2xvforcesite</urlPathPrefix>
+    <urlPathPrefix>propertyrentalappvforcesite</urlPathPrefix>
     <welcomeTemplate>unfiled$public/CommunityWelcomeEmailTemplate</welcomeTemplate>
 </Network>

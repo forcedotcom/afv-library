@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DigitalExperienceConfig xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>appreactsampleb2x</label>
+    <label>propertyrentalapp</label>
     <site>
-        <urlPathPrefix>appreactsampleb2x</urlPathPrefix>
+        <urlPathPrefix>propertyrentalapp</urlPathPrefix>
     </site>
-    <space>site/appreactsampleb2x1</space>
+    <space>site/propertyrentalapp1</space>
 </DigitalExperienceConfig>

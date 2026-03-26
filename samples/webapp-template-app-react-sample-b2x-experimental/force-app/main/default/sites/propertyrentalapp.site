@@ -19,7 +19,7 @@
     <genericErrorPage>Exception</genericErrorPage>
     <inMaintenancePage>InMaintenance</inMaintenancePage>
      <indexPage>CommunitiesLanding</indexPage> 
-    <masterLabel>appreactsampleb2x</masterLabel>
+    <masterLabel>propertyrentalapp</masterLabel>
     <redirectToCustomDomain>false</redirectToCustomDomain>
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
     <selfRegPage>CommunitiesSelfReg</selfRegPage>
@@ -27,5 +27,5 @@
    <!-- <siteAdmin>epic.out.d1d3a2d722c8@orgfarm.salesforce.com</siteAdmin> -->
    <!--  <siteGuestRecordDefaultOwner>epic.out.d1d3a2d722c8@orgfarm.salesforce.com</siteGuestRecordDefaultOwner> -->
     <siteType>ChatterNetwork</siteType>
-    <urlPathPrefix>appreactsampleb2xvforcesite</urlPathPrefix>
+    <urlPathPrefix>propertyrentalappvforcesite</urlPathPrefix>
 </CustomSite>

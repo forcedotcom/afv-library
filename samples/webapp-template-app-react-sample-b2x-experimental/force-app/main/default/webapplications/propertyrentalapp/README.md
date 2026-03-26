@@ -1,6 +1,6 @@
-# App React Sample B2X
+# Property Rental App
 
-A sample B2X (Business-to-Consumer) React web app with an app shell for Salesforce Experience Cloud. Includes property listings, maintenance requests, and a dashboard. Built with React, Vite, TypeScript, and Tailwind/shadcn.
+A property rental sample React web app with an app shell for Salesforce Experience Cloud. Includes property listings, maintenance requests, and a dashboard. Built with React, Vite, TypeScript, and Tailwind/shadcn.
 
 For project-level details (metadata, deploy, sample data), see the [project README](../../../../../../README.md).
 
