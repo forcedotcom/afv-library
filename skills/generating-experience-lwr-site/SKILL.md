@@ -129,7 +129,7 @@ Before doing anything, you **MUST ALWAYS** load them first if they match user in
 
 **Steps** (Follow the steps sequentially. Do not skip any step before proceeding):
 
-- [ ] MUST read [handle-ui-components.md](docs/handle-ui-components.md) for new theme layouts.
+- [ ] MUST read [handle-ui-components.md](docs/handle-ui-components.md) to add LWCs to LWR sites.
 - [ ] MUST read [handle-component-and-region-ids.md](docs/handle-component-and-region-ids.md) to handle id generation
 - [ ] MUST read [configure-content-themeLayout.md](docs/configure-content-themeLayout.md) if a component has one of the following requirements:
   - needs to be "sticky" and persistent across pages
