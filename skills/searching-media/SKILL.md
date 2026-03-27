@@ -1,36 +1,11 @@
 ---
 name: searching-media
-description: You MUST Use this skill ANY TIME the user's request involves finding, searching, getting, fetching, retrieving, grabbing, looking up, or locating existing visual media (images, logos, icons, photos, graphics, banners, thumbnails, hero images, backgrounds) from any source. This skill takes PRIORITY and should be used FIRST when ANY media search/retrieval is mentioned, regardless of what else the user wants to do with the media afterward. Trigger for requests like "search for logo", "find hero image", "get company logo", "locate icons", "fetch background image", "retrieve product photos". This skill handles the search and source selection workflow. Only skip if the user wants to generate NEW images with AI, design custom graphics from scratch, or edit existing images.
+description: You MUST use this skill ANY TIME the user's request involves finding, searching, getting, fetching, retrieving, grabbing, looking up, or locating existing visual media (images, logos, icons, photos, graphics, banners, thumbnails, hero images, backgrounds) from any source. This skill takes PRIORITY and should be used FIRST when ANY media search/retrieval is mentioned, regardless of what else the user wants to do with the media afterward. Trigger for requests like "search for logo", "find hero image", "get company logo", "locate icons", "fetch background image", "retrieve product photos". This skill handles the search and source selection workflow. Only skip if the user wants to generate NEW images with AI, design custom graphics from scratch, or edit existing images.
 ---
 
 # Media Search
 
 Universal routing skill for searching and retrieving existing images and media.
-
-## Before You Search
-
-**CRITICAL: This is a routing skill, not a direct search skill.**
-
-When a user requests to find an image:
-
-**DO NOT call any search tool directly.** You MUST follow this sequence:
-
-1. **First response MUST include:** A list of numbered search source options for the user
-2. **Wait for user to reply** with their selected option number
-3. **Only then** call the appropriate search tool
-
-**Example of what NOT to do:**
-- ❌ Immediately calling `search_electronic_media` or `search_media_cms_channels`
-- ❌ Deciding which search source to use without asking
-- ❌ Saying "I'll search for you" and then calling a tool
-
-**Example of what TO do:**
-- ✅ Show numbered list: "1. Search using Data 360 hybrid search, 2. Search using keywords, 3. Other"
-- ✅ Ask: "Which option would you like to use?"
-- ✅ Wait for user to reply with their choice
-- ✅ Then call the tool they selected
-
-**Your first response when this skill triggers MUST present options and ask the user to choose. No exceptions.**
 
 ## Scope
 
@@ -49,36 +24,69 @@ When a user requests to find an image:
 - Edit or modify existing images
 - Build custom visuals or diagrams
 
+
+## Before You Search
+
+**CRITICAL: This is a routing skill, not a direct search skill.**
+
+When a user requests to find an image:
+
+**Your first response MUST be plain text only — zero tool calls.** You MUST follow this sequence:
+
+1. **First response MUST be text only:** A numbered list of search sources for the user. No tool calls of any kind.
+2. **Wait for user to reply** with their selected option number
+3. **Only then** call the appropriate search tool (this is the FIRST tool call in the entire interaction)
+
+**Example of what NOT to do:**
+- ❌ Calling ANY tool before the user picks a source (MCP tools, file reads, descriptor checks, etc.)
+- ❌ "Checking which MCP tools are available" — do not probe or discover tools via tool calls
+- ❌ Immediately calling `search_electronic_media` or `search_media_cms_channels`
+- ❌ Reading MCP tool descriptors or schemas to see what's available
+- ❌ Deciding which search source to use without asking
+
+**Example of what TO do:**
+- ✅ Respond with ONLY text — a numbered list of search sources
+- ✅ Ask: "Which option would you like to use?"
+- ✅ Wait for user to reply with their choice
+- ✅ Then (and only then) call the tool they selected
+
+**Your first response when this skill triggers MUST be a text-only message presenting search sources. No tool calls. No exceptions.**
+
+
 ## Workflow Overview
 
 **The user MUST choose the search source. You CANNOT skip this step.**
 
-1. Identify which search sources (MCP tools) are available
-2. **Present ALL available options** to the user as a numbered list
-3. **Wait for user to reply** with their selection
-4. Execute the selected search method
+1. **Check your own tool list** for available search tools (no tool calls — just inspect what's in your context)
+2. **Present only the available options** to the user as a numbered list (plain text, no tool calls)
+3. **Wait for the user to reply** with their selection
+4. Execute the selected search method (this is the first tool call)
 5. Return results for the user to choose from
 
-If you skip steps 2-3 and call a search tool directly, you are not following this skill correctly.
+If you call any tool before step 4, you are not following this skill correctly.
 
-## Discovering Available Search Sources
+## Presenting Search Sources (First Response)
 
-**Step 1: Check your available MCP tools**
+**DO NOT call any tool, read any MCP descriptor, or make any external request to determine available tools.**
 
-Look at your environment and identify which of these tools you have:
-- Do you have `search_media_cms_channels`? → If YES, include "Search using keywords"
-- Do you have `search_electronic_media`? → If YES, include "Search using Data 360 hybrid search"
-- Always include "Other" as the last option
+Your tools are already loaded into your context. Look at the tool names you already have access to — this is introspection, not a tool call.
+
+**Step 1: Check your own tool list (no tool calls)**
+
+Look at the tools already in your context and check for these names:
+- `search_media_cms_channels` → If present, include **"Search using keywords"**
+- `search_electronic_media` → If present, include **"Search using Data 360 hybrid search"**
+- Always include **"Other"** as the last option
 
 **Step 2: Build your response**
 
-Your first response must follow this structure exactly:
+Include ONLY the sources whose tools you actually have. Number them sequentially.
 
 ```
-I'll help you find that image. Here are your search options:
+I can help you find that image. Where would you like to search?
 
 [NUMBER]. [SEARCH SOURCE NAME] — [Brief description]
-[NUMBER]. [SEARCH SOURCE NAME] — [Brief description]
+...
 [NUMBER]. Other — Provide your own URL or path
 
 Which option would you like to use?
@@ -86,14 +94,14 @@ Which option would you like to use?
 
 **Step 3: Stop and wait**
 
-After presenting options, STOP. Do not proceed until the user replies with their choice.
+After presenting the list, STOP. Do not call any tool. Do not proceed. Wait for the user to reply with their choice.
 
-### Example First Response
+### Examples
 
+**Both tools available:**
 ```
-I'll help you find that image. Let me check which search sources are available.
+I can help you find that image. Where would you like to search?
 
-Available search sources:
 1. Search using Data 360 hybrid search — Semantic search across Salesforce CMS and connected DAMs
 2. Search using keywords — Search Salesforce CMS by keywords and taxonomies
 3. Other — Provide your own URL or path
@@ -101,32 +109,29 @@ Available search sources:
 Which option would you like to use?
 ```
 
-If no automated search tools are available:
-```
-No automated media sources are currently configured. Please provide a direct URL or asset library path.
-```
-
-**Example (all sources available):**
+**Only `search_media_cms_channels` available:**
 ```
 I can help you find that image. Where would you like to search?
 
-1. **Search using Data 360 hybrid search** — Semantic search across Salesforce CMS and connected DAMs
-2. **Search using keywords** — Search Salesforce CMS by keywords and taxonomies
-3. **Other** — Provide your own URL or path
+1. Search using keywords — Search Salesforce CMS by keywords and taxonomies
+2. Other — Provide your own URL or path
+
+Which option would you like to use?
 ```
 
-**Example (only keyword search available):**
+**Only `search_electronic_media` available:**
 ```
 I can help you find that image. Where would you like to search?
 
-1. **Search using keywords** — Search Salesforce CMS by keywords and taxonomies
-2. **Other** — Provide your own URL or path
+1. Search using Data 360 hybrid search — Semantic search across Salesforce CMS and connected DAMs
+2. Other — Provide your own URL or path
+
+Which option would you like to use?
 ```
 
-**Example (no automated sources):**
+**Neither tool available:**
 ```
-No automated media sources are currently configured. Please provide:
-1. **Direct URL or asset library path**
+No automated media search sources are currently configured. Please provide a direct URL or asset library path.
 ```
 
 **Wait for the user to select** before proceeding.
@@ -135,7 +140,7 @@ No automated media sources are currently configured. Please provide:
 
 **⚠️ ONLY reach this step if the user has explicitly selected an option from your numbered list.**
 
-If you haven't shown options yet, go back to the "Discovering Available Search Sources" section first.
+If you haven't shown options yet, go back to the "Presenting Search Sources" section first.
 
 After the user selects an option, execute the corresponding search method below.
 
@@ -187,7 +192,7 @@ After the user selects an option, execute the corresponding search method below.
 - `searchLanguage`: Locale with underscore (e.g., `en_US`)
 - `channelIds`: Always empty string
 - `channelType`: Always `"PublicUnauthenticated"`
-- ``: Always `"sfdc_cms__image"`
+- `contentTypeFqn`: Always `"sfdc_cms__image"`
 - `pageOffset`: Start at `0`, increment by `searchLimit` for pagination
 - `searchLimit`: Default `5`, adjust if user requests more
 
@@ -202,7 +207,7 @@ Query: "luxury apartment with river view"
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "": "sfdc_cms__image",
+    "contentTypeFqn": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -218,7 +223,7 @@ Query: "bright spacious room" (no concrete nouns)
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "": "sfdc_cms__image",
+    "contentTypeFqn": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -234,7 +239,7 @@ Query: "car images" (no descriptive terms)
     "searchLanguage": "en_US",
     "channelIds": "",
     "channelType": "PublicUnauthenticated",
-    "": "sfdc_cms__image",
+    "contentTypeFqn": "sfdc_cms__image",
     "pageOffset": 0,
     "searchLimit": 5
   }]
@@ -251,12 +256,11 @@ Query: "car images" (no descriptive terms)
 
 1. Use the user's query **as-is** — no keyword extraction or transformation needed
 2. Call `search_electronic_media`
-3. Pass the query to the tool's search parameter (check the tool's schema for the exact parameter name - likely `query` or `search_query`)
+3. Pass the query to the tool's `searchQuery` parameter
 
 **Example:**
 - User query: "modern luxury apartment with natural lighting"
-- Tool call: `search_electronic_media(query="modern luxury apartment with natural lighting")`
-  (Note: Check the tool's schema - parameter might be `query` or `search_query`)
+- Tool call: `search_electronic_media(searchQuery="modern luxury apartment with natural lighting")`
 
 ### Other (User-Provided URL)
 
@@ -267,24 +271,24 @@ Ask the user to provide:
 
 ## Presenting Search Results
 
-Parse the tool response and present **ALL** results as numbered options:
+Parse the tool response and present **ALL** results as numbered options. Show the image title only — do not display the URL. When the user selects an option, use the URL internally to apply the image.
 
 ```
 I found 4 images. Which one would you like to use?
 
-1. **Luxury Apartment Exterior**
+1. Luxury Apartment Exterior
    URL: https://cms.example.com/media/luxury-apt-01.jpg
    Source: Salesforce CMS
 
-2. **Modern High-Rise Building**
+2. Modern High-Rise Building
    URL: https://cms.example.com/media/highrise-02.jpg
    Source: Salesforce CMS
 
-3. **Waterfront Residence**
+3. Waterfront Residence
    URL: https://cms.example.com/media/waterfront-03.jpg
    Source: Salesforce CMS
 
-4. **Premium Condominium**
+4. Premium Condominium
    URL: https://cms.example.com/media/condo-04.jpg
    Source: Salesforce CMS
 ```
@@ -295,14 +299,10 @@ I found 4 images. Which one would you like to use?
 
 After the user chooses:
 
-1. **Confirm** the selection with image name and URL
-2. **Apply** the URL to the user's code/component
-3. **Show** what was changed (file path and line number)
-4. **Offer** next steps:
-   - Add alt text for accessibility
-   - Adjust styling or dimensions
-   - Find additional images
-   - Optimize image loading
+1. Confirm the selection with image name and URL
+2. Use the complete URL returned by the tool, including all query parameters. CMS and DAM URLs rely on query parameters for authentication, resizing, and CDN routing — dropping them breaks the image. For example, a URL like `https://cms.example.com/media/img.jpg?oid=00D&refid=0EM&v=2` must be used in full.
+3. Apply the URL to the user's code/component
+4. Show what was changed (file path and line number)
 
 ## Error Handling
 
@@ -330,9 +330,24 @@ After the user chooses:
 
 ## Key Principles
 
-1. **Always discover sources first** — Never assume a tool exists
-2. **Present only available options** — Don't show unavailable sources
+1. **First response is always text-only** — Present search sources without calling any tool
+2. **Only show configured sources** — Check your own tool list (introspection, not tool calls) and only present sources whose tools you have
 3. **Wait for user selection** — Never auto-select a source or image
 4. **Show all results** — Let the user choose the best match
 5. **Confirm before applying** — Verify the selection before modifying code
 6. **Handle errors gracefully** — Provide clear feedback and alternatives
+
+## Eval Queries
+
+Use these to verify the skill works correctly:
+
+| Query | Expected Behavior |
+|---|---|
+| "find me a company logo" | Present search sources (text only, no tool calls), wait for user selection |
+| "search for luxury apartment photos" | Present search sources; if keyword search selected, extract keywords + taxonomies correctly |
+| "grab a hero image for the homepage" | Present search sources, do not auto-search |
+| "find a banner image in Spanish" | Present search sources; if keyword search selected, set `searchLanguage` to `es_MX` |
+| "search for bright modern interiors" | If keyword search selected: empty `searchKeyword`, taxonomies = Bright, Modern, Contemporary |
+| "generate a new logo for my app" | Skill should NOT trigger (out of scope — this is image generation) |
+| "edit this product photo" | Skill should NOT trigger (out of scope — this is image editing) |
+| "find car images" | If keyword search selected: keywords = car, automobile, vehicle; empty taxonomies |
