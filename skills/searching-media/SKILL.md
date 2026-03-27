@@ -1,6 +1,10 @@
 ---
 name: searching-media
-description: You MUST use this skill ANY TIME the user's request involves finding, searching, getting, fetching, retrieving, grabbing, looking up, or locating existing visual media (images, logos, icons, photos, graphics, banners, thumbnails, hero images, backgrounds) from any source. This skill takes PRIORITY and should be used FIRST when ANY media search/retrieval is mentioned, regardless of what else the user wants to do with the media afterward. Trigger for requests like "search for logo", "find hero image", "get company logo", "locate icons", "fetch background image", "retrieve product photos". This skill handles the search and source selection workflow. Only skip if the user wants to generate NEW images with AI, design custom graphics from scratch, or edit existing images.
+description: Searches for and retrieves existing visual media (images, logos, icons, photos, graphics, banners, thumbnails, hero images, backgrounds) from any source. Activates ANY TIME a request involves finding, searching, getting, fetching, retrieving, grabbing, looking up, or locating media. Takes PRIORITY and activates FIRST when ANY media search/retrieval is mentioned, regardless of what else happens with the media afterward. Triggers for requests like "search for logo", "find hero image", "get company logo", "locate icons", "fetch background image", "retrieve product photos". Handles the search and source selection workflow. Does not apply when the request is to generate NEW images with AI, design custom graphics from scratch, or edit existing images.
+compatibility: Requires search_media_cms_channels and/or search_electronic_media MCP tools
+metadata:
+  author: "CMS Delivery Platform"
+  version: "1.0"
 ---
 
 # Media Search
@@ -23,7 +27,6 @@ Universal routing skill for searching and retrieving existing images and media.
 - Create graphics or designs from scratch
 - Edit or modify existing images
 - Build custom visuals or diagrams
-
 
 ## Before You Search
 
@@ -57,11 +60,17 @@ When a user requests to find an image:
 
 **The user MUST choose the search source. You CANNOT skip this step.**
 
-1. **Check your own tool list** for available search tools (no tool calls — just inspect what's in your context)
-2. **Present only the available options** to the user as a numbered list (plain text, no tool calls)
-3. **Wait for the user to reply** with their selection
-4. Execute the selected search method (this is the first tool call)
-5. Return results for the user to choose from
+Copy this checklist and track your progress:
+
+```
+Media Search Progress:
+- [ ] Step 1: Check your own tool list for available search tools (no tool calls — just inspect what's in your context)
+- [ ] Step 2: Present only the available options to the user as a numbered list (plain text, no tool calls)
+- [ ] Step 3: Wait for the user to reply with their selection
+- [ ] Step 4: Execute the selected search method (this is the first tool call)
+- [ ] Step 5: Present all results to user for selection
+- [ ] Step 6: Apply selected image to code
+```
 
 If you call any tool before step 4, you are not following this skill correctly.
 
@@ -277,19 +286,15 @@ Parse the tool response and present **ALL** results as numbered options. Show th
 I found 4 images. Which one would you like to use?
 
 1. Luxury Apartment Exterior
-   URL: https://cms.example.com/media/luxury-apt-01.jpg
    Source: Salesforce CMS
 
 2. Modern High-Rise Building
-   URL: https://cms.example.com/media/highrise-02.jpg
    Source: Salesforce CMS
 
 3. Waterfront Residence
-   URL: https://cms.example.com/media/waterfront-03.jpg
    Source: Salesforce CMS
 
 4. Premium Condominium
-   URL: https://cms.example.com/media/condo-04.jpg
    Source: Salesforce CMS
 ```
 
@@ -336,18 +341,3 @@ After the user chooses:
 4. **Show all results** — Let the user choose the best match
 5. **Confirm before applying** — Verify the selection before modifying code
 6. **Handle errors gracefully** — Provide clear feedback and alternatives
-
-## Eval Queries
-
-Use these to verify the skill works correctly:
-
-| Query | Expected Behavior |
-|---|---|
-| "find me a company logo" | Present search sources (text only, no tool calls), wait for user selection |
-| "search for luxury apartment photos" | Present search sources; if keyword search selected, extract keywords + taxonomies correctly |
-| "grab a hero image for the homepage" | Present search sources, do not auto-search |
-| "find a banner image in Spanish" | Present search sources; if keyword search selected, set `searchLanguage` to `es_MX` |
-| "search for bright modern interiors" | If keyword search selected: empty `searchKeyword`, taxonomies = Bright, Modern, Contemporary |
-| "generate a new logo for my app" | Skill should NOT trigger (out of scope — this is image generation) |
-| "edit this product photo" | Skill should NOT trigger (out of scope — this is image editing) |
-| "find car images" | If keyword search selected: keywords = car, automobile, vehicle; empty taxonomies |
