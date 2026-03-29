@@ -4,7 +4,7 @@ Sample apps and templates synced into this repo for reference and reuse.
 
 ## webapp-template-app-react-sample-b2e-experimental
 
-Source is synced from the npm package [@salesforce/webapp-template-app-react-sample-b2e-experimental](https://www.npmjs.com/package/@salesforce/webapp-template-app-react-sample-b2e-experimental). Only the package's source (no `node_modules`) is copied into `samples/webapp-template-app-react-sample-b2e-experimental/`.
+Source is synced from the npm package [@salesforce/ui-bundle-template-app-react-sample-b2e](https://www.npmjs.com/package/@salesforce/ui-bundle-template-app-react-sample-b2e). Only the package's source (no `node_modules`) is copied into `samples/webapp-template-app-react-sample-b2e-experimental/`.
 
 ### How it's updated
 
@@ -24,7 +24,7 @@ The file `samples/webapp-template-app-react-sample-b2e-experimental/.version` st
 
 ## webapp-template-app-react-sample-b2x-experimental
 
-Source is synced from the npm package [@salesforce/webapp-template-app-react-sample-b2x-experimental](https://www.npmjs.com/package/@salesforce/webapp-template-app-react-sample-b2x-experimental). Only the package's source (no `node_modules`) is copied into `samples/webapp-template-app-react-sample-b2x-experimental/`.
+Source is synced from the npm package [@salesforce/ui-bundle-template-app-react-sample-b2x](https://www.npmjs.com/package/@salesforce/ui-bundle-template-app-react-sample-b2x). Only the package's source (no `node_modules`) is copied into `samples/webapp-template-app-react-sample-b2x-experimental/`.
 
 ### How it's updated
 
