@@ -76,17 +76,17 @@ const res = await sdk.fetch?.("/services/apexrest/my-resource");
 
 ---
 
-## Required References
+## Required Docs
 
-Read the reference file for your task before generating code. These files contain the templates, rules, and detailed patterns that are essential to getting Salesforce GraphQL right — the SKILL.md body gives you the workflow and guardrails, but the references have the implementation detail you need to produce correct output.
+Read the doc file for your task before generating code. These files contain the templates, rules, and detailed patterns that are essential to getting Salesforce GraphQL right — the SKILL.md body gives you the workflow and guardrails, but the docs have the implementation detail you need to produce correct output.
 
 | Task | Read this file | It contains |
 |------|---------------|-------------|
-| Entity lookup for custom objects, `_Record` suffix, polymorphic fields | `references/schema-introspection.md` | Entity identification, naming conventions, iterative introspection cycles |
-| Generate a read query | `references/read-query-generation.md` | Read query generation rules, `@optional`/FLS rules, filtering, pagination, ordering, semi-joins, field value wrappers |
-| Generate a mutation (create/update/delete) | `references/mutation-query-generation.md` | Mutation template, input/output constraints, chaining, transactional semantics |
-| Test a query or fix query errors | `references/query-testing.md` | Testing method, error categories, FAILED/PARTIAL status handling, retry protocol |
-| Integrate a query into a React component | `references/webapp-integration.md` | External `.graphql` file vs inline `gql` patterns, codegen, typing, error handling strategies, quality checklists |
+| Entity lookup for custom objects, `_Record` suffix, polymorphic fields | `docs/schema-introspection.md` | Entity identification, naming conventions, iterative introspection cycles |
+| Generate a read query | `docs/read-query-generation.md` | Read query generation rules, `@optional`/FLS rules, filtering, pagination, ordering, semi-joins, field value wrappers |
+| Generate a mutation (create/update/delete) | `docs/mutation-query-generation.md` | Mutation template, input/output constraints, chaining, transactional semantics |
+| Test a query or fix query errors | `docs/query-testing.md` | Testing method, error categories, FAILED/PARTIAL status handling, retry protocol |
+| Integrate a query into a React component | `docs/webapp-integration.md` | External `.graphql` file vs inline `gql` patterns, codegen, typing, error handling strategies, quality checklists |
 
 ---
 
@@ -141,7 +141,7 @@ The script outputs seven sections per entity:
 6. **Update mutation wrapper** — accepted wrapper shape for update mutations
 7. **Update mutation fields** — fields accepted by update mutations
 
-Use this output to determine exact field names before writing any query or mutation. Use at most 2 direct lookup attempts per unresolved entity and at most 3 total introspection cycles across the workflow. If the entity still can't be found, ask the user — the object may not be deployed. If the entity name is ambiguous (custom objects, `_Record` suffix, polymorphic fields), read `references/schema-introspection.md` now for entity identification and iterative lookup procedures.
+Use this output to determine exact field names before writing any query or mutation. Use at most 2 direct lookup attempts per unresolved entity and at most 3 total introspection cycles across the workflow. If the entity still can't be found, ask the user — the object may not be deployed. If the entity name is ambiguous (custom objects, `_Record` suffix, polymorphic fields), read `docs/schema-introspection.md` now for entity identification and iterative lookup procedures.
 
 > **Stop here if any entity is unresolved.** Do not proceed to Step 3 until every entity and every requested field name is confirmed in the script output. If resolution fails after 2 runs and both naming variations, ask the user — the object may not be deployed.
 
@@ -149,9 +149,9 @@ Use this output to determine exact field names before writing any query or mutat
 
 Every field name must come directly from the Step 2 script output — never from memory or assumption.
 
-**For read queries:** Read `references/read-query-generation.md` now before writing the query. It contains 15 generation rules, FLS/`@optional` semantics, pagination, ordering, filtering patterns, semi-joins, and field value wrapper types. The inline template below is a starting point — the reference file defines which rules apply.
+**For read queries:** Read `docs/read-query-generation.md` now before writing the query. It contains 15 generation rules, FLS/`@optional` semantics, pagination, ordering, filtering patterns, semi-joins, and field value wrapper types. The inline template below is a starting point — the reference file defines which rules apply.
 
-**For mutations:** Read `references/mutation-query-generation.md` now before writing the mutation. It contains input/output field constraints, `allOrNone` semantics, and mutation chaining patterns that cannot be reconstructed from the template alone.
+**For mutations:** Read `docs/mutation-query-generation.md` now before writing the mutation. It contains input/output field constraints, `allOrNone` semantics, and mutation chaining patterns that cannot be reconstructed from the template alone.
 
 #### Read Query Template
 
@@ -266,7 +266,7 @@ const fields = response?.data?.uiapi?.objectInfos?.[0]?.fields ?? [];
 
 ### Step 4: Validate & Test
 
-**Read `references/query-testing.md` now before testing.** It defines the exact `sf api request rest` command, result status definitions (HTTP 200 ≠ success), FAILED/PARTIAL status handling, and the retry/escalation protocol.
+**Read `docs/query-testing.md` now before testing.** It defines the exact `sf api request rest` command, result status definitions (HTTP 200 ≠ success), FAILED/PARTIAL status handling, and the retry/escalation protocol.
 
 1. **Lint**: `npx eslint <file>` from web application dir
 2. **Test**: Ask user before testing. For mutations, request input values — never fabricate data.
@@ -319,7 +319,7 @@ if (response?.errors?.length) {
 const accounts = response?.data?.uiapi?.query?.Account?.edges?.map(e => e.node) ?? [];
 ```
 
-For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), **read `references/webapp-integration.md`**.
+For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), **read `docs/webapp-integration.md`**.
 
 ---
 
