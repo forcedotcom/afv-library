@@ -52,7 +52,7 @@ CSP Trusted Sites (if external domains needed)
 
 Creates the UI bundle directory structure, meta XML, and optional routing/headers config. All subsequent phases require the scaffold to exist.
 
-### Phase 2: Features (Capabilities)
+### Phase 2: Features (Optional)
 
 ```
 Install dependencies (npm install)
@@ -62,7 +62,7 @@ Search and install features (auth, shadcn, search, navigation, GraphQL)
 Integrate example files into target files
 ```
 
-Installs pre-built, tested feature packages. Always check for an existing feature before building from scratch. Features provide the foundation that UI components build on top of.
+Installs pre-built, tested feature packages. Skip if the app requires no pre-built features. Always check for an existing feature before building from scratch. Features provide the foundation that UI components build on top of.
 
 ### Phase 3: Data Access (Backend Wiring)
 
@@ -182,7 +182,7 @@ DEPLOYMENT:
 
 SKILL LOAD ORDER:
 1. generating-ui-bundle-metadata
-2. generating-ui-bundle-features
+2. generating-ui-bundle-features (if features needed)
 3. using-ui-bundle-salesforce-data (if data access needed)
 4. generating-ui-bundle-ui
 5a. implementing-ui-bundle-agentforce-conversation-client (if chat requested)
@@ -212,7 +212,7 @@ Execute each phase sequentially. Complete all steps within a phase before moving
 - ③ Verify: Confirm directory structure and metadata files exist
 - ④ Checkpoint: UI bundle scaffold is ready → proceed to Phase 2
 
-**Phase 2 — Features**
+**Phase 2 — Features** (skip if no pre-built features needed)
 - ① Load skill: Invoke `generating-ui-bundle-features`
 - ② Execute: Install dependencies, search and install features, integrate example files
 - ③ Verify: Run `npm run build` to confirm features integrate cleanly
@@ -257,7 +257,7 @@ UI Bundle App Build Complete: [App Name]
 
 PHASES COMPLETED:
 ✓ Phase 1: Scaffolding — [app name] UI bundle created
-✓ Phase 2: Features — [list of features installed]
+✓ Phase 2: Features — [list of features installed, or "skipped"]
 ✓ Phase 3: Data Access — [list of entities wired up]
 ✓ Phase 4: UI — [count] pages, [count] components
 ✓ Phase 5: Integrations — [list or "none"]
