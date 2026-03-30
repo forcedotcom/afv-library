@@ -1,12 +1,6 @@
 ---
 name: using-webapplication-salesforce-data
-description: >
-  Guides querying, mutating, and displaying Salesforce records (standard or custom objects)
-  in React, Angular, or Vue web applications via @salesforce/sdk-data, GraphQL, or REST —
-  includes a mandatory schema lookup that prevents silent runtime failures. Use when building
-  data-fetching code, wiring pagination/filtering/sorting, calling Apex REST or Einstein LLM,
-  fetching picklist values or object metadata, or debugging GraphQL errors in a web app.
-  Not for LWC @wire patterns, Flows, Bulk API, Apex triggers, or metadata deployment.
+description: "Guides querying, mutating, and displaying Salesforce records (standard or custom objects) in React, Angular, or Vue web applications via @salesforce/sdk-data, GraphQL, or REST — includes a mandatory schema lookup that prevents silent runtime failures. Use when building data-fetching code, wiring pagination/filtering/sorting, calling Apex REST or Einstein LLM, fetching picklist values or object metadata, or debugging GraphQL errors in a web app. Not for LWC @wire patterns, Flows, Bulk API, Apex triggers, or metadata deployment."
 ---
 
 # Salesforce Data Access
