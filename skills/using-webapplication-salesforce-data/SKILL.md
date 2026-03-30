@@ -1,18 +1,34 @@
 ---
 name: using-webapplication-salesforce-data
 description: >
-  Use this skill whenever the user wants to read, display, create, update, or delete
-  Salesforce records (Account, Contact, Opportunity, Case, or any custom object) inside
-  a web application or UI component (React, Angular, Vue, etc.) using @salesforce/sdk-data, the
-  GraphQL API, or Salesforce REST. Always reach for this skill before writing any
-  data-fetching code — it contains a required schema lookup step and non-negotiable
-  rules that prevent silent runtime failures. Use it for querying, filtering, sorting,
-  paginating, or mutating records; fetching object metadata or picklist values; getting
-  current user info; calling Apex REST; or using Einstein LLM or Connect REST from a
-  React web application.
+  Guides querying, mutating, and displaying Salesforce records (standard or custom objects)
+  in React, Angular, or Vue web applications via @salesforce/sdk-data, GraphQL, or REST —
+  includes a mandatory schema lookup that prevents silent runtime failures. Use when building
+  data-fetching code, wiring pagination/filtering/sorting, calling Apex REST or Einstein LLM,
+  fetching picklist values or object metadata, or debugging GraphQL errors in a web app.
+  Not for LWC @wire patterns, Flows, Bulk API, Apex triggers, or metadata deployment.
 ---
 
 # Salesforce Data Access
+
+## When This Skill Activates
+
+- User wants to query, create, update, or delete Salesforce records from a web app
+- User needs to wire Salesforce data into React, Angular, or Vue components
+- User asks about `@salesforce/sdk-data`, GraphQL queries, or Apex REST calls from a UI
+- User is debugging a Salesforce GraphQL error (`Cannot query field`, HTTP 200 failures)
+- User needs picklist values, object metadata, or current user info in a web app
+- User wants to call Einstein LLM or Connect REST from a web application
+
+## Preconditions
+
+| Requirement | Details |
+|-------------|---------|
+| `@salesforce/sdk-data` installed | The web app must have this package — it handles auth, CSRF, and base URL |
+| `schema.graphql` at SFDX project root | Required for schema lookups; generate with `npm run graphql:schema` from the web app dir |
+| Custom objects/fields deployed | Custom entities only appear in the schema after metadata deployment and permission set assignment |
+| API version v65+ | Required for `@optional` directive (FLS resilience) |
+| API version v66+ | Required for GraphQL mutations |
 
 ## Data SDK Requirement
 

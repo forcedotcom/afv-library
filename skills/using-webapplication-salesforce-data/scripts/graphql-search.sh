@@ -3,8 +3,8 @@ set -euo pipefail  # exit on error (-e), undefined vars (-u), and propagate pipe
 # graphql-search.sh — Look up one or more Salesforce entities in schema.graphql.
 #
 # Canonical usage from the SFDX project root:
-#   bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account
-#   bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
+#   bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account
+#   bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
 #
 # Usage from any directory with an explicit schema path:
 #   bash /absolute/path/to/graphql-search.sh --schema /path/to/schema.graphql Account
@@ -52,7 +52,7 @@ done
 if [ $# -eq 0 ]; then
   echo "Usage: bash $0 --schema <schema-path> <EntityName> [EntityName2 ...]"
   echo "Canonical example from project root:"
-  echo "  bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account"
+  echo "  bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account"
   echo "Portable example from any directory:"
   echo "  bash \"$SCRIPT_DIR/graphql-search.sh\" --schema /path/to/schema.graphql Account"
   exit 1
@@ -61,7 +61,7 @@ fi
 if [ ! -f "$SCHEMA" ]; then
   echo "ERROR: schema.graphql not found at $SCHEMA"
   echo "  Run the canonical command from the SFDX project root:"
-  echo "    bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>"
+  echo "    bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>"
   echo "  Or pass an explicit schema path from any directory:"
   echo "    bash \"$SCRIPT_DIR/graphql-search.sh\" --schema /absolute/path/to/schema.graphql <EntityName>"
   echo "  If the file is missing entirely, generate it from the webapp dir:"

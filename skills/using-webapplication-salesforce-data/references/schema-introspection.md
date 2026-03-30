@@ -15,9 +15,9 @@ Do not use cat, less, more, head, tail, editors (VS Code, vim, nano), or program
 Run the canonical search command from the **SFDX project root** to get all relevant schema info in one step:
 
 ```bash
-bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>
+bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>
 # Multiple entities:
-bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
+bash skills/using-webapplication-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
 ```
 
 Use at most **2 direct lookup attempts per unresolved entity**. If the entity still can't be found after checking naming variations, ask the user.
