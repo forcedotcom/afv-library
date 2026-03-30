@@ -3,7 +3,7 @@ name: building-ui-bundle-app
 description: "Build complete Salesforce React UI bundle applications from natural language descriptions. Use this skill when a user requests a full React app, UI bundle app, web app on Salesforce, or describes a scenario requiring scaffolding, features, data access, UI pages, and deployment of a React application hosted on Salesforce. Orchestrates all UI bundle skills in proper dependency order to produce a deployable application. Triggers on: build a React app, create a UI bundle, build me an app, full-stack Salesforce React app, create a web app on Salesforce."
 metadata:
   version: "1.0"
-  related-skills: generating-ui-bundle-metadata, generating-ui-bundle-features, using-ui-bundle-salesforce-data, generating-ui-bundle-ui, implementing-ui-bundle-agentforce-conversation-client, implementing-ui-bundle-file-upload, deploying-ui-bundle, generating-experience-react-site
+  related-skills: generating-ui-bundle-metadata, generating-ui-bundle-features, using-ui-bundle-salesforce-data, building-ui-bundle-frontend, implementing-ui-bundle-agentforce-conversation-client, implementing-ui-bundle-file-upload, deploying-ui-bundle, generating-experience-react-site
 ---
 
 # Building a UI Bundle App
@@ -18,7 +18,7 @@ Build a complete, deployable Salesforce React UI bundle application from a natur
 
 - User requests a "React app", "UI bundle", "web app", or "full-stack app" on Salesforce
 - User says "build an app", "create an application" and the context implies a non-LWC based frontend (e.g. React)
-- The work produces a complete UI bundle with scaffolding, features, data access, and UI — not a single component in isolation
+- The work produces a complete UI bundle with scaffolding, features, data access, and UI -- not a single component in isolation
 
 **Examples that should trigger this skill:**
 
@@ -29,7 +29,7 @@ Build a complete, deployable Salesforce React UI bundle application from a natur
 
 **Do NOT use when:**
 
-- Creating a single page or component (use `generating-ui-bundle-ui`)
+- Creating a single page or component (use `building-ui-bundle-frontend`)
 - Only installing a feature (use `generating-ui-bundle-features`)
 - Only setting up data access (use `using-ui-bundle-salesforce-data`)
 - Only deploying an existing app (use `deploying-ui-bundle`)
@@ -44,9 +44,11 @@ Build a complete, deployable Salesforce React UI bundle application from a natur
 
 ```
 UI Bundle scaffold (sf ui-bundle generate)
-    ↓
+    v
+Install dependencies (npm install)
+    v
 Bundle metadata (uibundle-meta.xml, ui-bundle.json)
-    ↓
+    v
 CSP Trusted Sites (if external domains needed)
 ```
 
@@ -55,11 +57,15 @@ Creates the UI bundle directory structure, meta XML, and optional routing/header
 ### Phase 2: Features (Optional)
 
 ```
+Search project code (src/) for existing implementations
+    v
 Install dependencies (npm install)
-    ↓
-Search and install features (auth, shadcn, search, navigation, GraphQL)
-    ↓
-Integrate example files into target files
+    v
+Search, describe, and install features (auth, shadcn, search, navigation, GraphQL)
+    v
+Resolve conflicts (two-pass: --on-conflict error, then --conflict-resolution)
+    v
+Integrate __example__ files into target files, then delete them
 ```
 
 Installs pre-built, tested feature packages. Skip if the app requires no pre-built features. Always check for an existing feature before building from scratch. Features provide the foundation that UI components build on top of.
@@ -68,12 +74,12 @@ Installs pre-built, tested feature packages. Skip if the app requires no pre-bui
 
 ```
 Acquire schema (npm run graphql:schema)
-    ↓
-Look up entity schema (graphql-search.sh)
-    ↓
-Generate queries/mutations
-    ↓
-Integrate with React components
+    v
+Look up entity schema (graphql-search.sh, max 2 runs)
+    v
+Generate queries/mutations (use verified field names, @optional on all record fields)
+    v
+Validate and test (npx eslint, ask user before testing mutations)
 ```
 
 Sets up the data layer using `@salesforce/sdk-data`. GraphQL is preferred for record operations; REST for Connect, Apex, or UI API endpoints.
@@ -81,13 +87,11 @@ Sets up the data layer using `@salesforce/sdk-data`. GraphQL is preferred for re
 ### Phase 4: UI (Frontend)
 
 ```
-Layout and navigation (appLayout.tsx)
-    ↓
+Layout, navigation, header, and footer (appLayout.tsx)
+    v
 Pages (routed views)
-    ↓
+    v
 Components (widgets, forms, tables)
-    ↓
-Headers and footers
 ```
 
 Builds the React UI. References the data layer from Phase 3 and the features from Phase 2. Must replace all boilerplate and placeholder content.
@@ -105,28 +109,30 @@ These are independent and can be executed in parallel if both are needed.
 
 ```
 Org authentication
-    ↓
-Build UI bundle (npm run build)
-    ↓
+    v
+Pre-deploy UI bundle build (npm install + npm run build)
+    v
 Deploy metadata
-    ↓
-Assign permissions
-    ↓
+    v
+Post-deploy configuration (permissions, profiles, named credentials, connected apps, custom settings, flow activation)
+    v
 Import data (if data plan exists)
-    ↓
+    v
 Fetch GraphQL schema and run codegen
-*(Re-fetches schema from the deployed org — required because the remote schema may differ from the local one used in Phase 3)*
+*(Re-fetches schema from the deployed org -- required because the remote schema may differ from the local one used in Phase 3)*
+    v
+Final UI bundle build (rebuilds with the deployed schema)
 ```
 
-Follows the canonical 7-step deployment sequence. Must deploy metadata before fetching schema.
+Follows the canonical 7-step deployment sequence. Must deploy metadata before fetching schema. Must assign permissions before schema fetch.
 
 ### Phase 7: Experience Site (Optional)
 
 ```
 Resolve site properties (siteName, appDevName, etc.)
-    ↓
+    v
 Generate site metadata (Network, CustomSite, DigitalExperience)
-    ↓
+    v
 Deploy site infrastructure
 ```
 
@@ -184,7 +190,7 @@ SKILL LOAD ORDER:
 1. generating-ui-bundle-metadata
 2. generating-ui-bundle-features (if features needed)
 3. using-ui-bundle-salesforce-data (if data access needed)
-4. generating-ui-bundle-ui
+4. building-ui-bundle-frontend
 5a. implementing-ui-bundle-agentforce-conversation-client (if chat requested)
 5b. implementing-ui-bundle-file-upload (if file upload requested)
 6. deploying-ui-bundle
@@ -197,56 +203,56 @@ Execute each phase sequentially. Complete all steps within a phase before moving
 
 | Step | What to do | Why |
 |------|-----------|-----|
-| **① Load skill** | Invoke the skill (e.g., via the Skill tool) for this phase | Gives you the current rules, patterns, constraints, and implementation guides |
-| **② Execute** | Follow the loaded skill's workflow to generate code/config | The skill defines HOW to do the work correctly |
-| **③ Verify** | Run lint and build from the UI bundle directory | Catch errors before moving to the next phase |
-| **④ Checkpoint** | Confirm phase completion before proceeding | Ensures dependencies are satisfied for the next phase |
+| **1. Load skill** | Invoke the skill (e.g., via the Skill tool) for this phase | Gives you the current rules, patterns, constraints, and implementation guides |
+| **2. Execute** | Follow the loaded skill's workflow to generate code/config | The skill defines HOW to do the work correctly |
+| **3. Verify** | Run lint and build from the UI bundle directory | Catch errors before moving to the next phase |
+| **4. Checkpoint** | Confirm phase completion before proceeding | Ensures dependencies are satisfied for the next phase |
 
-**Do NOT skip ① (loading the skill).** Even if you remember the skill's content, skills evolve. Always load the current version.
+**Do NOT skip step 1 (loading the skill).** Even if you remember the skill's content, skills evolve. Always load the current version.
 
 ---
 
-**Phase 1 — Scaffolding**
-- ① Load skill: Invoke `generating-ui-bundle-metadata`
-- ② Execute: Run `sf ui-bundle generate`, configure meta XML, ui-bundle.json, and CSP trusted sites
-- ③ Verify: Confirm directory structure and metadata files exist
-- ④ Checkpoint: UI bundle scaffold is ready → proceed to Phase 2
+**Phase 1 -- Scaffolding**
+- 1. Load skill: Invoke `generating-ui-bundle-metadata`
+- 2. Execute: Run `sf ui-bundle generate`, install dependencies (`npm install`), configure meta XML, ui-bundle.json, and CSP trusted sites
+- 3. Verify: Confirm directory structure and metadata files exist
+- 4. Checkpoint: UI bundle scaffold is ready -- proceed to Phase 2
 
-**Phase 2 — Features** (skip if no pre-built features needed)
-- ① Load skill: Invoke `generating-ui-bundle-features`
-- ② Execute: Install dependencies, search and install features, integrate example files
-- ③ Verify: Run `npm run build` to confirm features integrate cleanly
-- ④ Checkpoint: Features installed → proceed to Phase 3
+**Phase 2 -- Features** (skip if no pre-built features needed)
+- 1. Load skill: Invoke `generating-ui-bundle-features`
+- 2. Execute: Install dependencies, search and install features, integrate example files
+- 3. Verify: Run `npm run build` to confirm features integrate cleanly
+- 4. Checkpoint: Features installed -- proceed to Phase 3
 
-**Phase 3 — Data Access** (skip if no Salesforce data needed)
-- ① Load skill: Invoke `using-ui-bundle-salesforce-data`
-- ② Execute: Fetch schema, look up entities, generate queries/mutations, wire into components
-- ③ Verify: Run `npx eslint` on files with GraphQL queries
-- ④ Checkpoint: Data layer ready → proceed to Phase 4
+**Phase 3 -- Data Access** (skip if no Salesforce data needed)
+- 1. Load skill: Invoke `using-ui-bundle-salesforce-data`
+- 2. Execute: Fetch schema, look up entities, generate queries/mutations, wire into components
+- 3. Verify: Run `npx eslint` on files with GraphQL queries
+- 4. Checkpoint: Data layer ready -- proceed to Phase 4
 
-**Phase 4 — UI**
-- ① Load skill: Invoke `generating-ui-bundle-ui`
-- ② Execute: Build layout, pages, components, navigation. Replace all boilerplate.
-- ③ Verify: Run lint and build — 0 errors required
-- ④ Checkpoint: UI complete → proceed to Phase 5
+**Phase 4 -- UI**
+- 1. Load skill: Invoke `building-ui-bundle-frontend`
+- 2. Execute: Build layout, pages, components, navigation. Replace all boilerplate.
+- 3. Verify: Run lint and build -- 0 errors required
+- 4. Checkpoint: UI complete -- proceed to Phase 5
 
-**Phase 5 — Integrations** (skip if not requested)
-- ① Load skill(s): Invoke `implementing-ui-bundle-agentforce-conversation-client` (5a) and/or `implementing-ui-bundle-file-upload` (5b). If both are needed, they are independent and can be executed in parallel.
-- ② Execute: Follow each skill's workflow to add the integration
-- ③ Verify: Run lint and build
-- ④ Checkpoint: Integrations complete → proceed to Phase 6
+**Phase 5 -- Integrations** (skip if not requested)
+- 1. Load skill(s): Invoke `implementing-ui-bundle-agentforce-conversation-client` (5a) and/or `implementing-ui-bundle-file-upload` (5b). If both are needed, they are independent and can be executed in parallel.
+- 2. Execute: Follow each skill's workflow to add the integration
+- 3. Verify: Run lint and build
+- 4. Checkpoint: Integrations complete -- proceed to Phase 6
 
-**Phase 6 — Deployment**
-- ① Load skill: Invoke `deploying-ui-bundle`
-- ② Execute: Follow the 7-step deployment sequence (auth, build, deploy, permissions, data, schema, final build)
-- ③ Verify: Confirm deployment succeeds and app is accessible
-- ④ Checkpoint: App deployed → proceed to Phase 7 if needed
+**Phase 6 -- Deployment**
+- 1. Load skill: Invoke `deploying-ui-bundle`
+- 2. Execute: Follow the 7-step deployment sequence (auth, build, deploy, permissions, data, schema, final build)
+- 3. Verify: Confirm deployment succeeds and app is accessible
+- 4. Checkpoint: App deployed -- proceed to Phase 7 if needed
 
-**Phase 7 — Experience Site** (skip if not requested)
-- ① Load skill: Invoke `generating-experience-react-site`
-- ② Execute: Resolve properties, generate site metadata, deploy
-- ③ Verify: Confirm site URL is accessible
-- ④ Checkpoint: Site live → build complete
+**Phase 7 -- Experience Site** (skip if not requested)
+- 1. Load skill: Invoke `generating-experience-react-site`
+- 2. Execute: Resolve properties, generate site metadata, deploy
+- 3. Verify: Confirm site URL is accessible
+- 4. Checkpoint: Site live -- build complete
 
 ### STEP 3: Final Summary
 
@@ -256,13 +262,13 @@ After all phases complete, present a build summary:
 UI Bundle App Build Complete: [App Name]
 
 PHASES COMPLETED:
-✓ Phase 1: Scaffolding — [app name] UI bundle created
-✓ Phase 2: Features — [list of features installed, or "skipped"]
-✓ Phase 3: Data Access — [list of entities wired up]
-✓ Phase 4: UI — [count] pages, [count] components
-✓ Phase 5: Integrations — [list or "none"]
-✓ Phase 6: Deployment — deployed to [org]
-✓ Phase 7: Experience Site — [site URL or "skipped"]
+[x] Phase 1: Scaffolding -- [app name] UI bundle created
+[x] Phase 2: Features -- [list of features installed, or "skipped"]
+[x] Phase 3: Data Access -- [list of entities wired up]
+[x] Phase 4: UI -- [count] pages, [count] components
+[x] Phase 5: Integrations -- [list or "none"]
+[x] Phase 6: Deployment -- deployed to [org]
+[x] Phase 7: Experience Site -- [site URL or "skipped"]
 
 FILES GENERATED:
 [list key files and their paths]
@@ -316,4 +322,4 @@ Every generated app must feel purpose-built. Replace "React App" titles, "Vite +
 
 ### 3. Design with Intent
 
-Follow the design thinking and frontend aesthetics guidance from `generating-ui-bundle-ui`. Every app should have a clear visual direction — not generic defaults.
+Follow the design thinking and frontend aesthetics guidance from `building-ui-bundle-frontend`. Every app should have a clear visual direction -- not generic defaults.
