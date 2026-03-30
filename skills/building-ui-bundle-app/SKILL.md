@@ -17,7 +17,7 @@ Build a complete, deployable Salesforce React UI bundle application from a natur
 **Use when:**
 
 - User requests a "React app", "UI bundle", "web app", or "full-stack app" on Salesforce
-- User says "build an app", "create an application" and the context implies a React frontend
+- User says "build an app", "create an application" and the context implies a non-LWC based frontend (e.g. React)
 - The work produces a complete UI bundle with scaffolding, features, data access, and UI — not a single component in isolation
 
 **Examples that should trigger this skill:**
