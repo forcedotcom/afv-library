@@ -14,7 +14,7 @@ Resolve all five properties before generating any metadata. Each has a fallback 
 | Property | Format | How to Resolve |
 |----------|--------|----------------|
 | **siteName** | `UpperCamelCase` (e.g., `MyCommunity`) | Ask user or derive from context |
-| **siteUrlPathPrefix** | `kebab-case` (e.g., `my-community`) | User-provided, or convert siteName to kebab-case |
+| **siteUrlPathPrefix** | `All lowercase` (e.g., `mycommunity`) | User-provided, or convert siteName to all lowercase with alphanumeric characters only |
 | **appNamespace** | String | `namespace` in `sfdx-project.json` → `sf data query -q "SELECT NamespacePrefix FROM Organization" --target-org ${usernameOrAlias}` → default `c` |
 | **appDevName** | String | `webApplication` metadata in the project → `sf data query -q "SELECT DeveloperName FROM WebApplication" --target-org ${usernameOrAlias}` → default to siteName |
 | **enableGuestAccess** | Boolean | Ask user whether unauthenticated guest users can access site APIs → default `false` |
@@ -26,7 +26,7 @@ The `appNamespace` and `appDevName` properties connect the site to the correct R
 Determine values for all five properties before constructing anything. Use the resolution strategies in the table above, falling through each option until a value is found.
 
 ### Step 2: Create the Project Structure
-Call the `get_metadata_api_context` MCP tool to retrieve schemas for `Network`, `CustomSite`, `DigitalExperienceConfig`, and `DigitalExperienceBundle` metadata types. These schemas define the valid XML structure for each file.
+Use available Salesforce metadata schema and field context for `Network`, `CustomSite`, `DigitalExperienceConfig`, and `DigitalExperienceBundle` to ensure each file uses valid structure.
 
 Create any files and directories that don't already exist, using these paths:
 
@@ -63,7 +63,7 @@ Use the default templates in the docs below. Values in `{braces}` are resolved p
 - Read entire file contents, replace placeholders (e.g. `{siteName}`) with the resolved values, then use the expanded templates to populate the metadata XML/JSON content.
   
 ### Step 4: Resolve Additional Configurations
-Address any extra configurations the user requests. Use the schemas returned by `get_metadata_api_context` in Step 2 to understand each field's purpose, and update only the minimum necessary fields.
+Address any extra configurations the user requests. Use the metadata sections and field context identified in Step 2 to understand each field’s purpose and constraints, then update only the minimum necessary fields.
 
 ## Verification Checklist
 Before deploying, confirm:
