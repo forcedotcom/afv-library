@@ -2,13 +2,13 @@
 set -euo pipefail  # exit on error (-e), undefined vars (-u), and propagate pipeline failures (-o pipefail)
 # graphql-search.sh — Look up one or more Salesforce entities in schema.graphql.
 #
-# Run from the SFDX project root (where schema.graphql lives):
-#   bash scripts/graphql-search.sh Account
-#   bash scripts/graphql-search.sh Account Contact Opportunity
+# Canonical usage from the SFDX project root:
+#   bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account
+#   bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
 #
-# Pass a custom schema path with -s / --schema:
-#   bash scripts/graphql-search.sh -s /path/to/schema.graphql Account
-#   bash scripts/graphql-search.sh --schema ./other/schema.graphql Account Contact
+# Usage from any directory with an explicit schema path:
+#   bash /absolute/path/to/graphql-search.sh --schema /path/to/schema.graphql Account
+#   bash /absolute/path/to/graphql-search.sh --schema /path/to/schema.graphql Account Contact
 #
 # Output sections per entity:
 #   1. Type definition          — all fields and relationships
@@ -18,8 +18,9 @@ set -euo pipefail  # exit on error (-e), undefined vars (-u), and propagate pipe
 #   5. Create mutation fields   — <Entity>CreateRepresentation (for create mutations)
 #   6. Update mutation wrapper  — <Entity>UpdateInput
 #   7. Update mutation fields   — <Entity>UpdateRepresentation (for update mutations)
-
-SCHEMA="./schema.graphql"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_SCHEMA="./schema.graphql"
+SCHEMA="$DEFAULT_SCHEMA"
 
 # ── Argument parsing ─────────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -*)
       echo "ERROR: Unknown option: $1"
-      echo "Usage: bash $0 [-s <schema-path>] <EntityName> [EntityName2 ...]"
+      echo "Usage: bash $0 --schema <schema-path> <EntityName> [EntityName2 ...]"
       exit 1
       ;;
     *)
@@ -49,17 +50,20 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ $# -eq 0 ]; then
-  echo "Usage: bash $0 [-s <schema-path>] <EntityName> [EntityName2 ...]"
-  echo "Example: bash $0 Account"
-  echo "Example: bash $0 Account Contact Opportunity"
-  echo "Example: bash $0 --schema /path/to/schema.graphql Account"
+  echo "Usage: bash $0 --schema <schema-path> <EntityName> [EntityName2 ...]"
+  echo "Canonical example from project root:"
+  echo "  bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account"
+  echo "Portable example from any directory:"
+  echo "  bash \"$SCRIPT_DIR/graphql-search.sh\" --schema /path/to/schema.graphql Account"
   exit 1
 fi
 
 if [ ! -f "$SCHEMA" ]; then
   echo "ERROR: schema.graphql not found at $SCHEMA"
-  echo "  Make sure you are running from the SFDX project root, or pass the path explicitly:"
-  echo "    bash $0 --schema <path/to/schema.graphql> <EntityName>"
+  echo "  Run the canonical command from the SFDX project root:"
+  echo "    bash skills/using-webapp-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>"
+  echo "  Or pass an explicit schema path from any directory:"
+  echo "    bash \"$SCRIPT_DIR/graphql-search.sh\" --schema /absolute/path/to/schema.graphql <EntityName>"
   echo "  If the file is missing entirely, generate it from the webapp dir:"
   echo "    cd force-app/main/default/webapplications/<app-name> && npm run graphql:schema"
   exit 1

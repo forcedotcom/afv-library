@@ -1,5 +1,9 @@
 # Webapp Integration
 
+## Load This Reference When
+
+Load this file before integrating GraphQL operations into a React webapp, especially when choosing between external `.graphql` files and inline `gql`, running codegen, and handling SDK response errors in UI code.
+
 ## When to Use
 
 This guide applies when integrating GraphQL queries into a React webapp using `createDataSDK` + codegen from `@salesforce/sdk-data`.

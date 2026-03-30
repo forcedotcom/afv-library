@@ -212,6 +212,7 @@ notes.txt
 TODO.txt
 .cursor/
 .copilot/
+.worktrees/
 
 # Test output
 test-results/
