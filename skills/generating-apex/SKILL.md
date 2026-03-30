@@ -64,7 +64,7 @@ Writing files is the midpoint, not the finish line. Steps 6 and 7 each require a
 
 7. **Execute Apex tests**
    - Run org tests including `{ClassName}Test` via `sf apex run test` or MCP.
-   - Delegate all test fixes/coverage work to `generating-apex-test`; iterate until green.
+   - Delegate all test generation/fixes/coverage work to `generating-apex-test`; iterate until the tests pass.
    - Capture pass/fail counts and coverage percentage for the report.
    - If unavailable, record `test_execution=unavailable: <error>` in the report.
 
@@ -357,6 +357,10 @@ Deliverables per class:
 - `{ClassName}.cls-meta.xml` (default API version `66.0` or higher unless specified)
 - `{ClassName}Test.cls` (generated via `generating-apex-test` skill)
 - `{ClassName}Test.cls-meta.xml` (generated via `generating-apex-test` skill)
+
+Deliverables per trigger:
+- `{TriggerName}.trigger`
+- `{TriggerName}.trigger-meta.xml` (default API version `66.0` or higher unless specified)
 
 Meta XML template:
 
