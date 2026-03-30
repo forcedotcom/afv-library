@@ -736,9 +736,9 @@
         "$id": "greeting",
         "type": "apex",
         "properties": {
-          "className": "PortalService",
+          "className": "CamaDataService",
           "methodName": "getGreeting",
-          "namespace": "cama_dev",
+          "namespace": "",
           "params": {}
         }
       },
@@ -746,9 +746,9 @@
         "$id": "leaseProgress",
         "type": "apex",
         "properties": {
-          "className": "PortalService",
+          "className": "CamaDataService",
           "methodName": "getLeaseProgress",
-          "namespace": "cama_dev",
+          "namespace": "",
           "params": {}
         }
       },
@@ -756,9 +756,9 @@
         "$id": "newsImage1",
         "type": "apex",
         "properties": {
-          "className": "PortalService",
+          "className": "CamaDataService",
           "methodName": "getNewsImage1",
-          "namespace": "cama_dev",
+          "namespace": "",
           "params": {}
         }
       },
@@ -766,9 +766,9 @@
         "$id": "newsImage2",
         "type": "apex",
         "properties": {
-          "className": "PortalService",
+          "className": "CamaDataService",
           "methodName": "getNewsImage2",
-          "namespace": "cama_dev",
+          "namespace": "",
           "params": {}
         }
       },
@@ -776,9 +776,9 @@
         "$id": "newsImage3",
         "type": "apex",
         "properties": {
-          "className": "PortalService",
+          "className": "CamaDataService",
           "methodName": "getNewsImage3",
-          "namespace": "cama_dev",
+          "namespace": "",
           "params": {}
         }
       }
