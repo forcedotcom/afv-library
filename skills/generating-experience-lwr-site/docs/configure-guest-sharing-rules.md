@@ -1,7 +1,14 @@
 # Guest User Sharing Rules (Public Sites Only)
 
-**Use when** the user explicitly wants to make the site **public** (accessible to unauthenticated visitors). If the site is private/login-required, guest sharing rules are not needed.
-If sharingRules metadata is not available locally in force-app/main/default/sharingRules, retrieve it from the org before creating new rules.
+**Use when** the user asks to create or modify a guest sharing rule, mentions a username containing "Guest User" or "Site Guest User" (e.g. "ZenLease Site Guest User"), or wants to share object records with unauthenticated visitors.
+
+## Steps
+
+1. **Resolve the guest user identity**: If the user provides a username like "ZenLease Site Guest User", use it directly as the `<guestUser>` value (`CommunityNickname`). If a user ID is provided (e.g. `005AAC00003f8EP`), query the org to get the `CommunityNickname` first.
+2. **Check for existing file**: Look for `sharingRules/{ObjectName}.sharingRules-meta.xml` locally. If missing, retrieve it from the org before editing.
+3. **Generate the rule**: Follow the XML example and critical requirements below. Never use `sharingCriteriaRules` or `<role>`/`<group>` for guest rules.
+
+If `sharingRules` metadata is not available locally in `force-app/main/default/sharingRules`, retrieve it from the org before creating new rules.
 
 ## Retrieve Full SharingRules Schema
 
