@@ -43,7 +43,7 @@ Build a complete, deployable Salesforce React UI bundle application from a natur
 ### Phase 1: Scaffolding (Foundation)
 
 ```
-UI Bundle scaffold (sf ui-bundle generate)
+UI Bundle scaffold (sf template generate ui-bundle)
     v
 Install dependencies (npm install)
     v
@@ -214,7 +214,7 @@ Execute each phase sequentially. Complete all steps within a phase before moving
 
 **Phase 1 -- Scaffolding**
 - 1. Load skill: Invoke `generating-ui-bundle-metadata`
-- 2. Execute: Run `sf ui-bundle generate`, install dependencies (`npm install`), configure meta XML, ui-bundle.json, and CSP trusted sites
+- 2. Execute: Run `sf template generate ui-bundle`, install dependencies (`npm install`), configure meta XML, ui-bundle.json, and CSP trusted sites
 - 3. Verify: Confirm directory structure and metadata files exist
 - 4. Checkpoint: UI bundle scaffold is ready -- proceed to Phase 2
 
