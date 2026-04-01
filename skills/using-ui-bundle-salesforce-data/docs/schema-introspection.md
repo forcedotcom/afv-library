@@ -1,5 +1,9 @@
 # Schema Introspection
 
+## Load This Reference When
+
+Load this file before resolving entity names, relationship paths, or field availability from `schema.graphql`, especially when object naming is ambiguous (`__c`, `_Record`, polymorphic relationships).
+
 ## Schema Access Policy
 
 The `schema.graphql` file is **265,000+ lines**. Loading it into context or opening it in an editor will overwhelm the context window or crash tools.
@@ -8,15 +12,15 @@ Do not use cat, less, more, head, tail, editors (VS Code, vim, nano), or program
 
 ## Schema Lookup
 
-Run the search script from the **SFDX project root** to get all relevant schema info in one step:
+Run the canonical search command from the **SFDX project root** to get all relevant schema info in one step:
 
 ```bash
-bash scripts/graphql-search.sh <EntityName>
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>
 # Multiple entities:
-bash scripts/graphql-search.sh Account Contact Opportunity
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
 ```
 
-**Maximum 2 script runs.** If the entity still can't be found after checking naming variations, ask the user.
+Use at most **2 direct lookup attempts per unresolved entity**. If the entity still can't be found after checking naming variations, ask the user.
 
 ## Entity Identification
 

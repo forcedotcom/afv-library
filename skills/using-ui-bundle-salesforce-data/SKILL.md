@@ -1,19 +1,28 @@
 ---
 name: using-ui-bundle-salesforce-data
-description: "Salesforce data access for reading, writing, and querying records via REST, GraphQL, Apex, or Platform SDK. Use when the user wants to fetch, search, filter, sort, display, create, update, delete, or attach files to Salesforce records (standard objects like Accounts, Contacts, Opportunities, Cases, Quotes, or any custom object) in a UI bundle or UI component (React, Angular, Vue, etc.); call Chatter, Connect, or Apex REST APIs; or invoke AuraEnabled Apex methods from an external app. Does not apply to authentication/OAuth setup, schema changes (adding fields, relationships), Bulk/Tooling/Metadata API usage, declarative automation (Flows, Process Builder), general LWC/Apex coding guidance without a specific data operation, or Salesforce admin/configuration tasks."
+description: "Guides querying, mutating, and displaying Salesforce records (standard or custom objects) in React, Angular, or Vue UI bundles via @salesforce/sdk-data, GraphQL, or REST — includes a mandatory schema lookup that prevents silent runtime failures. Use when building data-fetching code, wiring pagination/filtering/sorting, calling Apex REST or Einstein LLM, fetching picklist values or object metadata, or debugging GraphQL errors in a UI bundle. Not for LWC @wire patterns, Flows, Bulk API, Apex triggers, or metadata deployment."
 ---
 
 # Salesforce Data Access
 
-## When to Use
+## When This Skill Activates
 
-Use this skill when the user wants to:
+- User wants to query, create, update, or delete Salesforce records from a UI bundle
+- User needs to wire Salesforce data into React, Angular, or Vue components
+- User asks about `@salesforce/sdk-data`, GraphQL queries, or Apex REST calls from a UI
+- User is debugging a Salesforce GraphQL error (`Cannot query field`, HTTP 200 failures)
+- User needs picklist values, object metadata, or current user info in a UI bundle
+- User wants to call Einstein LLM or Connect REST from a UI bundle
 
-- **Fetch or display Salesforce data** — Query records (Account, Contact, Opportunity, custom objects) to show in a component
-- **Create, update, or delete records** — Perform mutations on Salesforce data
-- **Add data fetching to a component** — Wire up a React component to Salesforce data
-- **Call REST APIs** — Use Connect REST, Apex REST, or UI API endpoints
-- **Explore the org schema** — Discover available objects, fields, or relationships
+## Preconditions
+
+| Requirement | Details |
+|-------------|---------|
+| `@salesforce/sdk-data` installed | The UI bundle must have this package — it handles auth, CSRF, and base URL |
+| `schema.graphql` at SFDX project root | Required for schema lookups; generate with `npm run graphql:schema` from the UI bundle dir |
+| Custom objects/fields deployed | Custom entities only appear in the schema after metadata deployment and permission set assignment |
+| API version v65+ | Required for `@optional` directive (FLS resilience) |
+| API version v66+ | Required for GraphQL mutations |
 
 ## Data SDK Requirement
 
@@ -67,15 +76,29 @@ const res = await sdk.fetch?.("/services/apexrest/my-resource");
 
 ---
 
+## Required Docs
+
+Read the doc file for your task before generating code. These files contain the templates, rules, and detailed patterns that are essential to getting Salesforce GraphQL right — the SKILL.md body gives you the workflow and guardrails, but the docs have the implementation detail you need to produce correct output.
+
+| Task | Read this file | It contains |
+|------|---------------|-------------|
+| Entity lookup for custom objects, `_Record` suffix, polymorphic fields | `docs/schema-introspection.md` | Entity identification, naming conventions, iterative introspection cycles |
+| Generate a read query | `docs/read-query-generation.md` | Read query generation rules, `@optional`/FLS rules, filtering, pagination, ordering, semi-joins, field value wrappers |
+| Generate a mutation (create/update/delete) | `docs/mutation-query-generation.md` | Mutation template, input/output constraints, chaining, transactional semantics |
+| Test a query or fix query errors | `docs/query-testing.md` | Testing method, error categories, FAILED/PARTIAL status handling, retry protocol |
+| Integrate a query into a React component | `docs/ui-bundle-integration.md` | External `.graphql` file vs inline `gql` patterns, codegen, typing, error handling strategies, quality checklists |
+
+---
+
 ## GraphQL Non-Negotiable Rules
 
 These rules exist because Salesforce GraphQL has platform-specific behaviors that differ from standard GraphQL. Violations cause silent runtime failures.
 
-1. **Schema is the single source of truth** — Every entity name, field name, and type must be confirmed via the schema search script before use in a query. Never guess — Salesforce field names are case-sensitive, relationships may be polymorphic, and custom objects use suffixes (`__c`, `__e`). See [Schema Introspection](references/schema-introspection.md) for entity identification and iterative lookup procedures.
+1. **Schema is the single source of truth** — Every entity name, field name, and type must be confirmed via the schema search script before use in a query. Never guess — Salesforce field names are case-sensitive, relationships may be polymorphic, and custom objects use suffixes (`__c`, `__e`).
 
 2. **`@optional` on all record fields** (read queries) — Salesforce field-level security (FLS) causes queries to fail entirely if the user lacks access to even one field. The `@optional` directive (v65+) tells the server to omit inaccessible fields instead of failing. Apply it to every scalar field, parent relationship, and child relationship. Consuming code must use optional chaining (`?.`) and nullish coalescing (`??`).
 
-3. **Correct mutation syntax** — Mutations wrap under `uiapi(input: { allOrNone: true/false })`, not bare `uiapi { ... }`. Always set `allOrNone` explicitly. Output fields cannot include child relationships or navigated reference fields. See [Mutation Query Generation](references/mutation-query-generation.md).
+3. **Correct mutation syntax** — Mutations wrap under `uiapi(input: { allOrNone: true/false })`, not bare `uiapi { ... }`. Always set `allOrNone` explicitly. Output fields cannot include child relationships or navigated reference fields.
 
 4. **Explicit pagination** — Always include `first:` in every query. If omitted, the server silently defaults to 10 records. Include `pageInfo { hasNextPage endCursor }` for any query that may need pagination.
 
@@ -97,28 +120,38 @@ The `schema.graphql` file (265K+ lines) is the source of truth. **Never open or 
 
 ### Step 2: Look Up Entity Schema
 
-Map user intent to PascalCase names ("accounts" → `Account`), then **run the search script from the project root**:
+Skipping the schema lookup is the #1 cause of query failures — you guess a field name, the query fails at runtime, and you end up running the script anyway after wasting a round-trip.
+
+Map user intent to PascalCase names ("accounts" → `Account`), then run the search script from the **SFDX project root** (where `schema.graphql` lives):
 
 ```bash
-# Look up all relevant schema info for one or more entities
-bash scripts/graphql-search.sh Account
+# Look up all relevant schema info for one entity
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account
 
 # Multiple entities at once
-bash scripts/graphql-search.sh Account Contact Opportunity
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql Account Contact Opportunity
 ```
 
-The script outputs five sections per entity:
+The script outputs seven sections per entity:
 1. **Type definition** — all queryable fields and relationships
 2. **Filter options** — available fields for `where:` conditions
 3. **Sort options** — available fields for `orderBy:`
-4. **Create input** — fields accepted by create mutations
-5. **Update input** — fields accepted by update mutations
+4. **Create mutation wrapper** — accepted wrapper shape for create mutations
+5. **Create mutation fields** — fields accepted by create mutations
+6. **Update mutation wrapper** — accepted wrapper shape for update mutations
+7. **Update mutation fields** — fields accepted by update mutations
 
-Use this output to determine exact field names before writing any query or mutation. **Maximum 2 script runs.** If the entity still can't be found, ask the user — the object may not be deployed. For entity identification procedures (`_Record` suffix, `__c` conventions) and iterative introspection cycles, see [Schema Introspection](references/schema-introspection.md).
+Use this output to determine exact field names before writing any query or mutation. Use at most 2 direct lookup attempts per unresolved entity and at most 3 total introspection cycles across the workflow. If the entity still can't be found, ask the user — the object may not be deployed. If the entity name is ambiguous (custom objects, `_Record` suffix, polymorphic fields), read `docs/schema-introspection.md` now for entity identification and iterative lookup procedures.
+
+> **Stop here if any entity is unresolved.** Do not proceed to Step 3 until every entity and every requested field name is confirmed in the script output. If resolution fails after 2 runs and both naming variations, ask the user — the object may not be deployed.
 
 ### Step 3: Generate Query
 
-Use the templates below. Every field name **must** be verified from the script output in Step 2. For detailed generation rules, filtering, pagination, ordering, semi-joins, and field value wrappers, see [Read Query Generation](references/read-query-generation.md). For mutation chaining, input/output constraints, and transactional semantics, see [Mutation Query Generation](references/mutation-query-generation.md).
+Every field name must come directly from the Step 2 script output — never from memory or assumption.
+
+**For read queries:** Read `docs/read-query-generation.md` now before writing the query. It contains 15 generation rules, FLS/`@optional` semantics, pagination, ordering, filtering patterns, semi-joins, and field value wrapper types. The inline template below is a starting point — the reference file defines which rules apply.
+
+**For mutations:** Read `docs/mutation-query-generation.md` now before writing the mutation. It contains input/output field constraints, `allOrNone` semantics, and mutation chaining patterns that cannot be reconstructed from the template alone.
 
 #### Read Query Template
 
@@ -233,6 +266,8 @@ const fields = response?.data?.uiapi?.objectInfos?.[0]?.fields ?? [];
 
 ### Step 4: Validate & Test
 
+**Read `docs/query-testing.md` now before testing.** It defines the exact `sf api request rest` command, result status definitions (HTTP 200 ≠ success), FAILED/PARTIAL status handling, and the retry/escalation protocol.
+
 1. **Lint**: `npx eslint <file>` from UI bundle dir
 2. **Test**: Ask user before testing. For mutations, request input values — never fabricate data.
 
@@ -240,10 +275,10 @@ const fields = response?.data?.uiapi?.objectInfos?.[0]?.fields ?? [];
 
 ```bash
 # From project root — re-check the entity that caused the error
-bash scripts/graphql-search.sh <EntityName>
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>
 ```
 
-Then fix the query using the exact names from the script output. For detailed error categories, status handling, and retry strategy, see [Query Testing](references/query-testing.md).
+Then fix the query using the exact names from the script output.
 
 ---
 
@@ -284,7 +319,7 @@ if (response?.errors?.length) {
 const accounts = response?.data?.uiapi?.query?.Account?.edges?.map(e => e.node) ?? [];
 ```
 
-For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), see [UI Bundle Integration](references/ui-bundle-integration.md).
+For detailed patterns (external .graphql files, codegen, error handling strategies, quality checklists), **read `docs/ui-bundle-integration.md`**.
 
 ---
 
@@ -344,7 +379,7 @@ const response = await sdk.graphql?.(GET_CURRENT_USER);
 |---------|----------|-----|
 | `npm run graphql:schema` | UI bundle dir | Script in UI bundle's package.json |
 | `npx eslint <file>` | UI bundle dir | Reads eslint.config.js |
-| `bash scripts/graphql-search.sh <Entity>` | project root | Schema lookup |
+| `bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <Entity>` | project root | Schema lookup against the current org schema |
 | `sf api request rest` | project root | Needs sfdx-project.json |
 
 ---
@@ -356,7 +391,7 @@ const response = await sdk.graphql?.(GET_CURRENT_USER);
 Run the search script to get all relevant schema info in one step:
 
 ```bash
-bash scripts/graphql-search.sh <EntityName>
+bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <EntityName>
 ```
 
 | Script Output Section | Used For |
@@ -371,20 +406,22 @@ bash scripts/graphql-search.sh <EntityName>
 
 | Error Contains | Resolution |
 |----------------|------------|
-| `Cannot query field` | Field name is wrong — run `graphql-search.sh <Entity>` and use the exact name from the Type definition section |
-| `Unknown type` | Type name is wrong — run `graphql-search.sh <Entity>` to confirm the correct PascalCase entity name |
-| `Unknown argument` | Argument name is wrong — run `graphql-search.sh <Entity>` and check Filter or OrderBy sections |
+| `Cannot query field` | Field name is wrong — run `bash skills/using-ui-bundle-salesforce-data/scripts/graphql-search.sh --schema ./schema.graphql <Entity>` and use the exact name from the Type definition section |
+| `Unknown type` | Type name is wrong — run the schema search script to confirm the correct PascalCase entity name |
+| `Unknown argument` | Argument name is wrong — run the schema search script and check Filter or OrderBy sections |
 | `invalid syntax` | Fix syntax per error message |
-| `validation error` | Field name is wrong — run `graphql-search.sh <Entity>` to verify |
+| `validation error` | Field name is wrong — run the schema search script to verify |
 | `VariableTypeMismatch` | Correct argument type from schema |
 | `invalid cross reference id` | Entity deleted — ask for valid Id |
 
 ### Checklist
 
+- [ ] Read the applicable reference file before drafting
 - [ ] All field names verified via search script (Step 2)
 - [ ] `@optional` applied to all record fields (reads)
 - [ ] Mutations use `uiapi(input: { allOrNone: ... })` wrapper
 - [ ] `first:` specified in every query
 - [ ] Optional chaining in consuming code
 - [ ] `errors` array checked in response handling
+- [ ] Correct testing flow used for the operation type
 - [ ] Lint passes: `npx eslint <file>`

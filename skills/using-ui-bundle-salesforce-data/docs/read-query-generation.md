@@ -1,5 +1,9 @@
 # Read Query Generation
 
+## Load This Reference When
+
+Load this file before generating or editing any Salesforce GraphQL **read** query, including filtering, ordering, pagination, relationship traversal, and result-consumption code.
+
 ## Generation Rules
 
 1. **No proliferation** — Only generate for explicitly requested fields, nothing else. Do NOT add fields the user did not ask for.

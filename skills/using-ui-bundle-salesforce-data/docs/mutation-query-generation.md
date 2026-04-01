@@ -1,5 +1,9 @@
 # Mutation Query Generation
 
+## Load This Reference When
+
+Load this file before generating or editing any Salesforce GraphQL **mutation** (`Create`, `Update`, `Delete`), including transactional behavior (`allOrNone`), input/output field constraints, and chained mutations.
+
 ## Mutation Types
 
 The GraphQL engine supports three mutation operations:

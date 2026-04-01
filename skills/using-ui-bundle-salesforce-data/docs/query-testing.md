@@ -1,5 +1,9 @@
 # Query Testing
 
+## Load This Reference When
+
+Load this file before testing GraphQL queries or triaging GraphQL errors returned by `sf api request rest`, including retries and status classification (`SUCCESS`, `FAILED`, `PARTIAL`).
+
 ## Testing Method
 
 Use `sf api request rest` to POST the query to the GraphQL endpoint. Run from the **SFDX project root** (where `sfdx-project.json` lives).
