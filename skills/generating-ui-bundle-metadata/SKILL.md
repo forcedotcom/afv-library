@@ -1,6 +1,6 @@
 ---
 name: generating-ui-bundle-metadata
-description: "Scaffold new Salesforce UI bundles and configure their metadata — sf template generate ui-bundle, UIBundle bundles (meta XML, ui-bundle.json with routing/headers/outputDir), and CSP Trusted Sites for external domains. Use whenever creating a new UI bundle, setting up UI bundle metadata structure, configuring routing or headers, setting outputDir, adding external domains that need CSP registration, or editing bundle configuration. Triggers on: create UI bundle, create ui-bundle, new app, sf template generate ui-bundle, metadata, ui-bundle.json, CSP, trusted site, bundle configuration, meta XML, routing config, external domain, headers config, outputDir."
+description: "Scaffold new Salesforce UI bundles with sf template generate ui-bundle and configure ui-bundle.json (routing, headers, outputDir) and CSP Trusted Sites. Use when running sf template generate ui-bundle, editing ui-bundle.json routing/headers/outputDir, creating or modifying .uibundle-meta.xml files, or registering external domains as CSP Trusted Sites. Triggers on: sf template generate ui-bundle, ui-bundle.json, uibundle-meta.xml, outputDir, routing rewrites, routing redirects, routing fallback, trailingSlash, CSP trusted site, cspTrustedSite, external domain CSP."
 ---
 
 # UI Bundle Metadata
@@ -9,7 +9,14 @@ description: "Scaffold new Salesforce UI bundles and configure their metadata �
 
 Use `sf template generate ui-bundle` to create new apps — not create-react-app, Vite, or other generic scaffolds.
 
-**UI bundle name (`-n`):** Alphanumerical only — no spaces, hyphens, underscores, or special characters. Example: `CoffeeBoutique` (not `Coffee Boutique`).
+**Always pass `--template reactbasic`** to scaffold a React-based bundle.
+
+**UI bundle name (`-n`):** Alphanumerical only — no spaces, hyphens, underscores, or special characters.
+
+**Example:**
+```bash
+sf template generate ui-bundle -n CoffeeBoutique --template reactbasic
+```
 
 After generation:
 1. Replace all default boilerplate — "React App", "Vite + React", default `<title>`, placeholder text
