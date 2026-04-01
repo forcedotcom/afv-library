@@ -439,27 +439,9 @@ type AccountNode = NodeOfConnection<GetAccountsQuery["uiapi"]["query"]["Account"
 ### Step 5: Validate & Test
 
 1. **Lint**: `npx eslint <file>` from UI bundle dir
-2. **Test**: Ask user before testing. For mutations, request input values — never fabricate data.
+2. **codegen**: `npm run graphql:codegen` from UI bundle dir
 
-#### Testing with sf CLI
-
-```bash
-sf api request rest /services/data/v66.0/graphql \
-  --method POST \
-  --body '{"query":"<query-string>","variables":{...}}'
-```
-
-Run from SFDX project root. Use v66.0+ for mutations, v65.0+ for `@optional`.
-
-#### Result Status
-
-| Status | Condition | Meaning |
-|--------|-----------|---------|
-| `SUCCESS` | `errors` absent or empty | Query is valid |
-| `FAILED` | `data` is empty/null | Query is invalid — fix and retry |
-| `PARTIAL` | `data` present AND `errors` not empty | Some fields inaccessible (mutations) |
-
-**On FAILED**: Parse `errors[].extensions.ErrorType`, categorize, and fix:
+#### Common Error patterns
 
 | Error Contains | Resolution |
 |----------------|------------|
@@ -473,9 +455,7 @@ Run from SFDX project root. Use v66.0+ for mutations, v65.0+ for `@optional`.
 | `is not currently available in mutation results` | Remove field from mutation output |
 | `Cannot invoke JsonElement.isJsonObject()` | Use API version 64+ for update mutation `Record` selection |
 
-**On PARTIAL** (mutations): Report inaccessible fields, explain they cannot be in mutation output, offer to remove them. **Wait for user consent** before changing.
-
-**Maximum 2 test attempts** per query. If still failing, restart from Step 1 (Acquire Schema).
+**On PARTIAL** If a mutation returns both data and errors (partial success): Report inaccessible fields, explain they cannot be in mutation output, offer to remove them. **Wait for user consent** before changing.
 
 ---
 
@@ -592,6 +572,7 @@ const response = await sdk.graphql?.(GET_CURRENT_USER);
 <project-root>/                              ← SFDX project root
 ├── schema.graphql                           ← grep target (lives here)
 ├── sfdx-project.json
+├── scripts/graphql-search.sh                ← schema lookup script
 └── force-app/main/default/uiBundles/<app-name>/  ← UI bundle dir
     ├── package.json                         ← npm scripts
     └── src/
@@ -600,9 +581,9 @@ const response = await sdk.graphql?.(GET_CURRENT_USER);
 | Command | Run From | Why |
 |---------|----------|-----|
 | `npm run graphql:schema` | UI bundle dir | Script in UI bundle's package.json |
+| `npm run graphql:codegen` | UI bundle dir | Generate GraphQL types |
 | `npx eslint <file>` | UI bundle dir | Reads eslint.config.js |
 | `bash scripts/graphql-search.sh <Entity>` | project root | Schema lookup |
-| `sf api request rest` | project root | Needs sfdx-project.json |
 
 ---
 
