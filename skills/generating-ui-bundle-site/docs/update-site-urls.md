@@ -31,10 +31,21 @@ When updating site URLs, follow this workflow:
 
 ### Step 1: Discover All URL References
 
-Use `search_files` to find all occurrences of `urlPathPrefix` in the project:
+Search for all occurrences of `urlPathPrefix` across the project metadata files.
 
+**For agents**: Use the `search_files` tool with these parameters:
+- path: `force-app/main/default`
+- regex: `urlPathPrefix`
+- file_pattern: `*.xml`
+
+**For humans**: Use your IDE's search functionality or command line tools:
 ```bash
-search_files --path force-app/main/default --regex "urlPathPrefix" --file-pattern "*.xml"
+# Using grep
+grep -r "urlPathPrefix" force-app/main/default --include="*.xml"
+
+# Using VS Code: Ctrl+Shift+F (Windows/Linux) or Cmd+Shift+F (Mac)
+# Search for: urlPathPrefix
+# Files to include: *.xml
 ```
 
 ### Step 2: Identify URL Groups
