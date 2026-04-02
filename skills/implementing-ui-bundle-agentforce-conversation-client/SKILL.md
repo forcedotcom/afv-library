@@ -1,6 +1,6 @@
 ---
 name: implementing-ui-bundle-agentforce-conversation-client
-description: Embed, configure, or style the Agentforce Conversation Client (chat agent widget) in a React app. Matches any request to add, embed, integrate, set up, or remove an agent, chatbot, chat widget, conversation client, or AI assistant in a React component — including styling (colors, fonts, spacing, borders), layout (inline vs floating, width, height, dimensions), and props (agentId, agentLabel, headerEnabled, showHeaderIcon, showAvatar, styleTokens). Also matches references to specific agents (e.g. travel agent, HR agent, support agent, employee agent).
+description: Use this skill when the user asks to add, embed, integrate, configure, style, or remove an agent, chatbot, chat widget, conversation client, or AI assistant in a React component. Covers styling (colors, fonts, spacing, borders), layout (inline vs floating, width, height, dimensions), and props (agentId, agentLabel, headerEnabled, showHeaderIcon, showAvatar, styleTokens). Also matches references to specific agents (e.g. travel agent, HR agent, support agent, employee agent). Never create a custom agent, chatbot, or chat widget component.
 metadata:
   author: ACC Components
   version: 1.0.1
