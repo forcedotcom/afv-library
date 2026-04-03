@@ -1,3 +1,12 @@
+## [1.6.7](https://github.com/forcedotcom/afv-library/compare/1.6.6...1.6.7) (2026-04-03)
+
+
+### Bug Fixes
+
+* tighten ui-bundle skill descriptions to reduce false triggers @W-21800526@ ([#162](https://github.com/forcedotcom/afv-library/issues/162)) ([77108ba](https://github.com/forcedotcom/afv-library/commit/77108bae20bc67c92acefa019b6e11a7192d26d0))
+
+
+
 ## [1.6.6](https://github.com/forcedotcom/afv-library/compare/1.6.5...1.6.6) (2026-04-02)
 
 
