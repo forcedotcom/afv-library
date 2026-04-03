@@ -94,6 +94,8 @@ Choose a clear conceptual direction and execute it with precision. Bold maximali
 - **Spatial Composition:** Unexpected layouts — asymmetry, overlap, diagonal flow, grid-breaking elements. Generous negative space OR controlled density.
 - **Backgrounds & Depth:** Create atmosphere rather than defaulting to solid colors. Gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, grain overlays.
 
+- **Mobile Responsiveness:** All generated UI MUST be mobile-responsive. Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`) to adapt layouts across breakpoints. Stack columns on small screens, use flexible grids, and ensure touch targets are at least 44px. Test that navigation, typography, and spacing work on mobile viewports.
+
 Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate animations and effects. Minimalist designs need restraint, precision, and careful spacing/typography. No two designs should look the same — vary themes, fonts, and aesthetics across generations.
 
 ---
