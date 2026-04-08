@@ -1,6 +1,6 @@
 ---
-name: generating-experience-react-site
-description: "Use this skill when users need to create or configure a Salesforce Digital Experience Site specifically for hosting a React UI bundle. Trigger when users mention creating an Experience site for a React app, setting up a React site on Salesforce, configuring Network/CustomSite/DigitalExperience metadata for a UI bundle, or deploying site infrastructure for a React application. Also trigger when users mention site URL path prefixes, app namespaces, appDevName, guest access configuration, DigitalExperienceConfig, DigitalExperienceBundle, or sfdc_cms__site content types in the context of React apps. Always use this skill for any React UI bundle site creation or site infrastructure configuration work, even if the user just says \"create a site for my React app\" or \"set up the site for my UI bundle.\""
+name: generating-ui-bundle-site
+description: "MUST activate when the project contains a uiBundles/*/src/ directory and the task involves creating or configuring site infrastructure. Use this skill when creating or configuring a Salesforce Digital Experience Site for hosting a UI bundle. Activate when files matching digitalExperiences/, networks/, customSite/, or DigitalExperienceBundle exist and need modification, or when the user wants to publish, host, or configure guest access for their app."
 ---
 
 # Digital Experience Site for React UI Bundles
@@ -51,6 +51,8 @@ Use the default templates in the docs below. Values in `{braces}` are resolved p
 | DigitalExperienceBundle | [configure-metadata-digital-experience-bundle.md](docs/configure-metadata-digital-experience-bundle.md) |
 | DigitalExperience (sfdc_cms__site) | [configure-metadata-digital-experience.md](docs/configure-metadata-digital-experience.md) |
 
+For URL updates, see [update-site-urls.md](docs/update-site-urls.md).
+
 ### Execution Note for Step 3: Load and use the docs
 - Agents MUST read the full contents of each docs/*.md file referenced in Step 3 before attempting to populate metadata fields.
 - Use your platform's file-read tool (for example, `read_file`) to load these files in full, then perform placeholder substitution for values in `{braces}` using the resolved properties from Step 1.
@@ -63,7 +65,7 @@ Use the default templates in the docs below. Values in `{braces}` are resolved p
 - Read entire file contents, replace placeholders (e.g. `{siteName}`) with the resolved values, then use the expanded templates to populate the metadata XML/JSON content.
   
 ### Step 4: Resolve Additional Configurations
-Address any extra configurations the user requests. Use the metadata sections and field context identified in Step 2 to understand each field’s purpose and constraints, then update only the minimum necessary fields.
+Address any extra configurations the user requests. Use the metadata sections and field context identified in Step 2 to understand each field's purpose and constraints, then update only the minimum necessary fields.
 
 ## Verification Checklist
 Before deploying, confirm:
@@ -76,3 +78,13 @@ Before deploying, confirm:
 ```bash
 sf project deploy validate --metadata Network CustomSite DigitalExperienceConfig DigitalExperienceBundle DigitalExperience --target-org ${usernameOrAlias}
 ```
+
+## Common Workflows
+
+### Updating Experience Site URLs
+
+**Use when** user wants to update or change site URLs (urlPathPrefix).
+
+**Steps**:
+- [ ] Read [update-site-urls.md](docs/update-site-urls.md) to understand the three-component architecture and URL update workflow
+- [ ] Follow the step-by-step workflow in the doc to update URLs consistently across all three components (DigitalExperienceConfig, Network, CustomSite)

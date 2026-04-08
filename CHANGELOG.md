@@ -1,3 +1,97 @@
+## [1.6.8](https://github.com/forcedotcom/afv-library/compare/1.6.7...1.6.8) (2026-04-07)
+
+
+### Bug Fixes
+
+* trigger ui-bundle skill for React app prompts @W-21916680@ ([#175](https://github.com/forcedotcom/afv-library/issues/175)) ([1806c89](https://github.com/forcedotcom/afv-library/commit/1806c89b28a889de8292be62e751acb75a680d6b))
+
+
+
+## [1.6.7](https://github.com/forcedotcom/afv-library/compare/1.6.6...1.6.7) (2026-04-03)
+
+
+### Bug Fixes
+
+* tighten ui-bundle skill descriptions to reduce false triggers @W-21800526@ ([#162](https://github.com/forcedotcom/afv-library/issues/162)) ([77108ba](https://github.com/forcedotcom/afv-library/commit/77108bae20bc67c92acefa019b6e11a7192d26d0))
+
+
+
+## [1.6.6](https://github.com/forcedotcom/afv-library/compare/1.6.5...1.6.6) (2026-04-02)
+
+
+### Bug Fixes
+
+* condense using-ui-bundle-salesforce-data reference into skill.md @W-21685788 ([#161](https://github.com/forcedotcom/afv-library/issues/161)) ([4ad7963](https://github.com/forcedotcom/afv-library/commit/4ad796346ec366379cc7de840c3c38e3c4521bb2))
+
+
+
+## [1.6.5](https://github.com/forcedotcom/afv-library/compare/1.6.4...1.6.5) (2026-04-01)
+
+
+### Bug Fixes
+
+* updating ui bundles to the latest @W-21814993@ ([#156](https://github.com/forcedotcom/afv-library/issues/156)) ([0d69b91](https://github.com/forcedotcom/afv-library/commit/0d69b918da0c43dc940f19c8c397a5de28042d4f))
+
+
+
+## [1.6.4](https://github.com/forcedotcom/afv-library/compare/1.6.3...1.6.4) (2026-03-31)
+
+
+### Bug Fixes
+
+* replace deprecated sf ui-bundle generate CLI command @W-21338965@ ([#155](https://github.com/forcedotcom/afv-library/issues/155)) ([2d9a093](https://github.com/forcedotcom/afv-library/commit/2d9a093f9cd83a12b69c0c1ab1227d32cfd7c206))
+
+
+
+## [1.6.3](https://github.com/forcedotcom/afv-library/compare/1.6.2...1.6.3) (2026-03-31)
+
+
+### Bug Fixes
+
+* derive router basename from base href at runtime @W-21338965@ ([#154](https://github.com/forcedotcom/afv-library/issues/154)) ([3024591](https://github.com/forcedotcom/afv-library/commit/30245915c2954cd2a828e5828e6324394ab9b6cf))
+
+
+
+## [1.6.2](https://github.com/forcedotcom/afv-library/compare/1.6.1...1.6.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* ensure skill load for guest sharing rule ([#127](https://github.com/forcedotcom/afv-library/issues/127)) ([878ee49](https://github.com/forcedotcom/afv-library/commit/878ee497c4ea5756186db2b4ce0cb9349f1558ac))
+
+
+
+## [1.6.1](https://github.com/forcedotcom/afv-library/compare/1.6.0...1.6.1) (2026-03-31)
+
+
+
+# [1.6.0](https://github.com/forcedotcom/afv-library/compare/1.5.3...1.6.0) (2026-03-31)
+
+
+### Features
+
+* update theme layout creation instructions ([#122](https://github.com/forcedotcom/afv-library/issues/122)) ([30052ef](https://github.com/forcedotcom/afv-library/commit/30052ef628e80f6dbf29e89ae0c792dcc0fc5f37))
+
+
+
+## [1.5.3](https://github.com/forcedotcom/afv-library/compare/1.5.2...1.5.3) (2026-03-31)
+
+
+### Bug Fixes
+
+* update details for PR title  ([#153](https://github.com/forcedotcom/afv-library/issues/153)) ([dcc1804](https://github.com/forcedotcom/afv-library/commit/dcc18049aa946015ee5482982397273b7b4af277))
+
+
+
+## [1.5.2](https://github.com/forcedotcom/afv-library/compare/1.5.1...1.5.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* adding building-ui-bundle-app orchestration skill @W-21338965@ ([#138](https://github.com/forcedotcom/afv-library/issues/138)) ([54a675c](https://github.com/forcedotcom/afv-library/commit/54a675c8386550a15442cc21fe193624a270159e))
+
+
+
 ## [1.5.1](https://github.com/forcedotcom/afv-library/compare/1.5.0...1.5.1) (2026-03-27)
 
 
