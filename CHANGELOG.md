@@ -1,3 +1,12 @@
+## [1.6.9](https://github.com/forcedotcom/afv-library/compare/1.6.8...1.6.9) (2026-04-08)
+
+
+### Bug Fixes
+
+* @W-21889983@ Disallow Modifying React Site Metadata Except for Templated Properties ([#185](https://github.com/forcedotcom/afv-library/issues/185)) ([b0d71df](https://github.com/forcedotcom/afv-library/commit/b0d71df45229363cccb02c4bbffac272b1e63d50))
+
+
+
 ## [1.6.8](https://github.com/forcedotcom/afv-library/compare/1.6.7...1.6.8) (2026-04-07)
 
 
