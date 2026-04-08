@@ -16,6 +16,7 @@ Any LWC in `c` namespace (e.g., `c:heroBanner`). Distinct from OOTB components (
 
 - `<isExposed>true</isExposed>`
 - Targets: `lightningCommunity__Page`, `lightningCommunity__Default`
+- **Note on `<targetConfigs>`**: The `<property>` tag is only supported under the `lightningCommunity__Default` target. You must include `lightningCommunity__Default` in the `targets` attribute of your `<targetConfig>` to define properties. If `lightningCommunity__Page` is present in the `targets` attribute of a `<targetConfig>` that contains properties, you must remove `lightningCommunity__Page` from that `<targetConfig>`'s `targets` attribute. **Do NOT remove `lightningCommunity__Page` from the main `<targets>` list.**
 
 **Property Type Constraints (MANDATORY GATE)**:
 
