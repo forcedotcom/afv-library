@@ -31,10 +31,10 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
 - **Workaround**: Move test definitions to a separate directory outside the main deploy path, or use `--metadata` flag to deploy specific types instead of `--source-dir`.
   ```bash
   # Instead of:
-  sf project deploy start --source-dir force-app -o TARGET_ORG
+  sf project deploy start --json --source-dir force-app -o TARGET_ORG
 
   # Use targeted deployment:
-  sf project deploy start --metadata AiAuthoringBundle:MyAgent -o TARGET_ORG
+  sf project deploy start --json --metadata AiAuthoringBundle:MyAgent -o TARGET_ORG
   ```
 - **Open Questions**: Will Salesforce optimize `AiEvaluationDefinition` deploy performance in a future release?
 
@@ -87,9 +87,9 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
   sf bot version list
 
   # ✅ New commands (for Agent Script):
-  sf project retrieve start --metadata Agent:MyAgent
-  sf agent validate authoring-bundle --api-name MyAgent
-  sf agent publish authoring-bundle --api-name MyAgent
+  sf project retrieve start --json --metadata Agent:MyAgent
+  sf agent validate authoring-bundle --json --api-name MyAgent
+  sf agent publish authoring-bundle --json --api-name MyAgent
   ```
 - **Open Questions**: Will Salesforce unify the `sf bot` and `sf agent` command families?
 
@@ -102,14 +102,14 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
 - **Symptom**: Tests created in the Agent Testing Center UI cannot be retrieved via `sf project retrieve start`. Old test XML format references `bot`/`version` fields that don't exist in Agent Script. No metadata type or CLI command exists for new-style agent tests.
 - **Root Cause**: The Agent Testing Center was originally built for Einstein Bots. The test metadata schema hasn't been updated for Agent Script's `AiAuthoringBundle` structure. The `AiEvaluationDefinition` type exists but doesn't correspond to the Testing Center's UI-created tests.
 - **Workaround**:
-  1. Use YAML test spec files managed in source control (see `/sf-ai-agentforce-testing` skill)
+  1. Use YAML test spec files managed in source control (see `/testing-agentforce` skill)
   2. Treat UI-created tests as ephemeral / org-specific
   3. Use the Connect API directly to run tests programmatically
 - **Open Questions**:
   - Will a new metadata type be introduced for Agent Script tests?
   - Can `AiEvaluationDefinition` be used with Agent Script agents?
   - Is there a roadmap for test portability?
-- **References**: See `references/custom-eval-investigation.md` in `sf-ai-agentforce-testing` for related findings on custom evaluation data structure issues.
+- **References**: See `references/custom-eval-investigation.md` in `testing-agentforce` for related findings on custom evaluation data structure issues.
 
 ---
 
@@ -246,12 +246,12 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
 - **Root Cause**: The `connection messaging:` DSL block only generates a `Messaging` plannerSurface during compilation. There is no `connection customerwebclient:` DSL syntax — attempting it causes `ERROR_HTTP_404` on publish. The compiler has no mechanism to auto-generate `CustomerWebClient`.
 - **Impact**: Every publish overwrites the GenAiPlannerBundle, dropping any manually-added `CustomerWebClient` surface. This requires a post-publish patch after EVERY publish.
 - **Workaround — 6-Step Post-Publish Patch Workflow:**
-  1. `sf agent publish authoring-bundle --api-name AgentName -o TARGET_ORG --json` → creates new version (e.g., v22)
-  2. `sf project retrieve start --metadata "GenAiPlannerBundle:AgentName_vNN" -o TARGET_ORG --json` → retrieve compiled bundle
+  1. `sf agent publish authoring-bundle --json --api-name AgentName -o TARGET_ORG` → creates new version (e.g., v22)
+  2. `sf project retrieve start --json --metadata "GenAiPlannerBundle:AgentName_vNN" -o TARGET_ORG` → retrieve compiled bundle
   3. Manually add second `<plannerSurfaces>` block to the XML with `<surfaceType>CustomerWebClient</surfaceType>` (copy the existing `Messaging` block, change surfaceType and surface fields)
-  4. `sf agent deactivate --api-name AgentName -o TARGET_ORG` → deactivate agent (deploy fails while active)
-  5. `sf project deploy start --metadata "GenAiPlannerBundle:AgentName_vNN" -o TARGET_ORG --json` → deploy patched bundle
-  6. `sf agent activate --api-name AgentName -o TARGET_ORG` → reactivate agent
+  4. `sf agent deactivate --json --api-name AgentName -o TARGET_ORG` → deactivate agent (deploy fails while active)
+  5. `sf project deploy start --json --metadata "GenAiPlannerBundle:AgentName_vNN" -o TARGET_ORG` → deploy patched bundle
+  6. `sf agent activate --json --api-name AgentName -o TARGET_ORG` → reactivate agent
 - **Patch XML Example:**
   ```xml
   <!-- Add this AFTER the existing Messaging plannerSurfaces block -->
@@ -301,16 +301,16 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
 - **Workaround**: Use `sf project retrieve start --metadata "TypeName:ApiName"` instead of SOQL. For querying agent status/versions via SOQL, use `BotDefinition` and `BotVersion` sObjects.
   ```bash
   # ❌ WRONG — these are NOT sObjects
-  sf data query --query "SELECT Id FROM GenAiPlannerBundle" -o ORG --json
-  sf data query --query "SELECT Id FROM AiAuthoringBundle" -o ORG --json
+  sf data query --json --query "SELECT Id FROM GenAiPlannerBundle" -o ORG
+  sf data query --json --query "SELECT Id FROM AiAuthoringBundle" -o ORG
 
   # ✅ CORRECT — use Metadata API
-  sf project retrieve start --metadata "GenAiPlannerBundle:MyAgent_v1" -o ORG --json
-  sf project retrieve start --metadata "AiAuthoringBundle:MyAgent" -o ORG --json
+  sf project retrieve start --json --metadata "GenAiPlannerBundle:MyAgent_v1" -o ORG
+  sf project retrieve start --json --metadata "AiAuthoringBundle:MyAgent" -o ORG
 
   # ✅ CORRECT — query sObjects for agent info
-  sf data query --query "SELECT Id, DeveloperName FROM BotDefinition WHERE DeveloperName = 'MyAgent'" -o ORG --json
-  sf data query --query "SELECT Id, VersionNumber, Status FROM BotVersion WHERE BotDefinition.DeveloperName = 'MyAgent'" -o ORG --json
+  sf data query --json --query "SELECT Id, DeveloperName FROM BotDefinition WHERE DeveloperName = 'MyAgent'" -o ORG
+  sf data query --json --query "SELECT Id, VersionNumber, Status FROM BotVersion WHERE BotDefinition.DeveloperName = 'MyAgent'" -o ORG
   ```
 - **Open Questions**: None — this is by design.
 

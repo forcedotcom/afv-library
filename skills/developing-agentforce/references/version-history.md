@@ -1,10 +1,10 @@
 # Version History
 
-Skill version changelog for agentforce-development.
+Skill version changelog for developing-agentforce.
 
 ---
 
-## Current Skill (agentforce-development)
+## Current Skill (developing-agentforce)
 
 | Version | Date | Changes |
 |---------|------|---------|
