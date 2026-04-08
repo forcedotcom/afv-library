@@ -24,6 +24,8 @@ Ask user to choose:
 sf community create --name "{siteName}" --template-name 'Build Your Own (LWR)' --url-path-prefix "{prefix}" --target-org {usernameOrAlias} --json
 ```
 
+**If the `sf community create` command is not available** (e.g. command not found or unrecognized), **stop immediately** and ask the user to create the site manually in their org first, then return here once it's ready. When they return, skip Step 2 (polling) — the site is already created — and proceed directly to retrieving the metadata (either by running the retrieval commands yourself or providing them to the user).
+
 Site creation is an async job. As soon as the terminal returns output, capture the `jobId` and move on — do not wait for the shell command to fully exit.
 
 **Step 2:** Ask the user: *"Would you like me to wait for the site creation to complete and then retrieve the metadata for you, or would you prefer to retrieve it yourself once it's ready?"*
@@ -86,6 +88,8 @@ sf template generate digital-experience site --name "{siteName}" --template-name
 ```
 
 Generates metadata with defaults: DigitalExperienceConfig, DigitalExperiences, Network, CustomSite, and content (route, view, themeLayout, etc.).
+
+**If the `sf template generate digital-experience` command is not available** (e.g. command not found or unrecognized), **stop immediately** and ask the user to manually create the site in their org and retrieve the metadata files, then return here to continue.
 
 #### Post-Creation Config
 
