@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/forcedotcom/afv-library/compare/1.6.9...1.7.0) (2026-04-09)
+
+
+### Features
+
+* replace agentforce-development skill with three specialized skills @W-21937872@ ([#184](https://github.com/forcedotcom/afv-library/issues/184)) ([fb4bac9](https://github.com/forcedotcom/afv-library/commit/fb4bac9cf08964945a3dee07e0ed2d9dbc9250a8))
+
+
+
 ## [1.6.9](https://github.com/forcedotcom/afv-library/compare/1.6.8...1.6.9) (2026-04-08)
 
 
