@@ -1,5 +1,5 @@
 ---
-name: integrate-b2b-commerce-open-code-components
+name: integrating-b2b-commerce-open-code-components
 description: Integrate Salesforce B2B Commerce open source components from GitHub into B2B Commerce stores. Use when users mention "integrate open code components", "open source B2B commerce", "add open code components", "forcedotcom/b2b-commerce-open-source-components", or want to add open source commerce components to their store. Copies all components and labels so they become available in Experience Builder.
 license: Apache-2.0
 compatibility: Requires Salesforce CLI (sf), Git, B2B Commerce license, Experience Builder access, and internet connectivity
