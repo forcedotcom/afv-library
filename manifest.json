@@ -416,19 +416,6 @@
         "references/test-data-factory.md"
       ],
       "description": "Apex test class generation with TestDataFactory patterns, bulk testing (200+ records), mocking strategies for callouts and async operations, and assertion best practices. Use when creating new Apex test classes, improving test coverage, refactoring existing tests, or implementing proper testing patterns for triggers, services, controllers, batch jobs, queueables, and integrations."
-    },
-    {
-      "name": "creating-b2b-commerce-store",
-      "path": "skills/creating-b2b-commerce-store/SKILL.md",
-      "folderPath": "skills/creating-b2b-commerce-store",
-      "category": "commerce",
-      "files": [
-        "SKILL.md",
-        "references/store-vs-storefront.md"
-      ],
-      "description": "Interactive workflow to create Commerce B2B Stores and retrieve storefront metadata. Guides through 7-step process: explaining Store vs Storefront distinction, creating Store in org, listing available sites, selecting storefront, retrieving metadata, and providing deployment guidance. Critical: enforces correct workflow order and prevents manual storefront creation. Use when setting up B2B Commerce stores, retrieving Commerce experiences, or deploying storefronts across orgs.",
-      "license": "Apache-2.0",
-      "compatibility": "Requires Commerce licenses, Experience Cloud, Salesforce CLI"
     }
   ]
 }
