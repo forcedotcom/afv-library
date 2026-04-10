@@ -3,13 +3,13 @@
 #
 # ★ KEY CONCEPTS:
 #
-#   DELEGATION (@topic.* syntax):
-#   - Syntax: action_name: @topic.topic_name
+#   DELEGATION (@subagent.* syntax):
+#   - Syntax: action_name: @subagent.topic_name
 #   - Control CAN return to the calling topic
 #   - Use for: consulting specialists, sub-tasks, getting help
 #
 #   TRANSITION (@utils.transition syntax):
-#   - Syntax: action_name: @utils.transition to @topic.topic_name
+#   - Syntax: action_name: @utils.transition to @subagent.topic_name
 #   - PERMANENT handoff - control does NOT return
 #   - Use for: menu navigation, workflow stages, permanent routing
 #
@@ -33,7 +33,7 @@
 # reasoning:
 #    actions:
 #       # Delegation - specialist CAN return control to this topic
-#       consult_expert: @topic.specialist_topic
+#       consult_expert: @subagent.specialist_topic
 #          description: "Consult specialist for complex questions"
 #          available when @variables.needs_expert_help == True
 #
@@ -49,7 +49,7 @@
 # reasoning:
 #    actions:
 #       # Transition - permanent move to orders topic
-#       go_orders: @utils.transition to @topic.orders
+#       go_orders: @utils.transition to @subagent.orders
 #
 # Control moves to orders topic and STAYS there.
 # User continues in that topic until another transition occurs.
@@ -69,10 +69,10 @@ variables:
 
 # Before going to specialist, store return address:
 # set @variables.return_topic = "main_hub"
-# go_specialist: @utils.transition to @topic.specialist
+# go_specialist: @utils.transition to @subagent.specialist
 
 # In specialist, transition back when done:
-# return_home: @utils.transition to @topic.main_hub
+# return_home: @utils.transition to @subagent.main_hub
 
 # ═══════════════════════════════════════════════════════════════
 # COMPARISON TABLE
@@ -80,7 +80,7 @@ variables:
 #
 # | Feature              | Delegation        | Transition              |
 # |----------------------|-------------------|-------------------------|
-# | Syntax               | @topic.name       | @utils.transition to    |
+# | Syntax               | @subagent.name       | @utils.transition to    |
 # | Returns to caller?   | YES               | NO                      |
 # | Use in actions:      | YES               | YES                     |
 # | Use in lifecycle:    | NO                | YES (bare syntax)       |

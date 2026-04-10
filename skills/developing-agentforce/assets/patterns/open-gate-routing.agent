@@ -50,11 +50,11 @@ start_agent topic_selector:
 	before_reasoning:
 		# ★ GATE CHECK: If a topic holds focus, bypass LLM entirely
 		if @variables.open_gate == "protected_workflow":
-			transition to @topic.protected_workflow
+			transition to @subagent.protected_workflow
 		if @variables.open_gate == "account_management":
-			transition to @topic.account_management
+			transition to @subagent.account_management
 		if @variables.open_gate == "authentication_gate":
-			transition to @topic.authentication_gate
+			transition to @subagent.authentication_gate
 
 	reasoning:
 		instructions: ->
@@ -64,15 +64,15 @@ start_agent topic_selector:
 			| - Account settings or profile changes → account management
 			| - General questions → general inquiry
 		actions:
-			go_protected: @utils.transition to @topic.protected_workflow
-			go_account: @utils.transition to @topic.account_management
-			go_general: @utils.transition to @topic.general_inquiry
+			go_protected: @utils.transition to @subagent.protected_workflow
+			go_account: @utils.transition to @subagent.account_management
+			go_general: @utils.transition to @subagent.general_inquiry
 
 # ─────────────────────────────────────────────────────────────────────
 # PROTECTED WORKFLOW (Requires Authentication)
 # Checks auth state, redirects to auth gate if needed, locks focus if authed
 # ─────────────────────────────────────────────────────────────────────
-topic protected_workflow:
+subagent protected_workflow:
 	description: "Handles order status, returns, and shipping (requires authentication)"
 
 	before_reasoning:
@@ -80,7 +80,7 @@ topic protected_workflow:
 		if @variables.authenticated == False:
 			set @variables.next_topic = "protected_workflow"
 			set @variables.open_gate = "authentication_gate"
-			transition to @topic.authentication_gate
+			transition to @subagent.authentication_gate
 
 		# ★ FOCUS LOCK: Keep gate open so topic selector bypasses LLM
 		set @variables.open_gate = "protected_workflow"
@@ -98,7 +98,7 @@ topic protected_workflow:
 				set @variables.order_result = @outputs.status
 
 			# ★ EXIT_PROTOCOL: User changed intent — release gate
-			exit_to_menu: @utils.transition to @topic.exit_protocol
+			exit_to_menu: @utils.transition to @subagent.exit_protocol
 
 	after_reasoning:
 		# Logging or cleanup after each turn (optional)
@@ -108,7 +108,7 @@ topic protected_workflow:
 # ACCOUNT MANAGEMENT (Second Protected Topic)
 # Demonstrates the pattern scales to N protected topics
 # ─────────────────────────────────────────────────────────────────────
-topic account_management:
+subagent account_management:
 	description: "Handles account settings and profile changes (requires authentication)"
 
 	before_reasoning:
@@ -116,7 +116,7 @@ topic account_management:
 		if @variables.authenticated == False:
 			set @variables.next_topic = "account_management"
 			set @variables.open_gate = "authentication_gate"
-			transition to @topic.authentication_gate
+			transition to @subagent.authentication_gate
 
 		# ★ FOCUS LOCK
 		set @variables.open_gate = "account_management"
@@ -135,13 +135,13 @@ topic account_management:
 				set @variables.update_result = @outputs.success
 
 			# ★ EXIT_PROTOCOL: User changed intent — release gate
-			exit_to_menu: @utils.transition to @topic.exit_protocol
+			exit_to_menu: @utils.transition to @subagent.exit_protocol
 
 # ─────────────────────────────────────────────────────────────────────
 # AUTHENTICATION GATE
 # Handles auth flow, then routes back via next_topic
 # ─────────────────────────────────────────────────────────────────────
-topic authentication_gate:
+subagent authentication_gate:
 	description: "Verifies customer identity before allowing access to protected topics"
 
 	before_reasoning:
@@ -167,23 +167,23 @@ topic authentication_gate:
 		if @variables.authenticated == True:
 			if @variables.next_topic == "protected_workflow":
 				set @variables.open_gate = "protected_workflow"
-				transition to @topic.protected_workflow
+				transition to @subagent.protected_workflow
 			if @variables.next_topic == "account_management":
 				set @variables.open_gate = "account_management"
-				transition to @topic.account_management
+				transition to @subagent.account_management
 
 # ─────────────────────────────────────────────────────────────────────
 # EXIT PROTOCOL (Resets Gate State)
 # Clears open_gate so LLM topic selector regains control
 # ─────────────────────────────────────────────────────────────────────
-topic exit_protocol:
+subagent exit_protocol:
 	description: "Resets gate state and returns to topic selector"
 
 	before_reasoning:
 		# ★ RELEASE GATE: Clear all gate state
 		set @variables.open_gate = "null"
 		set @variables.next_topic = ""
-		transition to @topic.topic_selector
+		transition to @subagent.topic_selector
 
 	reasoning:
 		instructions: ->
@@ -193,7 +193,7 @@ topic exit_protocol:
 # GENERAL INQUIRY (Unprotected Topic)
 # Demonstrates that not every topic needs gating
 # ─────────────────────────────────────────────────────────────────────
-topic general_inquiry:
+subagent general_inquiry:
 	description: "Handles general questions that do not require authentication"
 
 	reasoning:
@@ -204,8 +204,8 @@ topic general_inquiry:
 			| If the customer needs help with orders or account settings,
 			| let them know they will need to verify their identity first.
 		actions:
-			go_protected: @utils.transition to @topic.protected_workflow
-			go_account: @utils.transition to @topic.account_management
+			go_protected: @utils.transition to @subagent.protected_workflow
+			go_account: @utils.transition to @subagent.account_management
 
 # ═════════════════════════════════════════════════════════════════════
 # ARCHITECTURE DIAGRAM

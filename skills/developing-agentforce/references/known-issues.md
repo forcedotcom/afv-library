@@ -198,7 +198,7 @@ Unresolved platform bugs, limitations, and edge cases that affect Agent Script d
 - **Affects**: Multi-agent configurations using `related_agent` references
 - **Symptom**: SOMA (Same Org Multi-Agent) configurations that reference related agents via node declarations fail with "Node does not have corresponding topic" error at runtime.
 - **Root Cause**: The planner resolves agent references at compile time but may not correctly map cross-agent topic references when agents are deployed independently.
-- **Workaround**: Use `@topic.X` delegation within the same agent instead of cross-agent references. For true multi-agent scenarios, use the `@utils.escalate` or connection-based handoff patterns.
+- **Workaround**: Use `@subagent.X` delegation within the same agent instead of cross-agent references. For true multi-agent scenarios, use the `@utils.escalate` or connection-based handoff patterns.
 - **Open Questions**: Will SOMA node resolution be fixed in a future planner update?
 
 ---

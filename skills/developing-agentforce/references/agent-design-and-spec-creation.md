@@ -157,7 +157,7 @@ Every topic in an agent serves one of three roles: domain, guardrail, or escalat
 **Guardrail Topics.** Specialized topics that enforce agent boundaries. The standard Agentforce template includes two guardrail topics by default: `off_topic` (redirects users back to the agent's scope) and `ambiguous_question` (asks for clarification instead of guessing). Preserve these when modifying existing agents.
 
 ```agentscript
-topic off_topic:
+subagent off_topic:
     description: "Handle off-topic requests"
     reasoning:
         instructions: ->
@@ -165,7 +165,7 @@ topic off_topic:
               I can only help with [list your capabilities].
               What can I help you with today?
 
-topic ambiguous_question:
+subagent ambiguous_question:
     description: "Ask for clarification"
     reasoning:
         instructions: ->
@@ -176,7 +176,7 @@ topic ambiguous_question:
 **Escalation Topics.** Hand off to a human via `@utils.escalate`. This is a permanent exit — the user leaves the agent for a support channel (phone, email, chat with a human). Once triggered, the agent session ends. The escalation action does NOT return.
 
 ```agentscript
-topic escalation:
+subagent escalation:
     reasoning:
         actions:
             escalate: @utils.escalate
@@ -208,18 +208,18 @@ Example: The Local Info Agent. The `topic_selector` topic (hub) routes to domain
 start_agent topic_selector:
     reasoning:
         actions:
-            go_to_weather: @utils.transition to @topic.local_weather
-            go_to_events: @utils.transition to @topic.local_events
-            go_to_hours: @utils.transition to @topic.resort_hours
-            go_to_off_topic: @utils.transition to @topic.off_topic
-            go_to_ambiguous_question: @utils.transition to @topic.ambiguous_question
+            go_to_weather: @utils.transition to @subagent.local_weather
+            go_to_events: @utils.transition to @subagent.local_events
+            go_to_hours: @utils.transition to @subagent.resort_hours
+            go_to_off_topic: @utils.transition to @subagent.off_topic
+            go_to_ambiguous_question: @utils.transition to @subagent.ambiguous_question
 
 # Domain topics — each has its own instructions and actions
-topic local_weather:
+subagent local_weather:
     reasoning:
         instructions: | Handle weather questions.
 
-topic local_events:
+subagent local_events:
     reasoning:
         instructions: | Handle event questions.
 
@@ -232,30 +232,30 @@ topic local_events:
 start_agent intake:
     reasoning:
         actions:
-            go_next: @utils.transition to @topic.verification
+            go_next: @utils.transition to @subagent.verification
 
-topic verification:
+subagent verification:
     reasoning:
         actions:
-            go_next: @utils.transition to @topic.details_gathering
+            go_next: @utils.transition to @subagent.details_gathering
 
-topic details_gathering:
+subagent details_gathering:
     reasoning:
         actions:
-            go_next: @utils.transition to @topic.confirmation
+            go_next: @utils.transition to @subagent.confirmation
 ```
 
 **Escalation Chain.** Tiered support where each level has increasing capabilities. First-level resolves common issues with basic actions; second-level has access to more powerful actions or broader authority; final level escalates to a human. Use when support difficulty varies and you want to resolve simple issues quickly without involving higher tiers.
 
 ```agentscript
-topic level_1_support:
+subagent level_1_support:
     reasoning:
         instructions: | Try to resolve the issue using the FAQ and basic troubleshooting.
         actions:
             check_faq: @actions.search_faq
-            escalate: @utils.transition to @topic.level_2_support
+            escalate: @utils.transition to @subagent.level_2_support
 
-topic level_2_support:
+subagent level_2_support:
     reasoning:
         instructions: | You have access to account tools. Try to resolve before escalating.
         actions:
@@ -270,12 +270,12 @@ topic level_2_support:
 start_agent security_gate:
     reasoning:
         actions:
-            go_admin: @utils.transition to @topic.admin_panel
+            go_admin: @utils.transition to @subagent.admin_panel
                 available when @variables.user_role == "admin"
-            go_denied: @utils.transition to @topic.access_denied
+            go_denied: @utils.transition to @subagent.access_denied
                 available when @variables.user_role != "admin"
 
-topic access_denied:
+subagent access_denied:
     reasoning:
         instructions: | You don't have permission to access this.
 ```
@@ -415,7 +415,7 @@ Each `@InvocableVariable` on the request class becomes an action input; each on 
 
 ```agentscript
 # WRONG — snake_case doesn't match the Apex field names
-topic orders:
+subagent orders:
     actions:
         check_order: @actions.check_order
             target: "apex://OrderLookup"
@@ -425,7 +425,7 @@ topic orders:
                 order_date: date     # Apex field is orderDate, NOT order_date
 
 # RIGHT — names match Apex @InvocableVariable field names exactly
-topic orders:
+subagent orders:
     actions:
         check_order: @actions.check_order
             target: "apex://OrderLookup"
@@ -638,16 +638,16 @@ Use handoff when:
 - One-way workflows (checkout → order_confirmation → end)
 
 ```agentscript
-topic topic_selector:
+subagent topic_selector:
     reasoning:
         actions:
-            go_to_checkout: @utils.transition to @topic.checkout
+            go_to_checkout: @utils.transition to @subagent.checkout
                 description: "Start checkout"
 
-topic checkout:
+subagent checkout:
     reasoning:
         actions:
-            go_to_confirm: @utils.transition to @topic.order_confirmation
+            go_to_confirm: @utils.transition to @subagent.order_confirmation
                 description: "Proceed to confirmation"
 ```
 
@@ -655,21 +655,21 @@ After `go_to_confirm` executes, the user is in `order_confirmation`. If they lat
 
 ### Delegation: Handoff with Explicit Return
 
-Delegation hands control to another topic using `@topic.X` in `reasoning.actions`. It signals *intent* to return, but the return does not happen automatically — the delegated topic must explicitly transition back to the caller.
+Delegation hands control to another topic using `@subagent.X` in `reasoning.actions`. It signals *intent* to return, but the return does not happen automatically — the delegated topic must explicitly transition back to the caller.
 
 Use delegation when:
 - One topic needs advice from a specialist and should continue after
 - Reusable sub-workflows (e.g., identity verification called from multiple topics)
 - A topic needs to temporarily visit another topic, then resume
 
-**Critical Rule:** `@topic.X` delegates control. It does NOT implement call-return semantics. If you want the user to return to the calling topic, code an explicit `transition to @topic.<caller>` in the delegated topic. Without it, the next user utterance falls through to `topic_selector`.
+**Critical Rule:** `@subagent.X` delegates control. It does NOT implement call-return semantics. If you want the user to return to the calling topic, code an explicit `transition to @subagent.<caller>` in the delegated topic. Without it, the next user utterance falls through to `topic_selector`.
 
-WRONG: Assuming `@topic.specialist` returns automatically
+WRONG: Assuming `@subagent.specialist` returns automatically
 ```agentscript
-topic main:
+subagent main:
     reasoning:
         actions:
-            consult_specialist: @topic.specialist  # WRONG — assumes return
+            consult_specialist: @subagent.specialist  # WRONG — assumes return
 
 # After specialist runs, control does NOT return to main.
 # The next user utterance routes through topic_selector.
@@ -677,16 +677,16 @@ topic main:
 
 RIGHT: Delegated topic defines explicit return transition
 ```agentscript
-topic main:
+subagent main:
     reasoning:
         actions:
-            consult_specialist: @topic.specialist
+            consult_specialist: @subagent.specialist
                 description: "Consult specialist"
 
-topic specialist:
+subagent specialist:
     reasoning:
         actions:
-            go_to_main: @utils.transition to @topic.main
+            go_to_main: @utils.transition to @subagent.main
                 description: "Return to main"
 ```
 
@@ -713,7 +713,7 @@ Instructions are suggestions the LLM *may* follow. Gates and guards are enforced
 
 WRONG: Security rule as an instruction (LLM can ignore it)
 ```agentscript
-topic admin_panel:
+subagent admin_panel:
     reasoning:
         instructions: ->
             | Only respond if the user is an admin.
@@ -730,7 +730,7 @@ Two factors govern subjective control effectiveness: instruction ordering and gr
 
 RIGHT: Post-action check at the top (LLM sees it first)
 ```agentscript
-topic checkout:
+subagent checkout:
     reasoning:
         instructions: ->
             # Post-action check — LLM sees this first
@@ -752,7 +752,7 @@ topic checkout:
 
 WRONG: Post-action check at the bottom (LLM may respond before seeing it)
 ```agentscript
-topic checkout:
+subagent checkout:
     reasoning:
         instructions: ->
             | Your current cart total is {!@variables.cart_total}.
@@ -787,7 +787,7 @@ An action marked `available when <condition>` is hidden from the LLM when the co
 
 **WRONG: Relying on instructions to prevent action calls**
 ```agentscript
-topic booking:
+subagent booking:
     reasoning:
         instructions: ->
             | if @variables.booking_pending:
@@ -801,7 +801,7 @@ The action is visible; instructions tell the LLM not to call it. The LLM may ign
 
 **RIGHT: Using `available when` to hide the action**
 ```agentscript
-topic booking:
+subagent booking:
     reasoning:
         actions:
             confirm: @actions.confirm_booking
@@ -815,7 +815,7 @@ If `booking_pending` is False, the LLM sees no `confirm` action.
 Use `if/else` in instructions to show/hide text based on state. This doesn't hide actions; it changes what the LLM is told to do.
 
 ```agentscript
-topic support:
+subagent support:
     reasoning:
         instructions: ->
             | You're helping a customer with their order.
@@ -836,10 +836,10 @@ Use conditional instructions when you want to steer the LLM's reasoning without 
 The `before_reasoning` block runs before the LLM is invoked. Code here executes every time the topic is entered. The LLM never sees it, cannot override it, and cannot skip it.
 
 ```agentscript
-topic admin_panel:
+subagent admin_panel:
     before_reasoning:
         if @variables.user_role != "admin":
-            transition to @topic.access_denied
+            transition to @subagent.access_denied
 
     reasoning:
         instructions: | You are in the admin panel.
@@ -854,10 +854,10 @@ Combine `available when`, conditional instructions, and guards to enforce comple
 Example: "Show the payment action only if the user is authenticated AND the cart is not empty AND we're not in a preview/demo mode"
 
 ```agentscript
-topic checkout:
+subagent checkout:
     before_reasoning:
         if @variables.is_demo_mode:
-            transition to @topic.demo_complete
+            transition to @subagent.demo_complete
 
     reasoning:
         instructions: ->
@@ -882,7 +882,7 @@ variables:
     step2_verified: mutable boolean = False
     step3_verified: mutable boolean = False
 
-topic verification:
+subagent verification:
     reasoning:
         actions:
             verify_step1: @actions.run_check_1
@@ -890,7 +890,7 @@ topic verification:
                 available when @variables.step1_verified == True
             verify_step3: @actions.run_check_3
                 available when @variables.step2_verified == True
-            proceed: @utils.transition to @topic.confirmed
+            proceed: @utils.transition to @subagent.confirmed
                 available when @variables.step3_verified == True
 ```
 
@@ -916,7 +916,7 @@ An action loop occurs when the LLM calls the same action repeatedly without new 
 
 **WRONG: All three loop conditions present**
 ```agentscript
-topic events:
+subagent events:
     reasoning:
         instructions: ->
             | Use the {!@actions.check_events} action to find events.
@@ -935,7 +935,7 @@ No gate, variable-bound input, no post-action guidance. The LLM can call `check_
 Tell the LLM to stop calling the action after receiving results. Name the specific output fields the LLM should include in its text response — vague instructions like "present the results" let platform tools hijack the response (see Section 7, Grounding).
 
 ```agentscript
-topic events:
+subagent events:
     reasoning:
         instructions: ->
             | Use {!@actions.check_events} to find events matching the guest's interest.
@@ -955,7 +955,7 @@ topic events:
 Move the agent out of the topic after the action completes, breaking the cycle.
 
 ```agentscript
-topic events:
+subagent events:
     reasoning:
         instructions: ->
             | Use {!@actions.check_events} to find events.
@@ -966,7 +966,7 @@ topic events:
 
     after_reasoning:
         if @outputs.events_found:
-            transition to @topic.results_displayed
+            transition to @subagent.results_displayed
 ```
 
 After `check_events` runs, the `after_reasoning` block transitions to a new topic. The agent never cycles back to `events`, so the action can't be called again.
@@ -976,7 +976,7 @@ After `check_events` runs, the `after_reasoning` block transitions to a new topi
 Use `...` (LLM slot-fill) instead of variable binding. This forces the LLM to extract values from the conversation each cycle, adding natural decision friction.
 
 ```agentscript
-topic search:
+subagent search:
     reasoning:
         instructions: ->
             | Help the user search for products.
@@ -992,7 +992,7 @@ With `...`, the LLM must actively decide "do I have a new search query?" on ever
 **Combine mitigations for reinforcement:**
 
 ```agentscript
-topic lookup:
+subagent lookup:
     reasoning:
         instructions: ->
             | Once you have the result, present it. Do NOT call the action again.
@@ -1003,7 +1003,7 @@ topic lookup:
 
     after_reasoning:
         if @outputs.data_found:
-            transition to @topic.done  # Exit the topic
+            transition to @subagent.done  # Exit the topic
 ```
 
 Combine mitigations for reinforcement.

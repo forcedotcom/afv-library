@@ -147,11 +147,11 @@ start_agent topic_selector:
 			| - Account questions
 
 		actions:
-			go_orders: @utils.transition to @topic.order_status
-			go_cases: @utils.transition to @topic.support_cases
-			go_account: @utils.transition to @topic.account_help
+			go_orders: @utils.transition to @subagent.order_status
+			go_cases: @utils.transition to @subagent.support_cases
+			go_account: @utils.transition to @subagent.account_help
 
-topic order_status:
+subagent order_status:
 	label: "Order Status"
 	description: "Check order status with lazy loading"
 
@@ -194,9 +194,9 @@ topic order_status:
 		actions:
 			get_details: @actions.get_tracking_details
 				with order_id=@variables.recent_order_id
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
-topic support_cases:
+subagent support_cases:
 	label: "Support Cases"
 	description: "Review support cases with lazy loading"
 
@@ -225,11 +225,11 @@ topic support_cases:
 				| - Return to the main menu
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 			escalate: @utils.escalate
 				description: "Transfer to support specialist"
 
-topic account_help:
+subagent account_help:
 	label: "Account Help"
 	description: "Account questions - customer data already loaded"
 
@@ -245,7 +245,7 @@ topic account_help:
 			| What would you like to know about your account?
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
 # ★ Insight: Procedural vs Declarative Actions
 #

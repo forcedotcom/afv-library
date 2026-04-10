@@ -27,7 +27,7 @@ Fetch data once in `before_reasoning:`, cache in variables, reuse across topics.
 ## Lifecycle Hooks
 
 ```yaml
-topic main:
+subagent main:
    description: "Topic with lifecycle hooks"
 
    # BEFORE: Runs deterministically BEFORE LLM sees instructions
@@ -74,19 +74,19 @@ before_reasoning:
 
 | Term | Syntax | Behavior | Use When |
 |------|--------|----------|----------|
-| **Handoff** | `@utils.transition to @topic.X` | Control transfers completely, child generates final response | Checkout, escalation, terminal states |
-| **Supervision** | `@topic.X` (as action reference) | Parent orchestrates, child returns, parent synthesizes | Expert consultation, sub-tasks |
+| **Handoff** | `@utils.transition to @subagent.X` | Control transfers completely, child generates final response | Checkout, escalation, terminal states |
+| **Supervision** | `@subagent.X` (as action reference) | Parent orchestrates, child returns, parent synthesizes | Expert consultation, sub-tasks |
 
 ```yaml
 # HANDOFF - child topic takes over completely:
-checkout: @utils.transition to @topic.order_checkout
+checkout: @utils.transition to @subagent.order_checkout
    description: "Proceed to checkout"
-# → @topic.order_checkout generates the user-facing response
+# → @subagent.order_checkout generates the user-facing response
 
 # SUPERVISION - parent remains in control:
-get_advice: @topic.product_expert
+get_advice: @subagent.product_expert
    description: "Consult product expert"
-# → @topic.product_expert returns, parent topic synthesizes final response
+# → @subagent.product_expert returns, parent topic synthesizes final response
 ```
 
 **KNOWN BUG**: Adding ANY new action in Canvas view may inadvertently change Supervision references to Handoff transitions.
@@ -111,16 +111,16 @@ outputs:
       is_used_by_planner: True    # LLM can use for routing decisions
 
 # In Agent Script - LLM routes but cannot hallucinate:
-topic intent_router:
+subagent intent_router:
    reasoning:
       instructions: ->
          run @actions.classify_intent
          set @variables.intent = @outputs.intent_classification
 
          if @variables.intent == "refund":
-            transition to @topic.refunds
+            transition to @subagent.refunds
          if @variables.intent == "order_status":
-            transition to @topic.orders
+            transition to @subagent.orders
 ```
 
 ## Action I/O Metadata Properties
@@ -199,14 +199,14 @@ start_agent topic_selector:
    reasoning:
       instructions: ->
          if @variables.verification_in_progress == True:
-            transition to @topic.verification
+            transition to @subagent.verification
          | How can I help you today?
       actions:
-         start_verify: @topic.verification
+         start_verify: @subagent.verification
             description: "Start identity verification"
             set @variables.verification_in_progress = True
 
-topic verification:
+subagent verification:
    reasoning:
       instructions: ->
          | Please provide your email to verify your identity.

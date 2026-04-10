@@ -43,14 +43,14 @@ start_agent entry:
       instructions: |
          Welcome the user and offer to help with questions.
       actions:
-         go_search: @utils.transition to @topic.knowledge_search
+         go_search: @utils.transition to @subagent.knowledge_search
             description: "Start knowledge search"
 
 # ============================================================
 # KNOWLEDGE SEARCH TOPIC (RAG Pattern)
 # ============================================================
 
-topic knowledge_search:
+subagent knowledge_search:
    description: "Search knowledge base and generate grounded responses"
    reasoning:
       instructions: ->
@@ -113,7 +113,7 @@ topic knowledge_search:
 # FOLLOW-UP QUESTIONS TOPIC
 # ============================================================
 
-topic follow_up:
+subagent follow_up:
    description: "Handle follow-up questions using cached context"
    reasoning:
       instructions: ->
@@ -124,8 +124,8 @@ topic follow_up:
                with query = ...  # Follow-up question extracted by LLM
                with context = @variables.search_results  # Reuse cached results!
          else:
-            transition to @topic.knowledge_search
+            transition to @subagent.knowledge_search
 
       actions:
-         back_to_search: @utils.transition to @topic.knowledge_search
+         back_to_search: @utils.transition to @subagent.knowledge_search
             description: "Start a new search"

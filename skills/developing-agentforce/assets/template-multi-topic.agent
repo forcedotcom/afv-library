@@ -31,13 +31,13 @@ start_agent topic_selector:
     description: "Welcome the user and determine the appropriate topic based on user input"
     reasoning:
         actions:
-            go_to_topic_a: @utils.transition to @topic.topic_a
-            go_to_topic_b: @utils.transition to @topic.topic_b
-            go_to_topic_c: @utils.transition to @topic.topic_c
-            go_to_escalation: @utils.transition to @topic.escalation
-            go_to_off_topic: @utils.transition to @topic.off_topic
+            go_to_topic_a: @utils.transition to @subagent.topic_a
+            go_to_topic_b: @utils.transition to @subagent.topic_b
+            go_to_topic_c: @utils.transition to @subagent.topic_c
+            go_to_escalation: @utils.transition to @subagent.escalation
+            go_to_off_topic: @utils.transition to @subagent.off_topic
 
-topic topic_a:
+subagent topic_a:
     label: "Topic A"
     description: "Describe what this topic handles"
 
@@ -66,7 +66,7 @@ topic topic_a:
                     is_displayable: True
                     filter_from_agent: False
 
-topic topic_b:
+subagent topic_b:
     label: "Topic B"
     description: "Describe what this topic handles"
 
@@ -102,7 +102,7 @@ topic topic_b:
                     label: "Result"
                     is_displayable: False
 
-topic topic_c:
+subagent topic_c:
     label: "Topic C"
     description: "Describe what this topic handles"
 
@@ -139,7 +139,7 @@ topic topic_c:
                     is_displayable: True
                     filter_from_agent: False
 
-topic escalation:
+subagent escalation:
     label: "Escalation"
     description: "Handles requests from users who want to transfer or escalate their conversation to a live human agent."
 
@@ -150,7 +150,7 @@ topic escalation:
             escalate_to_human: @utils.escalate
                 description: "Escalate to a human agent."
 
-topic off_topic:
+subagent off_topic:
     label: "Off Topic"
     description: "Redirect conversation to relevant topics when user request goes off-topic"
 

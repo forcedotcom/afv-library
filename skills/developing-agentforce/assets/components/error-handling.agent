@@ -52,7 +52,7 @@ topic {{topic_name}}:
 				available when @variables.validation_passed == True
 
 			# Handle errors
-			retry_operation: @utils.transition to @topic.{{topic_name}}
+			retry_operation: @utils.transition to @subagent.{{topic_name}}
 				available when @variables.operation_success == False
 
-			back_to_menu: @utils.transition to @topic.topic_selector
+			back_to_menu: @utils.transition to @subagent.topic_selector

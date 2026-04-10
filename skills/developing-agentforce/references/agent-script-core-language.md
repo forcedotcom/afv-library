@@ -28,7 +28,7 @@ Agent Script operates in two phases: deterministic resolution, then LLM reasonin
 **Worked Example.** Consider this topic:
 
 ```agentscript
-topic check_order:
+subagent check_order:
     reasoning:
         instructions: ->
             if @variables.order_id != "":
@@ -83,15 +83,15 @@ language:
 start_agent topic_selector:
     ...
 
-topic my_topic:
+subagent my_topic:
     ...
 ```
 
-**Required blocks:** `system`, `config`, `start_agent`, and at least one `topic`.
+**Required blocks:** `system`, `config`, `start_agent`, and at least one `subagent`.
 
 **Optional blocks:** `variables`, `connections`, `knowledge`, `language`. Omit them if not needed.
 
-**Within `start_agent` and `topic` blocks**, the internal ordering is:
+**Within `start_agent` and `subagent` blocks**, the internal ordering is:
 
 1. `description` (required)
 2. `system` (optional — topic-level override of global system instructions)
@@ -120,7 +120,7 @@ Example: `check_order_status` is valid. `check_order__status` is invalid (consec
 Each nesting level adds 4 spaces. The hierarchy follows the block structure — topic → reasoning → instructions → logic/prompt:
 
 ```agentscript
-topic process_order:
+subagent process_order:
     description: "Handle order processing"
     reasoning:
         instructions: ->
@@ -189,7 +189,7 @@ The expression inside `{! ... }` is evaluated by the runtime during deterministi
 **Resource references**:
 
 - `@actions.<name>` — reference an action defined in the topic's `actions` block
-- `@topic.<name>` — reference a topic by name
+- `@subagent.<name>` — reference a topic by name
 - `@variables.<name>` — reference a variable (use in logic)
 - `{!@variables.<name>}` — reference a variable in prompt text (template injection)
 - `@outputs.<name>` — action output (only in `set`/`if` immediately after the action — unavailable elsewhere)
@@ -369,7 +369,7 @@ In prompt text (inside `|` pipe sections), always use `{!@variables.X}` with bra
 **Topic structure** — a named scope for reasoning, actions, and flow control:
 
 ```agentscript
-topic order_lookup:
+subagent order_lookup:
     description: "Handle customer order inquiries"
 
     reasoning:
@@ -394,7 +394,7 @@ topic order_lookup:
 **Topic-level system override** (optional) — override global system instructions for this topic only:
 
 ```agentscript
-topic product_specialist:
+subagent product_specialist:
     description: "Answer product questions"
     system:
         instructions: "You are a product expert. Be technical and detailed."
@@ -419,7 +419,7 @@ topic product_specialist:
 ```agentscript
 before_reasoning:
     if @variables.session_expired:
-        transition to @topic.login
+        transition to @subagent.login
 
 reasoning:
     instructions: ->
@@ -427,7 +427,7 @@ reasoning:
 
 after_reasoning:
     if @variables.transaction_complete:
-        transition to @topic.confirmation
+        transition to @subagent.confirmation
 ```
 
 Directive blocks use the arrow syntax (`->`) for logic but no LLM reasoning. They run deterministically.
@@ -541,9 +541,9 @@ run @actions.process_order
     with order_id = @variables.order_id
     set @variables.result = @outputs.status
     if @outputs.success == True:
-        transition to @topic.confirmation
+        transition to @subagent.confirmation
     else:
-        transition to @topic.error_handling
+        transition to @subagent.error_handling
 ```
 
 After an action completes, you can check outputs and transition.
@@ -599,9 +599,9 @@ start_agent topic_selector:
         instructions: ->
             | Welcome. I can help with orders, accounts, or billing.
         actions:
-            go_orders: @utils.transition to @topic.order_info
+            go_orders: @utils.transition to @subagent.order_info
                 description: "For order inquiries"
-            go_accounts: @utils.transition to @topic.account_help
+            go_accounts: @utils.transition to @subagent.account_help
                 description: "For account questions"
 ```
 
@@ -612,7 +612,7 @@ Expose the transition as a reasoning action when the LLM should judge the right 
 ```agentscript
 reasoning:
     actions:
-        go_next: @utils.transition to @topic.next_topic
+        go_next: @utils.transition to @subagent.next_topic
             description: "Move to the next topic"
             available when @variables.ready == True
 ```
@@ -624,23 +624,23 @@ Use bare `transition to` in `before_reasoning` and `after_reasoning` for state-b
 ```agentscript
 before_reasoning:
     if @variables.not_authenticated:
-        transition to @topic.login
+        transition to @subagent.login
 
 after_reasoning:
     if @variables.session_complete:
-        transition to @topic.summary
+        transition to @subagent.summary
 ```
 
 The runtime evaluates the condition and transitions immediately. Do NOT use `@utils.transition to` in directive blocks — it causes compilation errors.
 
 **Delegation with return**:
 
-When a topic needs another topic's expertise but still has work to do afterward, use `@topic.X` to delegate. The target topic runs its reasoning, then returns control to the caller:
+When a topic needs another topic's expertise but still has work to do afterward, use `@subagent.X` to delegate. The target topic runs its reasoning, then returns control to the caller:
 
 ```agentscript
 reasoning:
     actions:
-        ask_expert: @topic.expert_consultation
+        ask_expert: @subagent.expert_consultation
             description: "Consult the expert topic"
 ```
 
@@ -882,7 +882,7 @@ Utility functions control flow and state. They do not call external systems.
 ```agentscript
 reasoning:
     actions:
-        go_checkout: @utils.transition to @topic.checkout
+        go_checkout: @utils.transition to @subagent.checkout
             description: "Proceed to checkout"
             available when @variables.cart_has_items == True
 ```
@@ -914,12 +914,12 @@ reasoning:
 
 The LLM extracts values from the conversation and populates the specified variables.
 
-**`@topic.X`** — delegation to another topic with return:
+**`@subagent.X`** — delegation to another topic with return:
 
 ```agentscript
 reasoning:
     actions:
-        consult_expert: @topic.expert_topic
+        consult_expert: @subagent.expert_topic
             description: "Get expert guidance"
             available when @variables.needs_expert_help == True
 ```
@@ -950,7 +950,7 @@ Utilities cannot have output, so `set` is invalid.
 # WRONG — this doesn't compile
 reasoning:
     actions:
-        go_next: transition to @topic.next
+        go_next: transition to @subagent.next
             description: "Go to next"
 ```
 
@@ -961,7 +961,7 @@ reasoning:
 ```agentscript
 reasoning:
     actions:
-        go_next: @utils.transition to @topic.next
+        go_next: @utils.transition to @subagent.next
             description: "Go to next"
 ```
 
@@ -974,7 +974,7 @@ The `@utils.transition to` syntax creates a callable tool.
 ```agentscript
 # WRONG — compile error
 after_reasoning:
-    @utils.transition to @topic.next
+    @utils.transition to @subagent.next
 ```
 
 **Why it fails:** Directive blocks (`before_reasoning`, `after_reasoning`) execute deterministically — the runtime handles them, not the LLM. They use bare `transition to` syntax.
@@ -983,7 +983,7 @@ after_reasoning:
 
 ```agentscript
 after_reasoning:
-    transition to @topic.next
+    transition to @subagent.next
 ```
 
 Bare `transition to` is deterministic — the runtime executes it directly.
@@ -1127,7 +1127,7 @@ Three things make this work: (1) naming the specific output fields the LLM must 
 # WRONG — utilities have no outputs
 reasoning:
     actions:
-        go_next: @utils.transition to @topic.next
+        go_next: @utils.transition to @subagent.next
             set @variables.transitioned = True
 ```
 
@@ -1139,7 +1139,7 @@ reasoning:
 # If you need to record state, set before transitioning
 before_reasoning:
     set @variables.last_topic = "current_topic"
-    transition to @topic.next
+    transition to @subagent.next
 ```
 
 ---
@@ -1180,7 +1180,7 @@ Three mitigations applied: (1) explicit post-action instructions telling the LLM
 
 ```agentscript
 # WRONG — no instructions prepare the LLM
-topic check_status:
+subagent check_status:
     reasoning:
         actions:
             lookup: @actions.fetch_status
@@ -1191,7 +1191,7 @@ topic check_status:
 **CORRECT:**
 
 ```agentscript
-topic check_status:
+subagent check_status:
     reasoning:
         instructions: ->
             | If the customer asks about their order status, use the {!@actions.fetch_status} action.
@@ -1208,22 +1208,22 @@ Always pair actions with guiding instructions in the reasoning block.
 
 ```agentscript
 # WRONG — the router processes the gate's triggering message in the same turn
-topic collect_username:
+subagent collect_username:
     reasoning:
         instructions: ->
             | Ask the customer for their username.
     after_reasoning:
         if @variables.username != "":
-            transition to @topic.topic_selector
+            transition to @subagent.topic_selector
 
-topic topic_selector:
+subagent topic_selector:
     reasoning:
         instructions: ->
             | Route the customer's message:
-              - Events → @topic.event_lookup
-              - Venues → @topic.venue_booking
-              - Weather → @topic.weather_forecast
-              - Anything else → @topic.off_topic
+              - Events → @subagent.event_lookup
+              - Venues → @subagent.venue_booking
+              - Weather → @subagent.weather_forecast
+              - Anything else → @subagent.off_topic
 ```
 
 **Why it fails:** When `collect_username` captures the username and `after_reasoning` transitions to `topic_selector`, both topics process in the same user turn. The router's reasoning fires against the user's original message (e.g., "My username is vivek.chawla"), not a fresh utterance. Since that message doesn't match any domain topic, the router sends it to `off_topic`.
@@ -1231,25 +1231,25 @@ topic topic_selector:
 **CORRECT:**
 
 ```agentscript
-topic collect_username:
+subagent collect_username:
     reasoning:
         instructions: ->
             | Ask the customer for their username.
     after_reasoning:
         if @variables.username != "":
-            transition to @topic.topic_selector
+            transition to @subagent.topic_selector
 
-topic topic_selector:
+subagent topic_selector:
     reasoning:
         instructions: ->
             | Route the customer's message to the right topic.
               If the customer just arrived from the username collection
               step, greet them and ask how you can help — do NOT route
               their previous message.
-              - Events → @topic.event_lookup
-              - Venues → @topic.venue_booking
-              - Weather → @topic.weather_forecast
-              - Anything else → @topic.off_topic
+              - Events → @subagent.event_lookup
+              - Venues → @subagent.venue_booking
+              - Weather → @subagent.weather_forecast
+              - Anything else → @subagent.off_topic
 ```
 
 This pattern applies whenever a gate topic transitions into a routing topic via `after_reasoning`.

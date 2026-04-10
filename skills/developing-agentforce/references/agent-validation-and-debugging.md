@@ -55,11 +55,11 @@ Do not attempt to preview or deploy until validation passes.
 
 Before running the validation command, mentally check these 14 items. This checklist prevents the most common errors and speeds up the feedback loop:
 
-- Block ordering is correct: `system` → `config` → `variables` → `connections` → `knowledge` → `language` → `start_agent` → `topic` blocks
+- Block ordering is correct: `system` → `config` → `variables` → `connections` → `knowledge` → `language` → `start_agent` → `subagent` blocks
 - `config` block has `developer_name` (required for service agents: also needs `default_agent_user`)
 - `system` block has `messages.welcome`, `messages.error`, and `instructions`
 - `start_agent` block exists with description and at least one transition action
-- Each `topic` has a `description` and `reasoning` block
+- Each `subagent` has a `description` and `reasoning` block
 - All `mutable` variables have default values (required)
 - All `linked` variables have `source` specified and NO default value
 - Action `target` uses valid format (`flow://`, `apex://`, `prompt://`, etc.)
@@ -82,14 +82,14 @@ Validation errors fall into several categories: block ordering, indentation, syn
 
 ```agentscript
 # WRONG — bare transition in reasoning.actions
-go_next: transition to @topic.next
+go_next: transition to @subagent.next
 
 # CORRECT — use @utils.transition to in reasoning.actions
-go_next: @utils.transition to @topic.next
+go_next: @utils.transition to @subagent.next
 
 # CORRECT — use bare transition in directive blocks
 after_reasoning:
-    transition to @topic.next
+    transition to @subagent.next
 ```
 
 In reasoning actions (where the LLM decides what to do), use `@utils.transition to`. In directive blocks (`before_reasoning`, `after_reasoning`), use bare `transition to`. These are two different syntaxes for two different contexts.
@@ -160,7 +160,7 @@ Linked variables are populated from their `source` at runtime. Do not assign a d
 
 ```agentscript
 # WRONG — utilities don't support post-action directives
-go_next: @utils.transition to @topic.next
+go_next: @utils.transition to @subagent.next
     set @variables.navigated = True
 
 # CORRECT — only @actions support post-action directives
@@ -168,7 +168,7 @@ process: @actions.process_order
     set @variables.result = @outputs.result
 ```
 
-Post-action directives (`set`, `run`, `if`, `transition`) only work after `@actions.*` invocations. Utility actions (`@utils.*`) and topic delegates (`@topic.*`) do not produce outputs, so post-action directives are not applicable.
+Post-action directives (`set`, `run`, `if`, `transition`) only work after `@actions.*` invocations. Utility actions (`@utils.*`) and topic delegates (`@subagent.*`) do not produce outputs, so post-action directives are not applicable.
 
 ---
 
@@ -386,7 +386,7 @@ Traces are available immediately after each `send` — you do NOT need to end th
 
 To connect a failed turn to its trace, find the agent response in the transcript and read the `planId` from its `raw` array. That `planId` is the filename under `traces/`.
 
-**traces/<PLAN_ID>.json** is the detailed execution log for a single turn. It contains top-level fields (`type`, `planId`, `sessionId`, `intent`, `topic`) and a `plan` array with execution steps in chronological order.
+**traces/<PLAN_ID>.json** is the detailed execution log for a single turn. It contains top-level fields (`type`, `planId`, `sessionId`, `intent`, `subagent`) and a `plan` array with execution steps in chronological order.
 
 ### Step Types (Reference Table)
 
@@ -524,8 +524,8 @@ start_agent topic_selector:
     description: "Route to appropriate topics"
     reasoning:
         actions:
-            go_to_weather: @utils.transition to @topic.local_weather
-            go_to_events: @utils.transition to @topic.local_events
+            go_to_weather: @utils.transition to @subagent.local_weather
+            go_to_events: @utils.transition to @subagent.local_events
 
 # AFTER — explicit instructions and descriptions improve routing accuracy
 start_agent topic_selector:
@@ -537,11 +537,11 @@ start_agent topic_selector:
               If the user asks about facility hours, reservations, or amenities, go to the hours topic.
 
         actions:
-            go_to_weather: @utils.transition to @topic.local_weather
+            go_to_weather: @utils.transition to @subagent.local_weather
                 description: "Route to weather topic for weather questions"
-            go_to_events: @utils.transition to @topic.local_events
+            go_to_events: @utils.transition to @subagent.local_events
                 description: "Route to events topic for local event questions"
-            go_to_hours: @utils.transition to @topic.resort_hours
+            go_to_hours: @utils.transition to @subagent.resort_hours
                 description: "Route to hours topic for facility hours questions"
 ```
 

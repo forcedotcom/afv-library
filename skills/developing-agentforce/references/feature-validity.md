@@ -18,7 +18,7 @@
 **What works on `@utils.transition` actions:**
 ```yaml
 actions:
-   go_next: @utils.transition to @topic.next
+   go_next: @utils.transition to @subagent.next
       description: "Navigate to next topic"   # ✅ ONLY description works
 ```
 

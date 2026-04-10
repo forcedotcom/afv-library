@@ -93,11 +93,11 @@ start_agent topic_selector:
 			| If they ask for a human or live agent, route to escalation.
 			| Otherwise, try to help them directly.
 		actions:
-			go_help: @utils.transition to @topic.help
-			go_escalation: @utils.transition to @topic.escalation
+			go_help: @utils.transition to @subagent.help
+			go_escalation: @utils.transition to @subagent.escalation
 				available when @variables.escalation_requested == True
 
-topic help:
+subagent help:
 	label: "Help"
 	description: "Provides assistance to customers"
 
@@ -117,11 +117,11 @@ topic help:
 			| Track escalation reason if provided:
 			set @variables.escalation_reason = ...
 		actions:
-			offer_escalation: @utils.transition to @topic.escalation
+			offer_escalation: @utils.transition to @subagent.escalation
 
-			immediate_escalation: @utils.transition to @topic.escalation
+			immediate_escalation: @utils.transition to @subagent.escalation
 
-topic escalation:
+subagent escalation:
 	label: "Escalation"
 	description: "Transfers conversation to human agent"
 

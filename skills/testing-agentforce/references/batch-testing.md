@@ -246,7 +246,7 @@ Testing Center reports **Level 2 invocation names** (e.g. `check_order`), NOT Le
 
 ```
 # .agent file
-topic order_support:
+subagent order_support:
    actions:
       get_order_status:           # <-- Level 1 (DON'T use this in expectedActions)
          target: "flow://Get_Order_Status"

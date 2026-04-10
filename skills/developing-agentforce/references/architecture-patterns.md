@@ -25,14 +25,14 @@ start_agent topic_selector:
 			You are a router only. Do NOT answer questions directly.
 			Always use a transition action to route immediately.
 		actions:
-			to_orders: @utils.transition to @topic.order_support
+			to_orders: @utils.transition to @subagent.order_support
 				description: "Order questions"
-			to_returns: @utils.transition to @topic.return_support
+			to_returns: @utils.transition to @subagent.return_support
 				description: "Return or refund requests"
-			to_general: @utils.transition to @topic.general_support
+			to_general: @utils.transition to @subagent.general_support
 				description: "General questions"
 
-topic order_support:
+subagent order_support:
 	description: "Handle order inquiries"
 	reasoning:
 		instructions: ->
@@ -40,11 +40,11 @@ topic order_support:
 		actions:
 			lookup: @actions.get_order
 				description: "Look up order"
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 				description: "Route to a different topic"
 ```
 
-> **Routing lives in `start_agent`** -- put all transition actions directly in `start_agent topic_selector:`. Do NOT create a separate routing-only topic (e.g. `main_menu`, `central_hub`) -- that duplicates the router, adds an extra LLM hop (~3-5s latency), and confuses the platform. Topics that need "go back" should transition to `@topic.topic_selector`.
+> **Routing lives in `start_agent`** -- put all transition actions directly in `start_agent topic_selector:`. Do NOT create a separate routing-only topic (e.g. `main_menu`, `central_hub`) -- that duplicates the router, adds an extra LLM hop (~3-5s latency), and confuses the platform. Topics that need "go back" should transition to `@subagent.topic_selector`.
 
 ## Verification Gate
 
@@ -58,16 +58,16 @@ start_agent topic_selector:
 			You are a router only. Do NOT answer questions directly.
 			Route all users to identity verification first.
 		actions:
-			verify: @utils.transition to @topic.identity_verification
+			verify: @utils.transition to @subagent.identity_verification
 				description: "Begin verification"
 
-topic identity_verification:
+subagent identity_verification:
 	description: "Verify customer identity"
 	reasoning:
 		instructions: ->
 			if @variables.failed_attempts >= 3:
 				| Too many failed attempts. Transferring to human agent.
-				transition to @topic.escalation
+				transition to @subagent.escalation
 
 			if @variables.is_verified == True:
 				| Identity verified! How can I help?
@@ -80,7 +80,7 @@ topic identity_verification:
 				description: "Verify customer email"
 				set @variables.is_verified = @outputs.verified
 
-			to_account: @utils.transition to @topic.account_mgmt
+			to_account: @utils.transition to @subagent.account_mgmt
 				description: "Account management"
 				available when @variables.is_verified == True
 
@@ -99,7 +99,7 @@ reasoning:
 		if @variables.refund_status == "Approved":
 			run @actions.create_crm_case
 				with customer_id = @variables.customer_id
-			transition to @topic.confirmation
+			transition to @subagent.confirmation
 
 		# PRE-LLM: Load data
 		run @actions.load_risk_score
@@ -121,7 +121,7 @@ When refactoring a flat agent (all logic in one topic) into hub-and-spoke:
 1. **Identify distinct intents** — each becomes a spoke topic
 2. **Move instructions and actions** from the monolithic topic into spoke topics. Each spoke needs BOTH its Level 1 action definitions (under `topic > actions`) AND Level 2 action invocations (under `topic > reasoning > actions`).
 3. **Create `start_agent topic_selector:`** with transition actions pointing to each spoke
-4. **Add "back to hub" transitions** in each spoke: `@utils.transition to @topic.topic_selector`
+4. **Add "back to hub" transitions** in each spoke: `@utils.transition to @subagent.topic_selector`
 5. **Re-preview immediately** — verify topic routing works before making further changes
 
 **Common migration mistakes:**

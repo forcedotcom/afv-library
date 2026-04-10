@@ -99,7 +99,7 @@ fi
 Read the `.agent` file and verify it has proper Agent Script structure:
 - `system:` block with `instructions:`
 - `config:` block with `developer_name:`
-- `start_agent` or `topic` blocks with `reasoning: instructions:`
+- `start_agent` or `subagent` blocks with `reasoning: instructions:`
 - Each topic should have distinct `instructions:` content (not identical across topics)
 
 Store the resolved path as `AGENT_FILE` for Phase 3.

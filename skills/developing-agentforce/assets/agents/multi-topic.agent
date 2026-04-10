@@ -46,11 +46,11 @@ start_agent topic_selector:
 			| Route them to the most appropriate topic.
 			| If unclear, ask clarifying questions.
 		actions:
-			go_to_topic_one: @utils.transition to @topic.{{topic_one_name}}
-			go_to_topic_two: @utils.transition to @topic.{{topic_two_name}}
-			go_to_topic_three: @utils.transition to @topic.{{topic_three_name}}
-			go_to_farewell: @utils.transition to @topic.farewell
-			go_to_escalation: @utils.transition to @topic.escalation
+			go_to_topic_one: @utils.transition to @subagent.{{topic_one_name}}
+			go_to_topic_two: @utils.transition to @subagent.{{topic_two_name}}
+			go_to_topic_three: @utils.transition to @subagent.{{topic_three_name}}
+			go_to_farewell: @utils.transition to @subagent.farewell
+			go_to_escalation: @utils.transition to @subagent.escalation
 
 topic {{topic_one_name}}:
 	label: "{{TopicOneLabel}}"
@@ -60,7 +60,7 @@ topic {{topic_one_name}}:
 		instructions: ->
 			| {{TopicOneInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @topic.topic_selector
+			back_to_menu: @utils.transition to @subagent.topic_selector
 
 topic {{topic_two_name}}:
 	label: "{{TopicTwoLabel}}"
@@ -70,7 +70,7 @@ topic {{topic_two_name}}:
 		instructions: ->
 			| {{TopicTwoInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @topic.topic_selector
+			back_to_menu: @utils.transition to @subagent.topic_selector
 
 topic {{topic_three_name}}:
 	label: "{{TopicThreeLabel}}"
@@ -80,9 +80,9 @@ topic {{topic_three_name}}:
 		instructions: ->
 			| {{TopicThreeInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @topic.topic_selector
+			back_to_menu: @utils.transition to @subagent.topic_selector
 
-topic farewell:
+subagent farewell:
 	label: "Farewell"
 	description: "Ends the conversation gracefully"
 
@@ -92,7 +92,7 @@ topic farewell:
 			| Wish them a great day.
 			| Let them know they can return anytime.
 
-topic escalation:
+subagent escalation:
 	label: "Escalation"
 	description: "Handles requests to transfer to a live human agent"
 

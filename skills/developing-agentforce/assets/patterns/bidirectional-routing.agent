@@ -46,17 +46,17 @@ start_agent main_hub:
 			| Consultation status: {!@variables.consultation_status}
 		actions:
 			# Route to pricing specialist (store return address first)
-			consult_pricing: @utils.transition to @topic.pricing_specialist
+			consult_pricing: @utils.transition to @subagent.pricing_specialist
 				available when @variables.consultation_status != "in_progress"
 
 			# Route to technical specialist
-			consult_technical: @utils.transition to @topic.technical_specialist
+			consult_technical: @utils.transition to @subagent.technical_specialist
 				available when @variables.consultation_status != "in_progress"
 
-			end_conversation: @utils.transition to @topic.farewell
+			end_conversation: @utils.transition to @subagent.farewell
 
 # Pricing specialist topic
-topic pricing_specialist:
+subagent pricing_specialist:
 	label: "Pricing Specialist"
 	description: "Handles complex pricing calculations and returns results"
 
@@ -93,14 +93,14 @@ topic pricing_specialist:
 				set @variables.specialist_result = @outputs.final_price
 
 			# Return to main hub with results
-			return_with_results: @utils.transition to @topic.main_hub
+			return_with_results: @utils.transition to @subagent.main_hub
 
 	# Mark consultation complete when leaving
 	after_reasoning:
 		set @variables.consultation_status = "completed"
 
 # Technical specialist topic
-topic technical_specialist:
+subagent technical_specialist:
 	label: "Technical Specialist"
 	description: "Handles technical troubleshooting and returns results"
 
@@ -132,12 +132,12 @@ topic technical_specialist:
 				with symptoms=...
 				set @variables.specialist_result = @outputs.diagnosis
 
-			return_with_results: @utils.transition to @topic.main_hub
+			return_with_results: @utils.transition to @subagent.main_hub
 
 	after_reasoning:
 		set @variables.consultation_status = "completed"
 
-topic farewell:
+subagent farewell:
 	label: "Farewell"
 	description: "Ends the conversation"
 
@@ -150,7 +150,7 @@ topic farewell:
 # If the specialist doesn't need to return results to a coordinator,
 # use simple transitions without the return_topic pattern:
 #
-# go_orders: @utils.transition to @topic.orders
-# go_billing: @utils.transition to @topic.billing
+# go_orders: @utils.transition to @subagent.orders
+# go_billing: @utils.transition to @subagent.billing
 #
 # The bidirectional pattern adds complexity - only use when needed.

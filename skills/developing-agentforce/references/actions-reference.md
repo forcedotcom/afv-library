@@ -146,7 +146,7 @@ Agent Script provides two ways to invoke actions:
 The LLM automatically selects appropriate actions from those defined in the `reasoning.actions` block:
 
 ```agentscript
-topic order_management:
+subagent order_management:
    description: "Handles order inquiries"
 
    reasoning:
@@ -355,7 +355,7 @@ public with sharing class CalculateDiscountAction {
 #### Step 2: Reference DIRECTLY in Agent Script via `apex://`
 
 ```yaml
-topic discount_calculator:
+subagent discount_calculator:
    description: "Calculates discount for customer order"
 
    # Level 1: Action DEFINITION with target

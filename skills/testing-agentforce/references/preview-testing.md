@@ -112,13 +112,13 @@ Compromised probes:
 
 ```yaml
 # Agent topics:
-topic order_management:
+subagent order_management:
   description: "Handle order status, tracking, shipping"
   actions:
     - get_order_status
     - track_shipment
 
-topic returns:
+subagent returns:
   description: "Process returns, refunds, exchanges"
   actions:
     - initiate_return
@@ -196,7 +196,7 @@ Each trace is a `PlanSuccessResponse` JSON with this root structure:
 - `type` — always `"PlanSuccessResponse"`
 - `planId` — unique plan ID for this turn
 - `sessionId` — the preview session ID
-- `topic` — which topic handled this turn
+- `subagent` — which topic handled this turn
 - `plan[]` — array of step objects (the execution trace)
 
 ## Phase 3: Trace Analysis
@@ -344,10 +344,10 @@ If issues are detected, the system enters an automated fix loop (max 3 iteration
 
 ```yaml
 # Before (topic not matched)
-topic order_mgmt:
+subagent order_mgmt:
   description: "Orders"
 
 # After (expanded description)
-topic order_mgmt:
+subagent order_mgmt:
   description: "Handle order queries, order status, tracking, shipping, delivery"
 ```

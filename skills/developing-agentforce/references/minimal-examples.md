@@ -30,10 +30,10 @@ start_agent entry:
         instructions: |
             Greet the customer and route to the main topic.
         actions:
-            go_main: @utils.transition to @topic.main
+            go_main: @utils.transition to @subagent.main
                 description: "Navigate to main conversation"
 
-topic main:
+subagent main:
     description: "Main conversation handler"
     reasoning:
         instructions: ->

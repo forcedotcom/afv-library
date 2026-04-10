@@ -71,7 +71,7 @@ process_order: @actions.create_order
 
 **Key syntax**:
 ```agentscript
-topic conversation:
+subagent conversation:
    before_reasoning:
       set @variables.turn_count = @variables.turn_count + 1
       run @actions.refresh_context
@@ -99,7 +99,7 @@ topic conversation:
 **Key syntax**:
 ```agentscript
 # In main topic
-consult_pricing: @utils.transition to @topic.pricing_specialist
+consult_pricing: @utils.transition to @subagent.pricing_specialist
 
 # In specialist topic
 before_reasoning:
@@ -107,7 +107,7 @@ before_reasoning:
 
 # ... do specialist work ...
 
-return_with_results: @utils.transition to @topic.main_hub
+return_with_results: @utils.transition to @subagent.main_hub
 ```
 
 ---
@@ -205,9 +205,9 @@ reasoning:
 # topic_selector bypasses LLM when open_gate is set
 before_reasoning:
    if @variables.open_gate == "protected_workflow":
-      transition to @topic.protected_workflow
+      transition to @subagent.protected_workflow
    if @variables.open_gate == "authentication_gate":
-      transition to @topic.authentication_gate
+      transition to @subagent.authentication_gate
 ```
 
 **Credit**: Hua Xu (Salesforce APAC FDE team) — production pattern from Kogan agent deployment.

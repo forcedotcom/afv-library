@@ -10,12 +10,12 @@ Before opening a preview session, define one test scenario per confirmed issue:
 
 | Issue type (Phase 1) | Test message to send | Expected behavior | Failure indicator |
 |---|---|---|---|
-| Dead topic -- never entered | Utterance that *should* route to that topic | `topic` in response = `<dead_topic>` | Topic stays `entry` |
+| Dead topic -- never entered | Utterance that *should* route to that topic | `subagent` in response = `<dead_topic>` | Topic stays `entry` |
 | Action not called | Ask directly for the action's task | Action fires in the response | Conversational reply with no action invoked |
 | Handoff topic -- no post-collection routing | Enter the handoff topic, then send a follow-up | Session continues in specialized topic | Falls back to `entry` after 1 turn |
 | LOW adherence | Exact utterance from the flagged `TRUST_GUARDRAILS_STEP` | Response follows topic instruction | Generic/off-instruction answer |
 | Knowledge miss | Question requiring a specific knowledge article | Agent cites correct information | Hallucinated or generic answer |
-| Topic misroute | Utterance that belongs to topic A | `topic` = A in response | `topic` = B or `entry` |
+| Topic misroute | Utterance that belongs to topic A | `subagent` = A in response | `subagent` = B or `entry` |
 
 ---
 

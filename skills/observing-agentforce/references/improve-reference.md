@@ -68,7 +68,7 @@ variables:
 
 start_agent: entry_topic
 
-topic entry_topic:
+subagent entry_topic:
     label: "Entry Topic"
     description: "Routes users to specialized topics"
 
@@ -77,7 +77,7 @@ topic entry_topic:
             | Welcome the user warmly.
             | Ask how you can help today.
         actions:
-            go_to_orders: @utils.transition to @topic.orders
+            go_to_orders: @utils.transition to @subagent.orders
                 description: "Route to orders topic"
             check_order: @actions.get_order_status
                 description: "Look up order details"
@@ -102,7 +102,7 @@ topic entry_topic:
 | `Agent Configuration Gap` | Action not called | `topic <name>: reasoning: actions:` and `reasoning: instructions:` | Add action definition under `actions:` and mention it in `instructions:` |
 | `Agent Configuration Gap` | Wrong action input / error | `reasoning: actions: <action>: with` | Correct `with` bindings or action `target:` URI |
 | `Agent Configuration Gap` | Variable not captured | `reasoning: actions: <action>: set` | Add `set @variables.myVar = @outputs.field` binding |
-| `Agent Configuration Gap` | No post-action transition | `reasoning: actions:` | Add `@utils.transition to @topic.<next_topic>` action |
+| `Agent Configuration Gap` | No post-action transition | `reasoning: actions:` | Add `@utils.transition to @subagent.<next_topic>` action |
 | `Agent Configuration Gap` | LOW adherence / vague instructions | `topic <name>: reasoning: instructions:` | Rewrite using instruction principles below |
 | `Agent Configuration Gap` | Identical instructions across topics | All `topic: reasoning: instructions:` blocks | Give each topic distinct, actionable instructions |
 | `Knowledge Gap -- Infrastructure` | Knowledge question answered generically | Add knowledge action definition to the relevant topic | Define action with `retriever://` target |
@@ -154,7 +154,7 @@ reasoning:
             description: "Capture customer contact details"
             set @variables.customer_name = @outputs.name
             set @variables.customer_email = @outputs.email
-        proceed: @utils.transition to @topic.schedule_test_drive
+        proceed: @utils.transition to @subagent.schedule_test_drive
             description: "Move to test drive scheduling after info collected"
             available when @variables.customer_name != ""
 ```
@@ -172,7 +172,7 @@ When editing topic instructions, follow these principles:
 3. **Avoid instruction expansion** -- Adding more text to instructions does NOT always help. Prefer:
    - Adding a single action reference: "Use `@actions.X` to look up..."
    - Adding a single constraint: "Do not proceed until the customer provides..."
-   - Adding a single routing directive: "After completing, transition to @topic.Y"
+   - Adding a single routing directive: "After completing, transition to @subagent.Y"
 
 4. **Test immediately after each edit** -- Run the same test utterances. If pass rate drops, revert the change immediately.
 
@@ -193,14 +193,14 @@ When editing topic instructions, follow these principles:
 
 ## Apply Fixes
 
-**Step 1 -- Read the current .agent file** using the Read tool. Locate the specific `topic` block that needs changes.
+**Step 1 -- Read the current .agent file** using the Read tool. Locate the specific `subagent` block that needs changes.
 
 **Step 2 -- Edit the .agent file directly** using the Edit tool. Edit only the specific lines that need to change. Common edit patterns:
 
 - **Topic description** (for misroute fixes): Change `description:` text
 - **Topic instructions** (for LOW adherence): Replace `reasoning: instructions:` block
 - **Adding an action**: Add definition under `reasoning: actions:`
-- **Adding a transition**: Add `@utils.transition to @topic.<name>` action
+- **Adding a transition**: Add `@utils.transition to @subagent.<name>` action
 - **Adding an `available when` guard**: Add guard condition to action definition
 
 IMPORTANT: Agent Script uses **tabs** for indentation, not spaces.

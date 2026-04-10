@@ -36,5 +36,5 @@ topic {{topic_name}}:
 				with {{input_name}}=...
 				set @variables.{{result_variable}} = @outputs.{{output_name}}
 
-			back_to_menu: @utils.transition to @topic.topic_selector
+			back_to_menu: @utils.transition to @subagent.topic_selector
 				description: "Return to main menu"

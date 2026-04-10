@@ -111,9 +111,9 @@ start_agent topic_selector:
 			| Route the customer to the appropriate topic.
 
 		actions:
-			go_orders: @utils.transition to @topic.orders
-			go_billing: @utils.transition to @topic.billing
-			go_support: @utils.transition to @topic.support
+			go_orders: @utils.transition to @subagent.orders
+			go_billing: @utils.transition to @subagent.billing
+			go_support: @utils.transition to @subagent.support
 				available when @variables.business_hours == True
 
 	actions:
@@ -134,7 +134,7 @@ start_agent topic_selector:
 					description: "True if in business hours"
 			target: "flow://Check_Business_Hours"
 
-topic orders:
+subagent orders:
 	label: "Order Management"
 	description: "Handle order inquiries with tier-appropriate service"
 
@@ -149,9 +149,9 @@ topic orders:
 			| Look up order status, process changes, or handle returns.
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
-topic billing:
+subagent billing:
 	label: "Billing Support"
 	description: "Handle billing with appropriate authority levels"
 
@@ -171,12 +171,12 @@ topic billing:
 			| Help the customer understand their bill and resolve issues.
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 			escalate: @utils.escalate
 				description: "Transfer to billing specialist"
 				available when @variables.customer_tier == "standard"
 
-topic support:
+subagent support:
 	label: "Technical Support"
 	description: "Technical support with business hours awareness"
 
@@ -192,7 +192,7 @@ topic support:
 			| Help resolve the customer's technical issue.
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ★ TOPIC-LEVEL SYSTEM OVERRIDES (NEW PATTERN)
@@ -200,7 +200,7 @@ topic support:
 # system: blocks that OVERRIDE the global system instructions.
 # ═══════════════════════════════════════════════════════════════════════════
 
-topic formal_mode:
+subagent formal_mode:
 	label: "Formal Communication"
 	description: "Professional business communication mode"
 
@@ -217,9 +217,9 @@ topic formal_mode:
 			| I am prepared to address your inquiry with the utmost professionalism.
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
-topic creative_mode:
+subagent creative_mode:
 	label: "Creative Assistant"
 	description: "Creative and imaginative communication mode"
 
@@ -238,9 +238,9 @@ topic creative_mode:
 			| What shall we dream up today?
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
-topic technical_expert:
+subagent technical_expert:
 	label: "Technical Expert"
 	description: "Deep technical expertise mode"
 
@@ -259,7 +259,7 @@ topic technical_expert:
 			| What technical challenge are we solving?
 
 		actions:
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
 # ★ Insight: Three Levels of Instruction Control
 #

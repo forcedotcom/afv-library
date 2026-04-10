@@ -46,7 +46,7 @@ reasoning:
       # 1. Post-action check (from previous loop)
       if @variables.refund_approved == True:
          | Your refund has been processed. Reference: {!@variables.refund_id}
-         transition to @topic.confirmation
+         transition to @subagent.confirmation
 
       # 2. Pre-LLM data loading
       if @variables.data_loaded == False:
@@ -147,7 +147,7 @@ reasoning:
       # POST-ACTION CHECK (at TOP -- fires on re-resolution)
       if @variables.order_cancelled == True:
          | Your order has been cancelled successfully.
-         transition to @topic.confirmation
+         transition to @subagent.confirmation
 
       # These instructions are for the FIRST entry (before action runs)
       | I can help you cancel your order.
@@ -167,7 +167,7 @@ reasoning:
    instructions: ->
       # 1. POST-ACTION CHECKS (deterministic transitions)
       if @variables.action_completed == True:
-         transition to @topic.next_step
+         transition to @subagent.next_step
 
       # 2. PRE-LLM DATA LOADING (deterministic actions)
       if @variables.data_needed == True:
@@ -258,7 +258,7 @@ reasoning:
          run @actions.assign_case
             with case_id = @variables.case_id
             with priority = @variables.priority
-         transition to @topic.case_confirmation
+         transition to @subagent.case_confirmation
 
       | I need to collect some information to create a support case.
       | What is the issue you're experiencing?
@@ -273,11 +273,11 @@ reasoning:
    instructions: ->
       if @variables.intent == "billing" and @variables.is_verified == True:
          | I can help with your billing question.
-         transition to @topic.billing_support
+         transition to @subagent.billing_support
 
       if @variables.intent == "billing" and @variables.is_verified == False:
          | For billing questions, I need to verify your identity first.
-         transition to @topic.identity_verification
+         transition to @subagent.identity_verification
 
       if @variables.intent == "general":
          | How can I help you today?
@@ -314,13 +314,13 @@ reasoning:
       | What is your order number?
 
       if @variables.order_status != "":
-         transition to @topic.show_status
+         transition to @subagent.show_status
 
 # CORRECT -- Check at TOP
 reasoning:
    instructions: ->
       if @variables.order_status != "":
-         transition to @topic.show_status
+         transition to @subagent.show_status
 
       | What is your order number?
 ```
@@ -339,7 +339,7 @@ system:
    instructions: |
       You are a friendly, professional customer service agent.
 
-topic order_support:
+subagent order_support:
    reasoning:
       instructions: ->
          | Help the customer check their order status.
@@ -454,14 +454,14 @@ set @variables.counter = @variables.counter + 1
 ### Deterministic Transition
 
 ```
-transition to @topic.next_topic
+transition to @subagent.next_topic
 ```
 
 ### Conditional Transition
 
 ```
 if @variables.all_collected == True:
-   transition to @topic.confirmation
+   transition to @subagent.confirmation
 ```
 
 ---
@@ -509,7 +509,7 @@ For production agents, use the Session Trace Data Model (STDM) in Data Cloud to 
 
 ## 10. Resolution Across Topic Transitions
 
-When a topic transition occurs (via `@utils.transition to @topic.X` or `transition to @topic.X`), instruction resolution starts fresh in the new topic:
+When a topic transition occurs (via `@utils.transition to @subagent.X` or `transition to @subagent.X`), instruction resolution starts fresh in the new topic:
 
 1. The current topic's remaining instructions are NOT processed
 2. The new topic's `before_reasoning:` runs (if present)
@@ -520,7 +520,7 @@ When a topic transition occurs (via `@utils.transition to @topic.X` or `transiti
 
 ```
 # Topic A: Collect data
-topic collect_info:
+subagent collect_info:
    reasoning:
       instructions: ->
          | Please provide your order number.
@@ -531,10 +531,10 @@ topic collect_info:
 
    after_reasoning:
       if @variables.order_id != "":
-         transition to @topic.process_order
+         transition to @subagent.process_order
 
 # Topic B: Use the data
-topic process_order:
+subagent process_order:
    reasoning:
       instructions: ->
          # order_id is available from Topic A

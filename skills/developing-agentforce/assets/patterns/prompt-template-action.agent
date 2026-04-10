@@ -72,10 +72,10 @@ start_agent topic_selector:
 			|
 			| Route to the appropriate topic.
 		actions:
-			go_schedule: @utils.transition to @topic.schedule_generation
-			go_email: @utils.transition to @topic.email_generation
+			go_schedule: @utils.transition to @subagent.schedule_generation
+			go_email: @utils.transition to @subagent.email_generation
 
-topic schedule_generation:
+subagent schedule_generation:
 	label: "Schedule Generation"
 	description: "Generate personalized daily schedules"
 
@@ -123,9 +123,9 @@ topic schedule_generation:
 				with "Input:timezone"=@variables.user_timezone
 				set @variables.generated_schedule = @outputs.promptResponse
 
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
-topic email_generation:
+subagent email_generation:
 	label: "Email Generation"
 	description: "Generate professional emails"
 
@@ -168,7 +168,7 @@ topic email_generation:
 				with "Input:tone"=...
 				set @variables.generated_email = @outputs.promptResponse
 
-			back: @utils.transition to @topic.topic_selector
+			back: @utils.transition to @subagent.topic_selector
 
 # ★ Insight: Prompt Template Integration Checklist
 #
