@@ -1,6 +1,6 @@
 ---
 name: replacing-b2b-commerce-ootb-open-code-components
-description: Replace OOTB (out-of-the-box) B2B Commerce components with open source equivalents in site metadata content.json files. Use when users mention "replace OOTB components", "replace commerce components with open code", "swap OOTB for open source", "replace commerce_builder:", "replace OOTB in site", "replace component in site metadata", "replace component definition", or want to update component definitions in their store metadata.
+description: Replace OOTB (out-of-the-box) B2B Commerce components with open source equivalents in site metadata content.json files, or look up the equivalent open code `site:` component for OOTB definitions. Use when users mention "replace OOTB components", "replace commerce components with open code", "swap OOTB for open source", "replace commerce_builder:", "replace OOTB in site", "replace component in site metadata", "replace component definition", "find open code equivalent", "equivalent open code component", "OOTB to open code mapping", "what is the site component for", components "in this view" or "for a given view", or a specific list of component names — and want to update or only discover mappings in their store metadata.
 license: Apache-2.0
 compatibility: Requires integrating-b2b-commerce-open-code-components skill as prerequisite
 allowed-tools: Bash Read Write
@@ -15,6 +15,11 @@ Use this skill when you need to:
 - Replace OOTB B2B Commerce components with open code equivalents
 - Update component definitions in site metadata `content.json` files
 - Swap out-of-the-box commerce components for open source versions
+- **Find the equivalent open code (`site:`) component** for one or more OOTB `commerce_builder:` / `commerce:` definitions — using the mapping table and verifying availability in the cloned open code repo
+- **Scope discovery or replacement to a given Experience Builder view** — scan only that view’s `sfdc_cms__view/<ViewName>/content.json` (or the paths the user names) instead of the whole site
+- **Answer “what open code component replaces X?”** when the user gives explicit component name(s) — look up each in the mapping table, report `site:` targets, and note unmapped entries or targets missing from the repo (no `content.json` edits unless the user also asks to replace)
+
+**Trigger phrases:** “replace OOTB components with open code components”, “find equivalent open code”, “open code equivalent for OOTB”, “map commerce_builder to site”, “components in this view”, “for the Product Detail view”, “replace only these components: …”.
 
 ## Rules
 
@@ -23,10 +28,13 @@ Use this skill when you need to:
 3. **Use Read and Write tools for JSON files.** Use the Read tool to parse `content.json` files and the Write tool to update them. Do NOT use bash to parse or edit JSON — no sed, awk, perl, or regex on JSON content. Bash is only for **simple file discovery** (`grep -rl`, `find`, `ls`) — never for extracting or modifying JSON values.
 4. **Minimize commands.** Batch work into as few commands as possible. Use a single grep to scan all files, a single ls to verify the repo, and one Read/Write pass per file. Do NOT run a separate command for every component or every directory.
 5. **Follow the workflow steps exactly.** Do not invent additional options, policies, or frameworks. Execute each step and show the user the results before proceeding.
+6. **Always replace with `site:` after verifying in the open code repo.** For every replacement, the new `"definition"` MUST be the mapped value from the table below, which always uses the `site:` namespace (for example `site:productHeading`). Before changing `content.json`, verify the target exists in the cloned open code components repository — for example by confirming the corresponding bundle under `.tmp/b2b-commerce-open-source-components/force-app/main/default/sfdc_cms__lwc/` (or the path your integrating skill documents). If the mapped `site:` component is not present in the repo, **do not replace** — skip it and report it under “not in repo” (same as Step 1 categorization).
 
 ## Overview
 
 This skill replaces OOTB B2B Commerce component definitions in site metadata `content.json` files with their open source equivalents. It uses an authoritative mapping table of 64 component pairs extracted from `ui-commerce-components/scripts/moduleConfig.js`.
+
+**Modes:** **Full replace** runs the scan (Step 1), user selection if needed, then `content.json` updates (Step 2–3). **Lookup only** (user asks for equivalents but not to change files): use the same mapping table and repo verification (Rule 2 and Rule 6), report OOTB → `site:` for the named components or for definitions found in the scoped `content.json` — **do not** call Write unless the user confirms replacement. **View-scoped** work: limit file discovery and reads to `sfdc_cms__view/<ViewName>/` (or the path the user gives) instead of all views.
 
 ---
 
@@ -111,10 +119,11 @@ Tell user: "I'm now replacing the selected OOTB component definitions with their
 
 The affected files are already known from Step 1. For each file that contains selected components:
 1. Use the **Read** tool to read the file
-2. Replace all matching `"definition"` values with their mapped open code equivalents
+2. For each selected OOTB component, confirm again that the mapped **`site:`** target from the mapping table exists in the open code repo (per Rule 6). Only proceed with replacements that pass this check.
+3. Replace all matching `"definition"` values with their mapped open code equivalents — **always** the exact `site:<name>` string from the mapping table
    - Example: `"definition": "commerce_builder:heading"` → `"definition": "site:productHeading"`
-3. Use the **Write** tool to save the updated file
-4. Preserve all other JSON properties — only `"definition"` values change
+4. Use the **Write** tool to save the updated file
+5. Preserve all other JSON properties — only `"definition"` values change
 
 **Batch efficiently:** if a file contains multiple OOTB components, apply ALL replacements in a single Read → modify → Write pass. Do NOT read and write the same file multiple times.
 
@@ -307,6 +316,7 @@ Next Steps:
 
 - [ ] Prerequisites verified via integrating skill (repo, store, components)
 - [ ] Site scanned + repo verified + mapping cross-referenced in minimal commands (Step 1)
+- [ ] Each replacement uses the exact mapped `site:` definition and was verified present in the open code repo before write (Rule 6)
 - [ ] Breakdown shown to user with three categories before proceeding
 - [ ] User selected components to replace (or provided names)
 - [ ] Each `content.json` file updated in a single Read → modify → Write pass
@@ -324,6 +334,7 @@ Next Steps:
 - Run a separate command per component or per directory — batch into single commands
 - Read the same file multiple times — apply all replacements for a file in one Read/Write pass
 - Replace components without verifying the open code equivalent exists in the repo
+- Write a `"definition"` that is not the exact mapped `site:` value from the table, or use any namespace other than `site:` for the replacement target
 - Modify `content.json` structure beyond the `"definition"` value
 - Skip prerequisite checks
 - Replace components not in the mapping table
@@ -338,5 +349,6 @@ Next Steps:
 - Batch all replacements for the same file into one Read → modify → Write pass
 - Explain each step before executing
 - Verify prerequisites via the integrating skill
+- Confirm each mapped `site:` component exists in the open code repo before replacing, and use only that exact `site:` string from the mapping table
 - Show user the full replacement plan before executing
 - Report all modified files and any skipped or unmapped components
