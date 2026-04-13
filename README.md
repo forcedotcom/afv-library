@@ -1,10 +1,12 @@
 # Agentforce Vibes Library
 
-AI skills library for Agentforce Vibes development of Salesforce metadata.
+Salesforce's official repository of agent skills for app building. It spans Agentforce agents, Lightning apps, Flow, Apex, SOQL, LWC, UI bundles, objects and fields, permission sets, and more—and we're just getting started.
+
+Optimized for Agentforce Vibes. Compatible with all AI tools that support skills.
 
 ## 📚 About
 
-This repository curates Salesforce-focused skills from the wider developer community to accelerate Agentforce Vibes agentic workflows. 
+This repository curates Salesforce app building skills from Salesforce and the entire community.
 
 ## 🗂️ Structure
 
@@ -23,11 +25,15 @@ afv-library/
 └── README.md
 ```
 
-## Manual Usage
+## 🚀 Usage
 
-Browse the repository and copy/paste any skill directly into Agentforce Vibes or your preferred AI tool.
+| **Tool** | **Do This** |
+|----------|-------------|
+| **Agentforce Vibes** | Skills are auto-installed and auto-updated |
+| **Claude Code, Codex, Gemini CLI, OpenCode, etc** | `npx skills add forcedotcom/afv-library` |
 
-## Samples
+
+## 📦 Samples
 
 The `samples/` folder contains synced sample apps. For example, `samples/ui-bundle-template-app-react-sample-b2e/` is kept in sync with the npm package `@salesforce/ui-bundle-template-app-react-sample-b2e` (nightly and on manual trigger via GitHub Actions). To run the same sync locally from the repo root:
 
@@ -41,7 +47,7 @@ The GitHub Action runs these same commands and opens a PR only when the npm pack
 
 ## 🛠️ Agent Skills
 
-Agent Skills are modular capabilities that bundle executable workflows, scripts, and reference materials into self-contained directories. Skills follow the open [Agent Skills specification](https://agentskills.io/) and are portable across many agent tools (Agentforce Vibes, Cursor, Claude Code, etc).
+Agent Skills are modular capabilities that bundle executable workflows, scripts, and reference materials into self-contained directories. This repository follows the open [Agent Skills specification](https://agentskills.io/) and is usable by all AI tools that support skills: Claude Code, Codex, Gemini CLI, OpenCode, etc.
 
 ### Directory Structure
 
@@ -57,7 +63,7 @@ Each skill is a folder containing:
 See [Contributing](./CONTRIBUTING.md) for complete details.
 
 
-## Feedback
+## 💬 Feedback
 
 Found an issue or have a suggestion?
 - Open an issue in GitHub
