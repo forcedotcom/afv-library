@@ -1,11 +1,11 @@
 ---
 name: generating-flow
-description: "Generate Salesforce Flows using the MCP tool execute_metadata_action. Use when the user asks to create, build, or generate a flow — including Screen, Autolaunched, Record-Triggered (before/after-save), Scheduled. Also trigger for flow-like requests such as \"when a record is created\", \"trigger daily at\", \"send an email when\", \"update the field when\", \"automate\", \"workflow\", or \"flow XML/metadata\". This is the only skill for Salesforce Flow generation."
+description: "Generate Salesforce Flows by running the flow-generate.js script which calls the Salesforce Invocable Actions REST API. Use when the user asks to create, build, or generate a flow — including Screen, Autolaunched, Record-Triggered (before/after-save), Scheduled. Also trigger for flow-like requests such as \"when a record is created\", \"trigger daily at\", \"send an email when\", \"update the field when\", \"automate\", \"workflow\", or \"flow XML/metadata\". This is the only skill for Salesforce Flow generation."
 ---
 
 ## Goal
 
-Generate Salesforce Flow metadata by running the required 3-step MCP pipeline (fetchGroundedObjectMetadata → flowElementSelection → flowElementGeneration) and return the flow XML.
+Generate Salesforce Flow metadata by running the required 3-step pipeline via the `scripts/flow-generate.js` script (fetchGroundedObjectMetadata → flowElementSelection → flowElementGeneration) and return the flow XML.
 
 ## When to Use This Skill
 
@@ -36,12 +36,17 @@ Salesforce Flows are powerful automation tools that enable complex business proc
 
 **MANDATORY: You MUST follow this exact 3-step pipeline. No exceptions. No shortcuts. No skipping steps. Do NOT manually create flow metadata XML or attempt to generate flow metadata outside of this pipeline. Do NOT attempt to use any other tool, API, or method to generate flow metadata. This pipeline is the ONLY supported way to generate flows. Any deviation will produce invalid or broken metadata.**
 
-### MCP Connection Details
+### Script Details
 
-**All 3 pipeline steps MUST be called using this MCP tool:**
-- **MCP Tool Name:** `execute_metadata_action`
-- **The `action` parameter** selects which pipeline step to run: `"fetchGroundedObjectMetadata"`, `"flowElementSelection"`, or `"flowElementGeneration"`
+**All 3 pipeline steps MUST be called using this script:**
+- **Script:** `node scripts/flow-generate.js`
+- **The `--action` parameter** selects which pipeline step to run: `fetchGroundedObjectMetadata`, `flowElementSelection`, or `flowElementGeneration`
+- **The `--org` parameter** specifies the Salesforce org alias (required for all steps)
+- **The `--input` parameter** passes the action's input parameters as a JSON string
 
+**The script automatically resolves the org's API version** (these actions require API version 66.0+). The API version is fetched dynamically from the org — do NOT hardcode it.
+
+**Output format:** The script writes diagnostic messages to stderr and the action's output JSON to stdout. Parse the stdout JSON to extract results for the next step.
 
 Flow generation is a **strict 3-step pipeline**. ALL steps must be called in order. Every step is required. **There is no alternative approach — this is the only way to generate flow metadata:**
 
@@ -187,7 +192,7 @@ When no custom objects needed:
         - `referenceTo`: (Lookup only) The target object API name
 - Include only objects and fields that are relevant to the flow being generated
 
-## 🎯 Mandatory Enhancement Rules
+## Mandatory Enhancement Rules
 - **userPrompt**: REQUIRED.
     - If the user requests a **single flow**: use the user's prompt as-is.
     - If the user requests **multiple flows**: you MUST **split** the request and write a **separate, focused `userPrompt` for each individual flow**. Each `userPrompt` must describe only ONE flow. Do NOT pass the entire multi-flow request as a single `userPrompt`. See the multiple flows section below for examples.
@@ -219,29 +224,18 @@ When the user requests multiple flows (e.g., "Create flows for my app: 1) ... 2)
 **CORRECT - Separate call for EACH flow:**
 
 **Flow 1 - Step 1 (fetchGroundedObjectMetadata):**
-```json
-{
-  "userPrompt": "Create a Screen Flow named Tenant_Onboarding that captures tenant details, selects a Unit__c with Status__c = 'Vacant', creates Lease__c...",
-  "inflightMetadata": [...]
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action fetchGroundedObjectMetadata \
+  --input '{"userPrompt": "Create a Screen Flow named Tenant_Onboarding that captures tenant details, selects a Unit__c with Status__c = Vacant, creates Lease__c...", "inflightMetadata": [...]}'
 ```
 Then call Step 2 (`flowElementSelection`) with the `groundingMetadata` from Step 1, then Step 3 (`flowElementGeneration`) with the `operationId` from Step 2.
 
 **Flow 2 - Step 1 (fetchGroundedObjectMetadata):**
-```json
-{
-  "userPrompt": "Create an Autolaunched Flow named Generate_Onboarding_Checklist that given a Lease__c Id input, queries OnboardingTask__c...",
-  "inflightMetadata": [...]
-}
-```
-Then call Step 2 and Step 3 for this flow.
-
-**Flow 3 - Step 1 (fetchGroundedObjectMetadata):**
-```json
-{
-  "userPrompt": "Create a Record-Triggered Flow named Sync_Unit_On_Lease_Changes that on insert and update of Lease__c...",
-  "inflightMetadata": [...]
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action fetchGroundedObjectMetadata \
+  --input '{"userPrompt": "Create an Autolaunched Flow named Generate_Onboarding_Checklist that given a Lease__c Id input, queries OnboardingTask__c...", "inflightMetadata": [...]}'
 ```
 Then call Step 2 and Step 3 for this flow.
 
@@ -252,84 +246,86 @@ Then call Step 2 and Step 3 for this flow.
 - For each flow, you MUST scan the local sfdx project to populate `inflightMetadata` with custom objects/fields **specific to that flow prompt**.
 - Each flow pipeline MUST have its own `inflightMetadata` containing only the objects/fields relevant to that particular flow.
 
-## Example Tool Calls
+## Example Script Calls
 
 **Example 1: Standard objects only (no custom objects)**
 
 **Step 1 - fetchGroundedObjectMetadata:**
-```json
-{
-  "userPrompt": "Create a scheduled-triggered Flow named Daily_Good_Morning that runs daily at 6:00 AM and sends an email to the running user saying good morning.",
-  "inflightMetadata": []
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action fetchGroundedObjectMetadata \
+  --input '{
+    "userPrompt": "Create a scheduled-triggered Flow named Daily_Good_Morning that runs daily at 6:00 AM and sends an email to the running user saying good morning.",
+    "inflightMetadata": []
+  }'
 ```
 
-**Step 2 - flowElementSelection:**
-```json
-{
-  "userPrompt": "Create a scheduled-triggered Flow named Daily_Good_Morning that runs daily at 6:00 AM and sends an email to the running user saying good morning.",
-  "groundingMetadata": "<groundingMetadata string from Step 1 — pass directly, do not serialize again>",
-  "operationId": ""
-}
+**Step 2 - flowElementSelection** (use `groundingMetadata` from Step 1 stdout):
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action flowElementSelection \
+  --input '{
+    "userPrompt": "Create a scheduled-triggered Flow named Daily_Good_Morning that runs daily at 6:00 AM and sends an email to the running user saying good morning.",
+    "groundingMetadata": "<groundingMetadata value from Step 1 output — pass directly, do not serialize again>",
+    "operationId": ""
+  }'
 ```
 
-**Step 3 - flowElementGeneration (call in a loop):**
-```json
-{
-  "operationId": "<operationId from Step 2>",
-  "requestSource": "A4V"
-}
+**Step 3 - flowElementGeneration** (use `operationId` from Step 2 stdout, call in a loop):
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action flowElementGeneration \
+  --input '{
+    "operationId": "<operationId from Step 2>",
+    "requestSource": "A4V"
+  }'
 ```
-Call repeatedly with the same `operationId` until `isComplete` is `true` or errors are returned. A flow can have any number of elements, so expect multiple iterations. When `isComplete` is `true`, extract the flow metadata from the `result` field. Use `"requestSource": "A4V"` to get flow metadata in XML format.
+Call repeatedly with the same `operationId` until the output contains `"isComplete": true`. When complete, extract the flow metadata from the `result` field. Use `"requestSource": "A4V"` to get flow metadata in XML format.
 
 **Example 2: With custom objects from local sfdx project**
 
 **Step 1 - fetchGroundedObjectMetadata:**
-```json
-{
-  "userPrompt": "Create a flow that updates the status of a Customer Request when it's assigned",
-  "inflightMetadata": [
-    {
-      "type": "CustomObject",
-      "apiName": "CustomerRequest__c",
-      "label": "Customer Request",
-      "fields": [
-        {
-          "apiName": "Status__c",
-          "type": "Picklist",
-          "label": "Status",
-          "values": ["New", "In Progress", "Completed"]
-        },
-        {
-          "apiName": "AssignedTo__c",
-          "type": "Lookup",
-          "label": "Assigned To",
-          "referenceTo": "User"
-        }
-      ],
-      "relationships": []
-    }
-  ]
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action fetchGroundedObjectMetadata \
+  --input '{
+    "userPrompt": "Create a flow that updates the status of a Customer Request when it is assigned",
+    "inflightMetadata": [
+      {
+        "type": "CustomObject",
+        "apiName": "CustomerRequest__c",
+        "label": "Customer Request",
+        "fields": [
+          {"apiName": "Status__c", "type": "Picklist", "label": "Status", "values": ["New", "In Progress", "Completed"]},
+          {"apiName": "AssignedTo__c", "type": "Lookup", "label": "Assigned To", "referenceTo": "User"}
+        ],
+        "relationships": []
+      }
+    ]
+  }'
 ```
 
 **Step 2 - flowElementSelection:**
-```json
-{
-  "userPrompt": "Create a flow that updates the status of a Customer Request when it's assigned",
-  "groundingMetadata": "<groundingMetadata string from Step 1 — pass directly, do not serialize again>",
-  "operationId": ""
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action flowElementSelection \
+  --input '{
+    "userPrompt": "Create a flow that updates the status of a Customer Request when it is assigned",
+    "groundingMetadata": "<groundingMetadata string from Step 1 — pass directly, do not serialize again>",
+    "operationId": ""
+  }'
 ```
 
 **Step 3 - flowElementGeneration (call in a loop):**
-```json
-{
-  "operationId": "<operationId from Step 2>",
-  "requestSource": "A4V"
-}
+```bash
+node scripts/flow-generate.js --org <org-alias> \
+  --action flowElementGeneration \
+  --input '{
+    "operationId": "<operationId from Step 2>",
+    "requestSource": "A4V"
+  }'
 ```
-Call repeatedly with the same `operationId` until `isComplete` is `true` or errors are returned. A flow can have any number of elements, so expect multiple iterations. When `isComplete` is `true`, extract the flow metadata from the `result` field. Use `"requestSource": "A4V"` to get flow metadata in XML format.
+Call repeatedly with the same `operationId` until the output contains `"isComplete": true`. When complete, extract the flow metadata from the `result` field.
 
 ## Mandatory Best Practices
 - **ALWAYS** follow the 3-step pipeline: fetchGroundedObjectMetadata → flowElementSelection → flowElementGeneration. This is the ONLY way to generate flow metadata. There are no alternatives.
@@ -350,6 +346,7 @@ Call repeatedly with the same `operationId` until `isComplete` is `true` or erro
 **Failure to follow this checklist exactly will result in broken or missing flow metadata.**
 
 - [ ] **Pipeline**: ALL 3 steps are called in strict order (fetchGroundedObjectMetadata → flowElementSelection → flowElementGeneration). No step is skipped.
+- [ ] **Script**: All steps are called via `node scripts/flow-generate.js` with the correct `--action`, `--org`, and `--input` parameters
 - [ ] **No manual metadata**: Flow metadata is NOT manually created, modified, or generated outside of this pipeline by any means
 - [ ] **No deviation**: No alternative tools, APIs, or methods were used instead of or alongside this pipeline
 - [ ] **userPrompt** contains a **single** flow prompt. If user requested multiple flows, the request was split and each pipeline received a separate `userPrompt` describing only one flow
