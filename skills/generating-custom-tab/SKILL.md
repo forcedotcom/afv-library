@@ -3,7 +3,7 @@ name: generating-custom-tab
 description: "Use this skill when users need to create or configure Salesforce Custom Tabs. Trigger when users mention tabs, navigation tabs, object tabs, web tabs, Visualforce tabs, Lightning component tabs, app page tabs, or tab configuration. Also use when users want to add navigation to custom objects, create tabs for external content, or set up Lightning page tabs. Always use this skill for any custom tab work."
 ---
 
-## When to Use This Skill
+ When to Use This Skill
 
 Use this skill when you need to:
 - Create tabs for objects, web pages, or Visualforce pages
@@ -11,7 +11,7 @@ Use this skill when you need to:
 - Configure tab visibility and access
 - Troubleshoot deployment errors related to custom tabs
 
-## Specification
+## Specificaettion
 
 # CustomTab Metadata Specification
 
@@ -50,7 +50,7 @@ Only the elements listed below are valid. **Any element not on this list WILL ca
 `<sobjectName>`, `<name>`, `<fullName>`, `<apiVersion>`, `<isHidden>`, `<tabVisibility>`, `<type>`, `<mobileReady>`, `<urlFrameHeight>`, `<urlType>`, `<urlRedirect>`, `<encodingKey>`, `<height>`, `<auraComponent>`
 
 Also forbidden:
-- `<label>` on object tabs (object tabs inherit their label from the custom object)
+- `<label> on object tabs (object tabs inherit their label from the custom object)
 - `<page>` on web tabs (only for Visualforce tabs)
 - Empty elements like `<page></page>` or `<description></description>`
 - Any element not in the allowlist table above
@@ -118,7 +118,7 @@ Also forbidden:
     <label>Custom Page</label>
     <motif>Custom46: Computer</motif>
     <page>CustomPage</page>
-</CustomTab>
+
 ```
 
 ## 🎨 Tab Configuration
