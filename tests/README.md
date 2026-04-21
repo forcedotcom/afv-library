@@ -2,11 +2,13 @@
 
 This directory contains all tests for the skills in this repo. Tests live here - never inside `skills/` - so the published package stays clean.
 
+> **Note:** The framework configuration files (`package.json`, `vitest.config.ts`, `scripts/run-skill-tests.sh`) are not part of this PR. The commands below will work once the framework PR is merged.
+
 ## Quick start
 
 ```bash
 npm ci
-pip install pytest          # only if you have Python script-tests
+pip3 install pytest         # only if you have Python script-tests
 
 npm run test                # run everything (validator + skill-tests + script-tests)
 
@@ -246,5 +248,9 @@ For questions or help, reach out on **#afv-skills-onboarding-support** in Slack.
 
 ## Examples
 
-See the [draft PR #214](https://github.com/forcedotcom/afv-library/pull/214) for working examples of all supported test types.
+Working examples are included in this repo under `tests/`:
+
+- `tests/generating-apex/` - Vitest skill-test + TypeScript and JavaScript script-tests
+- `tests/trigger-refactor-pipeline/` - Vitest skill-test + Python (pytest) script-test
+- `tests/using-ui-bundle-salesforce-data/` - Vitest skill-test + bash and bats script-tests
 
