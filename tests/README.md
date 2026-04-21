@@ -2,13 +2,11 @@
 
 This directory contains all tests for the skills in this repo. Tests live here - never inside `skills/` - so the published package stays clean.
 
-> **Note:** The framework configuration files (`package.json`, `vitest.config.ts`, `scripts/run-skill-tests.sh`) are not part of this PR. The commands below will work once the framework PR is merged.
-
 ## Quick start
 
 ```bash
 npm ci
-pip3 install pytest         # only if you have Python script-tests
+pip3 install pytest          # only if you have Python script-tests
 
 npm run test                # run everything (validator + skill-tests + script-tests)
 
@@ -73,99 +71,12 @@ mkdir -p tests/<your-directory-name>/skill-tests
 
 Use the skill name (e.g. `generating-apex`) or a team name (e.g. `agentforce`) - whichever fits your ownership model.
 
-### Step 2: Write a skill-test
+### Step 2: Write tests
 
-Create a `*.test.ts` file inside `skill-tests/`. The `SKILL` constant controls which skill directory gets read - it's independent of the test directory name.
+Refer to `tests/` directory in this repo for working examples of skill-tests and script-tests covering all supported runners (Vitest, pytest, bash, bats).
 
-**Single-skill example** (`tests/generating-apex/skill-tests/content.test.ts`):
-
-```typescript
-import { describe, it, expect } from "vitest"
-import { readSkillFile, skillHasFile, extractCodeBlocks, hasBalancedBraces } from "../../helpers"
-
-const SKILL = "generating-apex"
-
-describe(`${SKILL}: SKILL.md content`, () => {
-  const content = readSkillFile(SKILL, "SKILL.md")
-
-  it("description mentions the key activation context", () => {
-    expect(content).toMatch(/Apex/)
-  })
-})
-
-describe(`${SKILL}: code examples`, () => {
-  const body = readSkillFile(SKILL, "SKILL.md")
-  const blocks = extractCodeBlocks(body, "apex")
-
-  it("has code blocks", () => {
-    expect(blocks.length).toBeGreaterThan(0)
-  })
-
-  for (const block of blocks) {
-    it(`block at line ${block.startLine} has balanced braces`, () => {
-      const result = hasBalancedBraces(block.content)
-      expect(result.balanced, `open=${result.open} close=${result.close}`).toBe(true)
-    })
-  }
-})
-
-describe(`${SKILL}: required assets exist`, () => {
-  const files = ["assets/template.cls", "references/patterns.md"]
-
-  for (const file of files) {
-    it(`${file} exists`, () => {
-      expect(skillHasFile(SKILL, file)).toBe(true)
-    })
-  }
-})
-```
-
-**Multi-skill example** (`tests/agentforce/skill-tests/content.test.ts`) - one file covering multiple skills owned by the same team:
-
-```typescript
-import { describe, it, expect } from "vitest"
-import { readSkillFile, extractCodeBlocks, hasBalancedBraces } from "../../helpers"
-
-const SKILLS = [
-  "developing-agentforce",
-  "testing-agentforce",
-  "observing-agentforce",
-]
-
-for (const skill of SKILLS) {
-  describe(`${skill}: SKILL.md content`, () => {
-    const content = readSkillFile(skill, "SKILL.md")
-
-    it("description mentions Agentforce", () => {
-      expect(content).toMatch(/Agentforce/)
-    })
-  })
-
-  describe(`${skill}: code examples have balanced braces`, () => {
-    const body = readSkillFile(skill, "SKILL.md")
-    const blocks = extractCodeBlocks(body, "yaml")
-
-    for (const block of blocks) {
-      it(`block at line ${block.startLine}`, () => {
-        const result = hasBalancedBraces(block.content)
-        expect(result.balanced).toBe(true)
-      })
-    }
-  })
-}
-```
-
-Vitest discovers any `*.test.ts` file under `tests/*/skill-tests/` automatically - no registration needed.
-
-### Step 3: (Optional) Add script-tests
-
-Only needed if your skill has scripts in `skills/<your-skill>/scripts/`.
-
-```bash
-mkdir -p tests/<your-skill-name>/script-tests
-```
-
-Add a test file matching the **required** naming convention for your language. Files that don't match these patterns will not be discovered and will silently not run:
+- **skill-tests**: Create a `*.test.ts` file inside `skill-tests/`. Vitest discovers them automatically.
+- **script-tests** (optional): Only needed if your skill ships scripts in `skills/<your-skill>/scripts/`. Create a `script-tests/` directory and add test files matching the naming conventions below.
 
 
 | Language      | File naming pattern        | Runner |
@@ -175,8 +86,9 @@ Add a test file matching the **required** naming convention for your language. F
 | Bats          | `*.bats`                   | bats   |
 | TypeScript/JS | `*.test.ts` or `*.test.js` | vitest |
 
+Files that don't match these patterns will silently not run.
 
-### Step 4: Verify
+### Step 3: Verify
 
 ```bash
 npm run test:skills         # should pick up your new skill-test
@@ -236,8 +148,7 @@ The discovery script matches files to runners as follows:
 ## Prerequisites
 
 - **Node.js** (v22, see `.nvmrc`) + `npm ci`
-- **Python 3.9+** and `pip install pytest` - only needed if you have Python script-tests
-- **Bats** (`brew install bats-core`) - only needed if you have Bats script-tests
+- **Python 3.9+** and `pip3 install pytest` - only needed if you have Python script-tests
 - No additional tools needed for bash script-tests
 
 ## Need a different language?
@@ -245,6 +156,9 @@ The discovery script matches files to runners as follows:
 The discovery script currently supports Python, Bash, Bats, and TypeScript/JavaScript. If your script-tests require a different language or runner, support will need to be added to `scripts/run-skill-tests.sh`.
 
 For questions or help, reach out on **#afv-skills-onboarding-support** in Slack.
+
+
+
 
 ## Examples
 
