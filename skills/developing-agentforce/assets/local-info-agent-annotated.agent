@@ -60,10 +60,10 @@ language:
 # for every conversation. The Atlas Reasoning Engine evaluates the user's
 # utterance against topic descriptions and transitions to the best match.
 #
-# The topic_selector label makes it a routing-only topic. Its actions are
-# exclusively @utils.transition calls — one per topic the agent can handle.
-start_agent topic_selector:
-    description: "Welcome the user and determine the appropriate topic based on user input"
+# The agent_router label makes it a routing-only subagent. Its actions are
+# exclusively @utils.transition calls — one per subagent the agent can handle.
+start_agent agent_router:
+    description: "Welcome the user and determine the appropriate subagent based on user input"
     reasoning:
         actions:
             # Each action is a transition to a topic.

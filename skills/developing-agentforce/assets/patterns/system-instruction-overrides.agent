@@ -59,7 +59,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Topic Selector"
 	description: "Routes to appropriate topic based on user tier"
 
@@ -149,7 +149,7 @@ subagent orders:
 			| Look up order status, process changes, or handle returns.
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 subagent billing:
 	label: "Billing Support"
@@ -171,7 +171,7 @@ subagent billing:
 			| Help the customer understand their bill and resolve issues.
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 			escalate: @utils.escalate
 				description: "Transfer to billing specialist"
 				available when @variables.customer_tier == "standard"
@@ -192,7 +192,7 @@ subagent support:
 			| Help resolve the customer's technical issue.
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ★ TOPIC-LEVEL SYSTEM OVERRIDES (NEW PATTERN)
@@ -217,7 +217,7 @@ subagent formal_mode:
 			| I am prepared to address your inquiry with the utmost professionalism.
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 subagent creative_mode:
 	label: "Creative Assistant"
@@ -238,7 +238,7 @@ subagent creative_mode:
 			| What shall we dream up today?
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 subagent technical_expert:
 	label: "Technical Expert"
@@ -259,7 +259,7 @@ subagent technical_expert:
 			| What technical challenge are we solving?
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 # ★ Insight: Three Levels of Instruction Control
 #

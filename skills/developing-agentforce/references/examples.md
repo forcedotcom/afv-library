@@ -38,7 +38,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Begin the onboarding flow"
 
 subagent greeting:
@@ -95,7 +95,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route employees to the right IT support topic"
 	reasoning:
 		instructions: |
@@ -139,7 +139,7 @@ subagent knowledge_search:
 				with query = ...
 				set @variables.search_query = @outputs.articles
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 subagent account_support:
@@ -171,7 +171,7 @@ subagent account_support:
 			# NOTE: No @utils.escalate — employee agents cannot escalate to
 			# human agents via messaging. Use a transition or case-creation
 			# action instead.
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 ```
 
@@ -228,7 +228,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route customers to the right support topic"
 	reasoning:
 		instructions: |
@@ -281,7 +281,7 @@ subagent order_support:
 				set @variables.order_id = @outputs.order_id
 				set @variables.order_status = @outputs.status
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 subagent return_support:
@@ -315,7 +315,7 @@ subagent return_support:
 				with reason = ...
 				set @variables.case_id = @outputs.return_id
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 	after_reasoning:
@@ -332,7 +332,7 @@ subagent general_support:
 		actions:
 			escalate_now: @utils.escalate
 				description: "Transfer to human agent"
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 subagent confirmation:
@@ -343,7 +343,7 @@ subagent confirmation:
 			| Your request has been processed. Reference: {!@variables.case_id}
 			| Is there anything else I can help with?
 		actions:
-			new_request: @utils.transition to @subagent.topic_selector
+			new_request: @utils.transition to @subagent.agent_router
 				description: "Start a new request"
 			end_chat: @actions.end_conversation
 				description: "End the conversation"

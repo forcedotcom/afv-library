@@ -15,10 +15,10 @@
 
 ## Hub-and-Spoke (Most Common)
 
-A central `topic_selector` routes to specialized spoke topics. Each spoke has a "back to hub" transition. Use when users may have multiple distinct intents.
+A central `agent_router` routes to specialized spoke topics. Each spoke has a "back to hub" transition. Use when users may have multiple distinct intents.
 
 ```
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route user requests to the appropriate topic"
 	reasoning:
 		instructions: |
@@ -40,18 +40,18 @@ subagent order_support:
 		actions:
 			lookup: @actions.get_order
 				description: "Look up order"
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 ```
 
-> **Routing lives in `start_agent`** -- put all transition actions directly in `start_agent topic_selector:`. Do NOT create a separate routing-only topic (e.g. `main_menu`, `central_hub`) -- that duplicates the router, adds an extra LLM hop (~3-5s latency), and confuses the platform. Topics that need "go back" should transition to `@subagent.topic_selector`.
+> **Routing lives in `start_agent`** -- put all transition actions directly in `start_agent agent_router:`. Do NOT create a separate routing-only topic (e.g. `main_menu`, `central_hub`) -- that duplicates the router, adds an extra LLM hop (~3-5s latency), and confuses the platform. Topics that need "go back" should transition to `@subagent.agent_router`.
 
 ## Verification Gate
 
 Users must pass through identity verification before accessing protected topics. Use when handling sensitive data, payments, or PII.
 
 ```
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route through identity verification"
 	reasoning:
 		instructions: |
@@ -120,12 +120,12 @@ When refactoring a flat agent (all logic in one topic) into hub-and-spoke:
 
 1. **Identify distinct intents** — each becomes a spoke topic
 2. **Move instructions and actions** from the monolithic topic into spoke topics. Each spoke needs BOTH its Level 1 action definitions (under `topic > actions`) AND Level 2 action invocations (under `topic > reasoning > actions`).
-3. **Create `start_agent topic_selector:`** with transition actions pointing to each spoke
-4. **Add "back to hub" transitions** in each spoke: `@utils.transition to @subagent.topic_selector`
+3. **Create `start_agent agent_router:`** with transition actions pointing to each spoke
+4. **Add "back to hub" transitions** in each spoke: `@utils.transition to @subagent.agent_router`
 5. **Re-preview immediately** — verify topic routing works before making further changes
 
 **Common migration mistakes:**
-- Creating a separate `main_menu` topic instead of using `start_agent topic_selector:` as the hub — adds an unnecessary LLM hop
+- Creating a separate `main_menu` topic instead of using `start_agent agent_router:` as the hub — adds an unnecessary LLM hop
 - Leaving action definitions in `start_agent` instead of moving them to spoke topics — all actions visible in all topics, confusing the planner
 - Forgetting to add "back to hub" transitions — users get stuck in a spoke topic
 - If trace shows `topic: "DefaultTopic"`, check that topic descriptions contain keywords matching test utterances

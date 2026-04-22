@@ -16,7 +16,7 @@
 
 A Topic Map diagram is a Mermaid flowchart that visualizes an agent's topic graph structure. It shows the architecture of an agent before implementation, displaying:
 
-- The start_agent topic_selector entry point
+- The start_agent agent_router entry point
 - All topics in the agent
 - Topic transitions and routing logic
 - Action calls within topics (with backing type: Apex, Prompt Template, Flow)
@@ -34,7 +34,7 @@ Topic Map diagrams are the primary visual deliverable in an Agent Spec (design d
 ### Graph Orientation
 
 - ALWAYS use `graph TD` (Top-Down orientation)
-- Start with start_agent topic_selector at the top
+- Start with start_agent agent_router at the top
 - Topics flow downward from the selector
 - Never use other orientations
 
@@ -58,14 +58,14 @@ Topic Map diagrams are the primary visual deliverable in an Agent Spec (design d
 
 ### Start Agent Topic Selector Node
 
-Format: `[start_agent<br/>topic_selector]`
+Format: `[start_agent<br/>agent_router]`
 
 Represents the entry point where user input is evaluated and routed to appropriate topics.
 
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
 ```
 
 ### Topic Nodes
@@ -77,7 +77,7 @@ Represents a topic within the agent.
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
     B[order_status<br/>Topic]
     C[billing<br/>Topic]
 ```
@@ -145,7 +145,7 @@ graph TD
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
     A -->|route to topic| B[simple_topic<br/>Topic]
     B --> C[Call do_action<br/>backing: Apex]
     C --> D[Continue]
@@ -201,7 +201,7 @@ How the agent handles out-of-scope requests.
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
     A -->|out of scope| B[off_topic<br/>Topic]
     A -->|needs help| C[escalation<br/>Topic]
     B --> D[Instruction: redirect user]
@@ -217,7 +217,7 @@ This example demonstrates a complete Topic Map for a guest information agent wit
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
 
     A -->|weather query| B[local_weather<br/>Topic]
     A -->|events query| C[local_events<br/>Topic]
@@ -269,7 +269,7 @@ graph TD
 
 **escalation**: Calls @utils.escalate utility to route to human agent.
 
-**start_agent topic_selector**: Routes incoming user input to appropriate topics based on intent.
+**start_agent agent_router**: Routes incoming user input to appropriate topics based on intent.
 
 ---
 
@@ -279,7 +279,7 @@ Before finalizing a Topic Map diagram:
 
 - [ ] Uses `graph TD` syntax
 - [ ] Starts with `%%{init: {'theme':'neutral'}}%%`
-- [ ] start_agent topic_selector is node A at top
+- [ ] start_agent agent_router is node A at top
 - [ ] Nodes use sequential capital letter IDs
 - [ ] All topics labeled with `[topic_name<br/>Topic]` format
 - [ ] Action calls include backing type (Apex, Prompt Template, Flow)
@@ -311,7 +311,7 @@ Before finalizing a Topic Map diagram:
 
 ### Do
 
-- Keep start_agent topic_selector at the top
+- Keep start_agent agent_router at the top
 - Show all topics reachable from start_agent
 - Include backing type for every action call
 - Make gating conditions explicit as decision nodes

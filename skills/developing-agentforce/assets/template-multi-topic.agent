@@ -27,7 +27,7 @@ language:
     additional_locales: ""
     all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
     description: "Welcome the user and determine the appropriate topic based on user input"
     reasoning:
         actions:

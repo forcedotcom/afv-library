@@ -18,7 +18,7 @@ Describe the key behavioral rules that govern the agent:
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[start_agent<br/>topic_selector]
+    A[start_agent<br/>agent_router]
 
     A -->|description of routing condition| B[topic_name<br/>Topic]
     A -->|unclear intent| C[ambiguous_question<br/>Topic]

@@ -509,7 +509,7 @@ These patterns map symptoms to trace analysis techniques. Each pattern follows t
 
 **Trace Analysis:**
 
-1. Find the `LLMStep` where `agent_name` is `topic_selector` (the entry point that routes to topics)
+1. Find the `LLMStep` where `agent_name` is `agent_router` (the entry point that routes to topics)
 2. Examine `tools_sent` — are the transition actions for all expected topics listed? (e.g., `go_to_local_weather`, `go_to_local_events`, `go_to_resort_hours`)
 3. Examine `response_messages` — which action tool did the LLM select?
 4. Examine `messages_sent` — does the system prompt (what topic selector instructions were compiled to) give the LLM enough context to route correctly?
@@ -520,7 +520,7 @@ These patterns map symptoms to trace analysis techniques. Each pattern follows t
 
 ```agentscript
 # BEFORE — relies on action names alone for routing
-start_agent topic_selector:
+start_agent agent_router:
     description: "Route to appropriate topics"
     reasoning:
         actions:
@@ -528,7 +528,7 @@ start_agent topic_selector:
             go_to_events: @utils.transition to @subagent.local_events
 
 # AFTER — explicit instructions and descriptions improve routing accuracy
-start_agent topic_selector:
+start_agent agent_router:
     description: "Route to appropriate topics"
     reasoning:
         instructions: ->

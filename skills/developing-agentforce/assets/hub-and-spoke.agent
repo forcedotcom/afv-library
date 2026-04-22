@@ -2,7 +2,7 @@
 # ====================================
 #
 # This template demonstrates the Hub-and-Spoke pattern where a central
-# topic_selector (hub) routes conversations to specialized topics (spokes).
+# agent_router (hub) routes conversations to specialized topics (spokes).
 #
 # Pattern: Multi-purpose agents handling distinct request types
 # Use when: Users may have different intents (orders, support, returns)
@@ -32,7 +32,7 @@ variables:
 # HUB: Central Router
 # ============================================================
 
-start_agent topic_selector:
+start_agent agent_router:
    description: "Route to appropriate topic based on user intent"
    reasoning:
       instructions: |
@@ -65,7 +65,7 @@ subagent orders:
          lookup_order: @actions.get_order_status
             description: "Look up order details"
             with order_id = @variables.order_id
-         back_to_hub: @utils.transition to @subagent.topic_selector
+         back_to_hub: @utils.transition to @subagent.agent_router
             description: "Return to main menu"
 
 # ============================================================
@@ -84,7 +84,7 @@ subagent returns:
             description: "Start a return process"
          process_refund: @actions.process_refund
             description: "Process a refund"
-         back_to_hub: @utils.transition to @subagent.topic_selector
+         back_to_hub: @utils.transition to @subagent.agent_router
             description: "Return to main menu"
 
 # ============================================================
@@ -100,5 +100,5 @@ subagent support:
       actions:
          escalate: @utils.escalate
             description: "Transfer to human agent"
-         back_to_hub: @utils.transition to @subagent.topic_selector
+         back_to_hub: @utils.transition to @subagent.agent_router
             description: "Return to main menu"

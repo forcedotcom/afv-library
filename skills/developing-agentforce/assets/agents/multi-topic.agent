@@ -36,7 +36,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Topic Selector"
 	description: "Routes users to the appropriate topic based on their needs"
 
@@ -52,7 +52,7 @@ start_agent topic_selector:
 			go_to_farewell: @utils.transition to @subagent.farewell
 			go_to_escalation: @utils.transition to @subagent.escalation
 
-topic {{topic_one_name}}:
+subagent {{topic_one_name}}:
 	label: "{{TopicOneLabel}}"
 	description: "{{TopicOneDescription}}"
 
@@ -60,9 +60,9 @@ topic {{topic_one_name}}:
 		instructions: ->
 			| {{TopicOneInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @subagent.topic_selector
+			back_to_menu: @utils.transition to @subagent.agent_router
 
-topic {{topic_two_name}}:
+subagent {{topic_two_name}}:
 	label: "{{TopicTwoLabel}}"
 	description: "{{TopicTwoDescription}}"
 
@@ -70,9 +70,9 @@ topic {{topic_two_name}}:
 		instructions: ->
 			| {{TopicTwoInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @subagent.topic_selector
+			back_to_menu: @utils.transition to @subagent.agent_router
 
-topic {{topic_three_name}}:
+subagent {{topic_three_name}}:
 	label: "{{TopicThreeLabel}}"
 	description: "{{TopicThreeDescription}}"
 
@@ -80,7 +80,7 @@ topic {{topic_three_name}}:
 		instructions: ->
 			| {{TopicThreeInstructions}}
 		actions:
-			back_to_menu: @utils.transition to @subagent.topic_selector
+			back_to_menu: @utils.transition to @subagent.agent_router
 
 subagent farewell:
 	label: "Farewell"

@@ -58,7 +58,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route through identity verification"
 	reasoning:
 		instructions: |
@@ -169,7 +169,7 @@ subagent account_management:
 				with pref_value = ...
 				available when @variables.customer_verified == True
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Return to main menu"
 
 subagent refund_processor:
@@ -265,7 +265,7 @@ subagent success_confirmation:
 			Great news! Your request has been processed successfully.
 			Is there anything else I can help you with?
 		actions:
-			new_request: @utils.transition to @subagent.topic_selector
+			new_request: @utils.transition to @subagent.agent_router
 				description: "Start a new request"
 
 subagent escalation:

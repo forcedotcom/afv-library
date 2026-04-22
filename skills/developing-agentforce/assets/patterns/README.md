@@ -202,7 +202,7 @@ reasoning:
 
 **Key syntax**:
 ```agentscript
-# topic_selector bypasses LLM when open_gate is set
+# agent_router bypasses LLM when open_gate is set
 before_reasoning:
    if @variables.open_gate == "protected_workflow":
       transition to @subagent.protected_workflow

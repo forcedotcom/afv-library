@@ -202,10 +202,10 @@ Use **multi-topic** if:
 
 **Hub-and-Spoke.** One central topic (the router) transitions to specialized domain topics. The router is typically the `start_agent` topic. Each spoke handles a specific domain and may transition back to the router or to other spokes. Use when the agent handles multiple distinct domains that don't naturally flow together.
 
-Example: The Local Info Agent. The `topic_selector` topic (hub) routes to domain and guardrail topics (spokes).
+Example: The Local Info Agent. The `agent_router` topic (hub) routes to domain and guardrail topics (spokes).
 
 ```agentscript
-start_agent topic_selector:
+start_agent agent_router:
     reasoning:
         actions:
             go_to_weather: @utils.transition to @subagent.local_weather
@@ -634,11 +634,11 @@ A handoff is a one-way transition. The user moves to a new topic and control nev
 
 Use handoff when:
 - Switching modes (preview → confirm → complete)
-- Entry point routing (topic_selector → domain topics)
+- Entry point routing (agent_router → domain topics)
 - One-way workflows (checkout → order_confirmation → end)
 
 ```agentscript
-subagent topic_selector:
+subagent agent_router:
     reasoning:
         actions:
             go_to_checkout: @utils.transition to @subagent.checkout
@@ -651,7 +651,7 @@ subagent checkout:
                 description: "Proceed to confirmation"
 ```
 
-After `go_to_confirm` executes, the user is in `order_confirmation`. If they later say "go back," the agent routes them back through `topic_selector` (the entry point), not to `checkout`. Handoffs don't stack; they reset the conversation state.
+After `go_to_confirm` executes, the user is in `order_confirmation`. If they later say "go back," the agent routes them back through `agent_router` (the entry point), not to `checkout`. Handoffs don't stack; they reset the conversation state.
 
 ### Delegation: Handoff with Explicit Return
 
@@ -662,7 +662,7 @@ Use delegation when:
 - Reusable sub-workflows (e.g., identity verification called from multiple topics)
 - A topic needs to temporarily visit another topic, then resume
 
-**Critical Rule:** `@subagent.X` delegates control. It does NOT implement call-return semantics. If you want the user to return to the calling topic, code an explicit `transition to @subagent.<caller>` in the delegated topic. Without it, the next user utterance falls through to `topic_selector`.
+**Critical Rule:** `@subagent.X` delegates control. It does NOT implement call-return semantics. If you want the user to return to the calling topic, code an explicit `transition to @subagent.<caller>` in the delegated topic. Without it, the next user utterance falls through to `agent_router`.
 
 WRONG: Assuming `@subagent.specialist` returns automatically
 ```agentscript
@@ -672,7 +672,7 @@ subagent main:
             consult_specialist: @subagent.specialist  # WRONG — assumes return
 
 # After specialist runs, control does NOT return to main.
-# The next user utterance routes through topic_selector.
+# The next user utterance routes through agent_router.
 ```
 
 RIGHT: Delegated topic defines explicit return transition

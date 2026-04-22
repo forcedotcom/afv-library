@@ -60,7 +60,7 @@ variables:
 language:
 	default_locale: "en_US"
 
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Content Generator"
 	description: "Routes to content generation options"
 
@@ -123,7 +123,7 @@ subagent schedule_generation:
 				with "Input:timezone"=@variables.user_timezone
 				set @variables.generated_schedule = @outputs.promptResponse
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 subagent email_generation:
 	label: "Email Generation"
@@ -168,7 +168,7 @@ subagent email_generation:
 				with "Input:tone"=...
 				set @variables.generated_email = @outputs.promptResponse
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 # ★ Insight: Prompt Template Integration Checklist
 #

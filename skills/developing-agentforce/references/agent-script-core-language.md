@@ -80,7 +80,7 @@ knowledge:
 language:
     ...
 
-start_agent topic_selector:
+start_agent agent_router:
     ...
 
 subagent my_topic:
@@ -593,7 +593,7 @@ Flow control determines how execution moves between topics and responds to condi
 Every conversation begins at `start_agent`. The LLM classifies the user's intent and routes to the appropriate topic:
 
 ```agentscript
-start_agent topic_selector:
+start_agent agent_router:
     description: "Route to appropriate topic"
     reasoning:
         instructions: ->
@@ -1214,9 +1214,9 @@ subagent collect_username:
             | Ask the customer for their username.
     after_reasoning:
         if @variables.username != "":
-            transition to @subagent.topic_selector
+            transition to @subagent.agent_router
 
-subagent topic_selector:
+subagent agent_router:
     reasoning:
         instructions: ->
             | Route the customer's message:
@@ -1226,7 +1226,7 @@ subagent topic_selector:
               - Anything else → @subagent.off_topic
 ```
 
-**Why it fails:** When `collect_username` captures the username and `after_reasoning` transitions to `topic_selector`, both topics process in the same user turn. The router's reasoning fires against the user's original message (e.g., "My username is vivek.chawla"), not a fresh utterance. Since that message doesn't match any domain topic, the router sends it to `off_topic`.
+**Why it fails:** When `collect_username` captures the username and `after_reasoning` transitions to `agent_router`, both topics process in the same user turn. The router's reasoning fires against the user's original message (e.g., "My username is vivek.chawla"), not a fresh utterance. Since that message doesn't match any domain topic, the router sends it to `off_topic`.
 
 **CORRECT:**
 
@@ -1237,9 +1237,9 @@ subagent collect_username:
             | Ask the customer for their username.
     after_reasoning:
         if @variables.username != "":
-            transition to @subagent.topic_selector
+            transition to @subagent.agent_router
 
-subagent topic_selector:
+subagent agent_router:
     reasoning:
         instructions: ->
             | Route the customer's message to the right topic.

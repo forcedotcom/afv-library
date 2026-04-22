@@ -83,7 +83,7 @@ connection messaging:
 #       adaptive_response_allowed: False
 
 # Entry point
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Topic Selector"
 	description: "Routes users to appropriate topics based on intent"
 

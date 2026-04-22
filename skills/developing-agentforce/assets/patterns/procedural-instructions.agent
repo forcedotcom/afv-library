@@ -73,7 +73,7 @@ variables:
 language:
 	default_locale: "en_US"
 
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Topic Selector"
 	description: "Routes to topics with procedural data loading"
 
@@ -194,7 +194,7 @@ subagent order_status:
 		actions:
 			get_details: @actions.get_tracking_details
 				with order_id=@variables.recent_order_id
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 subagent support_cases:
 	label: "Support Cases"
@@ -225,7 +225,7 @@ subagent support_cases:
 				| - Return to the main menu
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 			escalate: @utils.escalate
 				description: "Transfer to support specialist"
 
@@ -236,7 +236,7 @@ subagent account_help:
 	reasoning:
 		instructions: ->
 			# ★ DATA ALREADY AVAILABLE - no loading needed
-			# Customer data was loaded in topic_selector
+			# Customer data was loaded in agent_router
 			| Account Information:
 			| Name: {!@variables.customer_name}
 			| Tier: {!@variables.customer_tier}
@@ -245,7 +245,7 @@ subagent account_help:
 			| What would you like to know about your account?
 
 		actions:
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 
 # ★ Insight: Procedural vs Declarative Actions
 #

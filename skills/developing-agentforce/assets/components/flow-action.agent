@@ -54,7 +54,7 @@
 #       | Help the user with their request.
 #       | Use the available actions when needed.
 #    actions:
-#       back_to_menu: @utils.transition to @subagent.topic_selector
+#       back_to_menu: @utils.transition to @subagent.agent_router
 
 # Common Flow Target Patterns:
 # - flow://Get_Account_Details

@@ -451,7 +451,7 @@ Planner validates ALL actions across ALL topics at startup. One missing permissi
 
 ## Syntax Quick Reference
 
-- Block order: `system:` → `config:` → `variables:` → `connection:` → `knowledge:` → `language:` → `start_agent topic_selector:` → `topic:` blocks
+- Block order: `system:` → `config:` → `variables:` → `connection:` → `knowledge:` → `language:` → `start_agent agent_router:` → `topic:` blocks
 - Indentation: **4 spaces** per indent level. Never use tabs. Mixing spaces and tabs breaks the parser.
 - Booleans: `True`/`False` (capitalized)
 - Strings: always double-quoted

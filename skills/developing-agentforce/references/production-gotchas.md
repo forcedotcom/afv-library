@@ -195,7 +195,7 @@ Topic selector doesn't properly re-evaluate after user provides missing input. U
 variables:
    verification_in_progress: mutable boolean = False
 
-start_agent topic_selector:
+start_agent agent_router:
    reasoning:
       instructions: ->
          if @variables.verification_in_progress == True:

@@ -9,7 +9,7 @@
 #   - You need an EXIT_PROTOCOL to reset state when users change intent
 #
 # ★ Key Insight (Zero Credit Bypass):
-#   When open_gate is set, before_reasoning in the topic_selector
+#   When open_gate is set, before_reasoning in the agent_router
 #   deterministically routes via "transition to" — the LLM never reasons.
 #   This saves credits on every turn the gate holds focus.
 #
@@ -44,7 +44,7 @@ variables:
 # TOPIC SELECTOR (Entry Point)
 # When open_gate is set, bypasses LLM entirely (zero credit cost)
 # ─────────────────────────────────────────────────────────────────────
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Routes to topics — deterministic bypass when open_gate is set"
 
 	before_reasoning:
@@ -183,7 +183,7 @@ subagent exit_protocol:
 		# ★ RELEASE GATE: Clear all gate state
 		set @variables.open_gate = "null"
 		set @variables.next_topic = ""
-		transition to @subagent.topic_selector
+		transition to @subagent.agent_router
 
 	reasoning:
 		instructions: ->
@@ -212,7 +212,7 @@ subagent general_inquiry:
 # ═════════════════════════════════════════════════════════════════════
 #
 #                       ┌─────────────────────┐
-#                       │   topic_selector    │
+#                       │   agent_router    │
 #                       │   (start_agent)     │
 #                       │                     │
 #                       │ before_reasoning:   │
@@ -246,7 +246,7 @@ subagent general_inquiry:
 #
 # User says: "I want to check my order status"
 #
-# Step 1: topic_selector
+# Step 1: agent_router
 #   open_gate = "null" → LLM reasons → routes to protected_workflow
 #
 # Step 2: protected_workflow.before_reasoning
@@ -272,7 +272,7 @@ subagent general_inquiry:
 # Step 7: User says "actually, never mind"
 #   → LLM selects exit_to_menu action
 #   → exit_protocol.before_reasoning: open_gate = "null"
-#   → transition to topic_selector (LLM regains control)
+#   → transition to agent_router (LLM regains control)
 #
 # ═════════════════════════════════════════════════════════════════════
 # PATTERN COMPARISON

@@ -59,7 +59,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	description: "Route customers through verification then to the right topic"
 	reasoning:
 		instructions: |
@@ -172,7 +172,7 @@ subagent order_status:
 				description: "Track shipment"
 				available when @variables.tracking_number != ""
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 subagent shipment_tracking:
@@ -208,7 +208,7 @@ subagent shipment_tracking:
 				description: "Get tracking details"
 				with tracking_number = @variables.tracking_number
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 subagent returns:
@@ -251,7 +251,7 @@ subagent returns:
 				set @variables.return_initiated = True
 				set @variables.return_label_url = @outputs.return_label_url
 
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Route to a different topic"
 
 	after_reasoning: ->
@@ -268,5 +268,5 @@ subagent follow_up:
 		actions:
 			new_order: @utils.transition to @subagent.order_status
 				description: "Look up another order"
-			back: @utils.transition to @subagent.topic_selector
+			back: @utils.transition to @subagent.agent_router
 				description: "Start over"

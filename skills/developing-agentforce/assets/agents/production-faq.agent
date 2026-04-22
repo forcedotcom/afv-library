@@ -38,7 +38,7 @@ language:
 	additional_locales: ""
 	all_additional_locales: False
 
-start_agent topic_selector:
+start_agent agent_router:
 	label: "Topic Selector"
 	description: "Routes incoming questions to the FAQ handler"
 
@@ -74,7 +74,7 @@ subagent faq_handler:
 			| - Suggest contacting customer support
 			| - Offer to help with something else
 		actions:
-			new_question: @utils.transition to @subagent.topic_selector
+			new_question: @utils.transition to @subagent.agent_router
 			end_conversation: @utils.transition to @subagent.farewell
 			escalate: @utils.transition to @subagent.escalation
 
