@@ -20,7 +20,7 @@ Use this skill when you need to:
 Custom Lightning Types (CLTs) are JSON Schema-based type definitions used by the Lightning Platform (including Einstein Agent actions) to describe structured inputs/outputs and drive editor/renderer experiences.
 
 ## Configuration
-- **Choose referenced CLT pattern for nested objects** - When a request includes nested object structures, create separate CLTs for each nested type and reference them using `"lightning:type": "c__<CLTName>"` syntax.
+- **Choose referenced CLT pattern for nested objects** - When you need a **reusable** or **separately deployed** nested type, create a CLT for that shape and reference it with `"lightning:type": "c__<CLTName>"`. That string is the referenced type’s **`lightning:type` value / FQN / registered identifier** — not the JSON Schema `title`.
 - **Choose standard Lightning types** when the structure is simple and can be expressed with properties and supported primitive `lightning:type` identifiers.
 - **Choose Apex class types** (`@apexClassType/...`) when the structure already exists server-side and you want the Apex class to define the shape.
 - **Include editor/renderer config** only when you need custom UI behavior (custom LWC input/output components). Otherwise, omit.
@@ -174,7 +174,7 @@ When strict validation is enabled (`unevaluatedProperties: false`), keep each pr
 |---|---|---|
 | Schema validation fails due to unknown keyword | `unevaluatedProperties: false` + disallowed keyword (commonly `examples`, `items`) | Remove the offending keyword; keep schema minimal |
 | Nested object validation failure | Org/channel validation rejects nested object typing in `LightningTypeBundle` | Use CLT reference (`c__<CLTName>`) or Apex class types |
-| Invalid CLT reference | Referenced CLT doesn't exist in org or incorrect syntax | Deploy the referenced CLT first, verify exact `c__<CLTName>` syntax matches the target CLT's title |
+| Invalid CLT reference | Referenced CLT doesn't exist in org or incorrect syntax | Deploy the referenced CLT first; `c__<CLTName>` must match the referenced type’s **`lightning:type` value / FQN / registered identifier**, not `title` |
 | Invalid or misspelled `lightning:type` (for example, `lightning__richtextType` instead of `lightning__richTextType`) | Incorrect generated type name | Cross-check all `lightning:type` values against supported type names and correct them before deployment |
 | Array property rejected | Use of `items` (or `lightning:type` in nested arrays) rejected by validator | For nested arrays: keep only `type: "array"`. For root arrays: use minimal structure; remove `items` if rejected |
 | Apex-based CLT rejected | Extra fields added (e.g., `type`, `properties`) | Use only `title`, optional `description`, and `lightning:type` |
