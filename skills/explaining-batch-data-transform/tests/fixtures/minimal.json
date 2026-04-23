@@ -1,0 +1,57 @@
+{
+  "version": "66.0",
+  "nodes": {
+    "LOAD_DATASET0": {
+      "action": "load",
+      "sources": [],
+      "parameters": {
+        "dataset": {"name": "ssot__Account__dlm", "type": "dataModelObject"},
+        "fields": ["ssot__Id__c", "ssot__Name__c"],
+        "sampleDetails": {"type": "TopN", "sortBy": []}
+      }
+    },
+    "FORMULA0": {
+      "action": "formula",
+      "sources": ["LOAD_DATASET0"],
+      "parameters": {
+        "expressionType": "SQL",
+        "fields": [
+          {
+            "name": "AccountNameUpper__c",
+            "label": "Account Name Upper",
+            "formulaExpression": "upper(ssot__Name__c)",
+            "type": "TEXT",
+            "businessType": "Text",
+            "precision": 255,
+            "defaultValue": ""
+          }
+        ]
+      }
+    },
+    "OUTPUT0": {
+      "action": "outputD360",
+      "sources": ["FORMULA0"],
+      "parameters": {
+        "name": "Account_Upper__dlm",
+        "type": "dataModelObject",
+        "writeMode": "OVERWRITE",
+        "fieldsMappings": [
+          {"sourceField": "ssot__Id__c", "targetField": "ssot__Id__c"},
+          {"sourceField": "AccountNameUpper__c", "targetField": "Name_Upper__c"}
+        ]
+      }
+    }
+  },
+  "ui": {
+    "nodes": {
+      "LOAD_DATASET0": {"label": "Account", "type": "LOAD_DATASET", "top": 100, "left": 100},
+      "FORMULA0":      {"label": "Uppercase Name", "type": "FORMULA", "top": 100, "left": 240},
+      "OUTPUT0":       {"label": "Account Upper", "type": "OUTPUT", "top": 100, "left": 380}
+    },
+    "connectors": [
+      {"source": "LOAD_DATASET0", "target": "FORMULA0"},
+      {"source": "FORMULA0", "target": "OUTPUT0"}
+    ],
+    "hiddenColumns": []
+  }
+}

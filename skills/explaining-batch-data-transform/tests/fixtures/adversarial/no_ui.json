@@ -1,0 +1,7 @@
+{
+  "version": "66.0",
+  "nodes": {
+    "LOAD0": {"action": "load", "sources": [], "parameters": {}},
+    "OUT0": {"action": "outputD360", "sources": ["LOAD0"], "parameters": {}}
+  }
+}

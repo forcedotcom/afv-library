@@ -1,0 +1,7 @@
+{
+  "version": "66.0",
+  "nodes": {
+    "LOAD0": {"action": "load", "sources": [], "parameters": {}},
+    "JOIN0": {"action": "join", "sources": ["LOAD0", "NO_SUCH_NODE"], "parameters": {}}
+  }
+}

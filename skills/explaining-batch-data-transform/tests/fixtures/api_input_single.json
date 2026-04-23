@@ -1,0 +1,38 @@
+{
+  "name": "TestTransform",
+  "label": "Test Transform",
+  "description": "Wraps minimal BDT in the Connect API single-definition shape",
+  "type": "BATCH",
+  "dataSpaceName": "default",
+  "definition": {
+    "version": "66.0",
+    "type": "STL",
+    "nodes": {
+      "LOAD_X": {
+        "action": "load",
+        "sources": [],
+        "parameters": {
+          "dataset": {"name": "ssot__X__dlm", "type": "dataModelObject"},
+          "fields": ["ssot__Id__c"],
+          "sampleDetails": {"type": "TopN", "sortBy": []}
+        }
+      },
+      "OUTPUT_X": {
+        "action": "outputD360",
+        "sources": ["LOAD_X"],
+        "parameters": {
+          "name": "X_Out__dlm",
+          "type": "dataModelObject",
+          "writeMode": "OVERWRITE",
+          "fieldsMappings": [{"sourceField": "ssot__Id__c", "targetField": "ssot__Id__c"}]
+        }
+      }
+    },
+    "ui": {
+      "nodes": {
+        "LOAD_X":   {"label": "Load X", "type": "LOAD_DATASET", "top": 100, "left": 100},
+        "OUTPUT_X": {"label": "Output X", "type": "OUTPUT", "top": 100, "left": 260}
+      }
+    }
+  }
+}
