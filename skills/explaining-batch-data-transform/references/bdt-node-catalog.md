@@ -533,23 +533,42 @@ unmapped source field is discarded.
 
 ## `action: "split"` — UI: "Split"
 
-**Purpose.** Route rows into multiple downstream branches based on per-branch predicates.
+**Purpose.** Split the value of one source string field into multiple target columns based on a delimiter. One row in, one row out — each row's `sourceField` is split into the named `targetFields`.
 
 **Key parameters** (class `SplitParametersInputRepresentation`):
 
 | Param | Type | Notes |
 |---|---|---|
-| `branches` | array of `{ name, expression }` | Per-branch routing predicate. |
+| `sourceField` | `string` | Name of the field whose value will be split. |
+| `delimiter` | `string` | Delimiter used to split the source value. |
+| `targetFields` | `{name, label}[]` | One entry per column the split produces. Order matches the left-to-right order of the split parts. |
 
 **Lineage effect.**
-- Rows: partitioned across branches (each branch exposes the rows matching its predicate).
-- Columns: same as input.
+- Rows: unchanged. Row cardinality is preserved — split does not route rows into branches.
+- Columns: adds each `targetFields[i].name` as a new column. The original `sourceField` passes through unchanged.
 
 **Gotchas.**
-- A split node has one upstream source but *multiple* downstream consumers (each branch is a
-  logical output). When narrating lineage, mention which branch feeds which downstream node.
+- `split` is string-splitting, not row-routing. If you need to route rows into multiple branches based on predicates, use `filter` nodes downstream of a common source, not `split`.
+- If a row's `sourceField` has fewer delimited parts than the `targetFields` length, the remaining target columns are populated with NULL (no error).
+- If a row's `sourceField` has more delimited parts than `targetFields` length, the extra parts are discarded.
 
-**Source.** `SplitNodeInputRepresentation` + `SplitParametersInputRepresentation`.
+**Example.**
+```jsonc
+{
+  "action": "split",
+  "sources": ["LOAD_RAW"],
+  "parameters": {
+    "sourceField": "FullName__c",
+    "delimiter": " ",
+    "targetFields": [
+      {"name": "FirstName__c", "label": "First Name"},
+      {"name": "LastName__c",  "label": "Last Name"}
+    ]
+  }
+}
+```
+
+**Source.** `SplitNodeInputRepresentation` + `SplitParametersInputRepresentation` + `NameLabelInputRepresentation`.
 
 ---
 

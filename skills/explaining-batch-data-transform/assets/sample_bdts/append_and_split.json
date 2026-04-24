@@ -6,7 +6,7 @@
       "sources": [],
       "parameters": {
         "dataset": {"name": "WebOrders__dlo", "type": "dataLakeObject"},
-        "fields": ["OrderId__c", "Amount__c", "Channel__c"],
+        "fields": ["OrderId__c", "Amount__c", "Channel__c", "CustomerFullName__c"],
         "sampleDetails": {"type": "TopN", "sortBy": []}
       }
     },
@@ -15,7 +15,7 @@
       "sources": [],
       "parameters": {
         "dataset": {"name": "StoreOrders__dlo", "type": "dataLakeObject"},
-        "fields": ["OrderId__c", "Amount__c", "Channel__c"],
+        "fields": ["OrderId__c", "Amount__c", "Channel__c", "CustomerFullName__c"],
         "sampleDetails": {"type": "TopN", "sortBy": []}
       }
     },
@@ -25,66 +25,55 @@
       "parameters": {
         "allowImplicitDisjointSchema": false,
         "fieldMappings": [
-          {"targetField": "OrderId__c",  "sources": [{"node": "LOAD_WEB_ORDERS", "field": "OrderId__c"}, {"node": "LOAD_STORE_ORDERS", "field": "OrderId__c"}]},
-          {"targetField": "Amount__c",   "sources": [{"node": "LOAD_WEB_ORDERS", "field": "Amount__c"},  {"node": "LOAD_STORE_ORDERS", "field": "Amount__c"}]},
-          {"targetField": "Channel__c",  "sources": [{"node": "LOAD_WEB_ORDERS", "field": "Channel__c"}, {"node": "LOAD_STORE_ORDERS", "field": "Channel__c"}]}
+          {"targetField": "OrderId__c",           "sources": [{"node": "LOAD_WEB_ORDERS", "field": "OrderId__c"},           {"node": "LOAD_STORE_ORDERS", "field": "OrderId__c"}]},
+          {"targetField": "Amount__c",            "sources": [{"node": "LOAD_WEB_ORDERS", "field": "Amount__c"},            {"node": "LOAD_STORE_ORDERS", "field": "Amount__c"}]},
+          {"targetField": "Channel__c",           "sources": [{"node": "LOAD_WEB_ORDERS", "field": "Channel__c"},           {"node": "LOAD_STORE_ORDERS", "field": "Channel__c"}]},
+          {"targetField": "CustomerFullName__c",  "sources": [{"node": "LOAD_WEB_ORDERS", "field": "CustomerFullName__c"},  {"node": "LOAD_STORE_ORDERS", "field": "CustomerFullName__c"}]}
         ]
       }
     },
-    "SPLIT_BY_AMOUNT": {
+    "SPLIT_CUSTOMER_NAME": {
       "action": "split",
       "sources": ["APPEND_ALL_ORDERS"],
       "parameters": {
-        "branches": [
-          {"name": "high_value", "expression": "Amount__c >= 1000"},
-          {"name": "low_value",  "expression": "Amount__c < 1000"}
+        "sourceField": "CustomerFullName__c",
+        "delimiter": " ",
+        "targetFields": [
+          {"name": "CustomerFirstName__c", "label": "Customer First Name"},
+          {"name": "CustomerLastName__c",  "label": "Customer Last Name"}
         ]
       }
     },
-    "OUTPUT_HIGH": {
+    "OUTPUT_ORDERS": {
       "action": "outputD360",
-      "sources": ["SPLIT_BY_AMOUNT"],
+      "sources": ["SPLIT_CUSTOMER_NAME"],
       "parameters": {
-        "name": "HighValueOrders__dlm",
+        "name": "OrdersWithCustomerName__dlm",
         "type": "dataModelObject",
         "writeMode": "OVERWRITE",
         "fieldsMappings": [
-          {"sourceField": "OrderId__c", "targetField": "OrderId__c"},
-          {"sourceField": "Amount__c",  "targetField": "Amount__c"},
-          {"sourceField": "Channel__c", "targetField": "Channel__c"}
-        ]
-      }
-    },
-    "OUTPUT_LOW": {
-      "action": "outputD360",
-      "sources": ["SPLIT_BY_AMOUNT"],
-      "parameters": {
-        "name": "LowValueOrders__dlm",
-        "type": "dataModelObject",
-        "writeMode": "OVERWRITE",
-        "fieldsMappings": [
-          {"sourceField": "OrderId__c", "targetField": "OrderId__c"},
-          {"sourceField": "Amount__c",  "targetField": "Amount__c"},
-          {"sourceField": "Channel__c", "targetField": "Channel__c"}
+          {"sourceField": "OrderId__c",            "targetField": "OrderId__c"},
+          {"sourceField": "Amount__c",             "targetField": "Amount__c"},
+          {"sourceField": "Channel__c",            "targetField": "Channel__c"},
+          {"sourceField": "CustomerFirstName__c",  "targetField": "FirstName__c"},
+          {"sourceField": "CustomerLastName__c",   "targetField": "LastName__c"}
         ]
       }
     }
   },
   "ui": {
     "nodes": {
-      "LOAD_WEB_ORDERS":   {"label": "Web Orders",   "type": "LOAD_DATASET", "top": 100, "left": 100},
-      "LOAD_STORE_ORDERS": {"label": "Store Orders", "type": "LOAD_DATASET", "top": 260, "left": 100},
-      "APPEND_ALL_ORDERS": {"label": "Union",        "type": "APPEND",       "top": 180, "left": 260},
-      "SPLIT_BY_AMOUNT":   {"label": "Split by $",   "type": "SPLIT",        "top": 180, "left": 420},
-      "OUTPUT_HIGH":       {"label": "High value",   "type": "OUTPUT",       "top": 100, "left": 580},
-      "OUTPUT_LOW":        {"label": "Low value",    "type": "OUTPUT",       "top": 260, "left": 580}
+      "LOAD_WEB_ORDERS":     {"label": "Web Orders",          "type": "LOAD_DATASET", "top": 100, "left": 100},
+      "LOAD_STORE_ORDERS":   {"label": "Store Orders",        "type": "LOAD_DATASET", "top": 260, "left": 100},
+      "APPEND_ALL_ORDERS":   {"label": "Union",               "type": "APPEND",       "top": 180, "left": 260},
+      "SPLIT_CUSTOMER_NAME": {"label": "Split full name",     "type": "SPLIT",        "top": 180, "left": 420},
+      "OUTPUT_ORDERS":       {"label": "Orders with name",    "type": "OUTPUT",       "top": 180, "left": 580}
     },
     "connectors": [
-      {"source": "LOAD_WEB_ORDERS",   "target": "APPEND_ALL_ORDERS"},
-      {"source": "LOAD_STORE_ORDERS", "target": "APPEND_ALL_ORDERS"},
-      {"source": "APPEND_ALL_ORDERS", "target": "SPLIT_BY_AMOUNT"},
-      {"source": "SPLIT_BY_AMOUNT",   "target": "OUTPUT_HIGH"},
-      {"source": "SPLIT_BY_AMOUNT",   "target": "OUTPUT_LOW"}
+      {"source": "LOAD_WEB_ORDERS",     "target": "APPEND_ALL_ORDERS"},
+      {"source": "LOAD_STORE_ORDERS",   "target": "APPEND_ALL_ORDERS"},
+      {"source": "APPEND_ALL_ORDERS",   "target": "SPLIT_CUSTOMER_NAME"},
+      {"source": "SPLIT_CUSTOMER_NAME", "target": "OUTPUT_ORDERS"}
     ]
   }
 }

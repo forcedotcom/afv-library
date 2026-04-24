@@ -39,12 +39,10 @@ class TestBadInput(unittest.TestCase):
     def test_invalid_json_raises(self):
         p = FIXTURES / "_tmp_invalid.json"
         p.write_text("{not valid json")
-        try:
-            with self.assertRaises(bdt_analyze.BdtInputError) as cm:
-                bdt_analyze.DataTransform.from_path(p)
-            self.assertIn("Invalid JSON", str(cm.exception))
-        finally:
-            p.unlink(missing_ok=True)
+        self.addCleanup(p.unlink, missing_ok=True)
+        with self.assertRaises(bdt_analyze.BdtInputError) as cm:
+            bdt_analyze.DataTransform.from_path(p)
+        self.assertIn("Invalid JSON", str(cm.exception))
 
     def test_missing_nodes_raises(self):
         with self.assertRaises(bdt_analyze.BdtInputError):
