@@ -15,7 +15,7 @@
 #
 # ★ Important Limitation:
 #   - The system: block itself cannot use conditionals or variables
-#   - Dynamic behavior must be implemented in topic reasoning
+#   - Dynamic behavior must be implemented in subagent reasoning
 #
 # This is a COMPLETE template - customize for your use case
 
@@ -60,8 +60,8 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	label: "Topic Selector"
-	description: "Routes to appropriate topic based on user tier"
+	label: "Subagent Router"
+	description: "Routes to appropriate subagent based on user tier"
 
 	# ★ Use before_reasoning to set up context-based variables
 	before_reasoning:
@@ -108,7 +108,7 @@ start_agent agent_router:
 			if @variables.agent_mode == "formal":
 				| Use formal language. Address customer as Sir/Madam.
 
-			| Route the customer to the appropriate topic.
+			| Route the customer to the appropriate subagent.
 
 		actions:
 			go_orders: @utils.transition to @subagent.orders
@@ -140,7 +140,7 @@ subagent orders:
 
 	reasoning:
 		instructions: ->
-			# ★ Tier-specific instructions carry through to subtopics
+			# ★ Tier-specific instructions carry through to subagents
 			if @variables.customer_tier == "vip":
 				| This is a VIP customer. Expedite all order requests.
 				| Offer free shipping upgrades proactively.
@@ -195,8 +195,8 @@ subagent support:
 			back: @utils.transition to @subagent.agent_router
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ★ TOPIC-LEVEL SYSTEM OVERRIDES (NEW PATTERN)
-# These topics demonstrate complete persona switching using topic-level
+# ★ SUBAGENT-LEVEL SYSTEM OVERRIDES (NEW PATTERN)
+# These subagents demonstrate complete persona switching using subagent-level
 # system: blocks that OVERRIDE the global system instructions.
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -204,8 +204,8 @@ subagent formal_mode:
 	label: "Formal Communication"
 	description: "Professional business communication mode"
 
-	# ★ TOPIC-LEVEL SYSTEM OVERRIDE
-	# This completely replaces global system instructions for this topic
+	# ★ SUBAGENT-LEVEL SYSTEM OVERRIDE
+	# This completely replaces global system instructions for this subagent
 	system:
 		instructions: "You are a formal business professional. Use professional language at all times. Address users as Sir or Madam. Avoid contractions, slang, and casual expressions. Focus on efficiency and clarity. Maintain a respectful, corporate tone."
 
@@ -223,7 +223,7 @@ subagent creative_mode:
 	label: "Creative Assistant"
 	description: "Creative and imaginative communication mode"
 
-	# ★ TOPIC-LEVEL SYSTEM OVERRIDE
+	# ★ SUBAGENT-LEVEL SYSTEM OVERRIDE
 	# Different persona entirely
 	system:
 		instructions: "You are a creative and imaginative assistant. Be playful, use metaphors and analogies. Think outside the box. Encourage brainstorming and wild ideas. Use emojis sparingly but effectively. Make conversations engaging and fun while still being helpful."
@@ -244,7 +244,7 @@ subagent technical_expert:
 	label: "Technical Expert"
 	description: "Deep technical expertise mode"
 
-	# ★ TOPIC-LEVEL SYSTEM OVERRIDE
+	# ★ SUBAGENT-LEVEL SYSTEM OVERRIDE
 	# Specialist persona
 	system:
 		instructions: "You are a technical expert with deep knowledge. Use precise technical terminology. Provide detailed explanations with examples. Reference documentation when helpful. Assume the user has technical background. Be thorough but avoid unnecessary verbosity."
@@ -265,29 +265,29 @@ subagent technical_expert:
 #
 # LEVEL 1: GLOBAL SYSTEM BLOCK
 #   - Static text only (no variables, no conditionals)
-#   - Applies to ALL topics as baseline
+#   - Applies to ALL subagents as baseline
 #   - Good for: Guardrails, base personality, universal rules
 #   - Example: "Never share confidential information"
 #
-# LEVEL 2: TOPIC-LEVEL SYSTEM BLOCK (NEW!)
-#   - Placed inside topic definition
-#   - COMPLETELY OVERRIDES global system for that topic
+# LEVEL 2: SUBAGENT-LEVEL SYSTEM BLOCK (NEW!)
+#   - Placed inside subagent definition
+#   - COMPLETELY OVERRIDES global system for that subagent
 #   - Good for: Persona switching, mode changes, specialist behavior
-#   - Example: topic formal_mode: system: instructions: "Be professional..."
+#   - Example: subagent formal_mode: system: instructions: "Be professional..."
 #
-# LEVEL 3: TOPIC REASONING INSTRUCTIONS
+# LEVEL 3: SUBAGENT REASONING INSTRUCTIONS
 #   - Dynamic (variables, conditionals, template expressions)
-#   - Extends/adjusts behavior within topic
+#   - Extends/adjusts behavior within subagent
 #   - Good for: Context-aware responses, personalization
 #   - Example: if @variables.is_vip: | Provide priority service
 #
 # OVERRIDE HIERARCHY:
-#   Topic system: > Global system: > Default behavior
+#   Subagent system: > Global system: > Default behavior
 #
 # COMBINING APPROACHES:
 #   - Use GLOBAL system for universal guardrails
-#   - Use TOPIC system: for complete persona changes
-#   - Use TOPIC reasoning for dynamic conditional behavior
+#   - Use SUBAGENT system: for complete persona changes
+#   - Use SUBAGENT reasoning for dynamic conditional behavior
 #
-# Best Practice: Put guardrails in global system, personas in topic system,
-# and context-aware personalization in topic reasoning instructions.
+# Best Practice: Put guardrails in global system, personas in subagent system,
+# and context-aware personalization in subagent reasoning instructions.

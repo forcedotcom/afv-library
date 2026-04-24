@@ -55,10 +55,10 @@ language:
 # TOPICS
 # ============================================================================
 
-# --- START_AGENT (Topic Selector) ---
+# --- START_AGENT (Subagent Router) ---
 # Every agent must have exactly one start_agent block. It is the entry point
 # for every conversation. The Atlas Reasoning Engine evaluates the user's
-# utterance against topic descriptions and transitions to the best match.
+# utterance against subagent descriptions and transitions to the best match.
 #
 # The agent_router label makes it a routing-only subagent. Its actions are
 # exclusively @utils.transition calls — one per subagent the agent can handle.
@@ -66,8 +66,8 @@ start_agent agent_router:
     description: "Welcome the user and determine the appropriate subagent based on user input"
     reasoning:
         actions:
-            # Each action is a transition to a topic.
-            # The runtime matches the user's utterance against topic descriptions
+            # Each action is a transition to a subagent.
+            # The runtime matches the user's utterance against subagent descriptions
             # and selects the best transition.
             go_to_local_weather: @utils.transition to @subagent.local_weather
             go_to_local_events: @utils.transition to @subagent.local_events

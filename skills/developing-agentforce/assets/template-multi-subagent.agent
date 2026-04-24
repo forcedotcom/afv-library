@@ -1,7 +1,7 @@
-# Multi-Topic Agent Template
+# Multi-Subagent Template
 # Copy this file to your AiAuthoringBundle directory and rename it to match
 # your agent's developer_name. Replace all placeholder values with real ones.
-# Add, remove, or rename topics as needed.
+# Add, remove, or rename subagents as needed.
 
 system:
     instructions: "You are a helpful assistant. Describe the agent's persona and purpose here."
@@ -28,7 +28,7 @@ language:
     all_additional_locales: False
 
 start_agent agent_router:
-    description: "Welcome the user and determine the appropriate topic based on user input"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
     reasoning:
         actions:
             go_to_topic_a: @utils.transition to @subagent.topic_a
@@ -38,12 +38,12 @@ start_agent agent_router:
             go_to_off_topic: @utils.transition to @subagent.off_topic
 
 subagent topic_a:
-    label: "Topic A"
-    description: "Describe what this topic handles"
+    label: "Subagent A"
+    description: "Describe what this subagent handles"
 
     reasoning:
         instructions: ->
-            | Replace this with instructions for topic A.
+            | Replace this with instructions for subagent A.
 
         actions:
             action_a: @actions.action_a
@@ -67,12 +67,12 @@ subagent topic_a:
                     filter_from_agent: False
 
 subagent topic_b:
-    label: "Topic B"
-    description: "Describe what this topic handles"
+    label: "Subagent B"
+    description: "Describe what this subagent handles"
 
     reasoning:
         instructions: ->
-            | Replace this with instructions for topic B. This topic demonstrates the gating pattern.
+            | Replace this with instructions for subagent B. This subagent demonstrates the gating pattern.
 
         actions:
             # Collect data into a variable first
@@ -103,12 +103,12 @@ subagent topic_b:
                     is_displayable: False
 
 subagent topic_c:
-    label: "Topic C"
-    description: "Describe what this topic handles"
+    label: "Subagent C"
+    description: "Describe what this subagent handles"
 
     reasoning:
         instructions: ->
-            | Replace this with base instructions for topic C.
+            | Replace this with base instructions for subagent C.
 
             # Conditional instructions based on variable state
             if @variables.collected_input != "":
@@ -152,9 +152,9 @@ subagent escalation:
 
 subagent off_topic:
     label: "Off Topic"
-    description: "Redirect conversation to relevant topics when user request goes off-topic"
+    description: "Redirect conversation to relevant subagents when user request goes off-topic"
 
     reasoning:
         instructions: ->
             | The user request is off-topic. Do not answer general knowledge questions.
-              Redirect the conversation by asking how you can help with topics this agent supports.
+              Redirect the conversation by asking how you can help with the topics this agent supports.

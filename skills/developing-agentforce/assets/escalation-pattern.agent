@@ -76,7 +76,7 @@ start_agent entry:
             description: "Help with support issue"
 
 # ============================================================
-# SUPPORT TOPIC (With Escalation Triggers)
+# SUPPORT SUBAGENT (With Escalation Triggers)
 # ============================================================
 
 subagent support:
@@ -117,7 +117,7 @@ subagent support:
             with ready_to_escalate = True
 
 # ============================================================
-# PRE-ESCALATION TOPIC (Gather Context)
+# PRE-ESCALATION SUBAGENT (Gather Context)
 # ============================================================
 
 subagent pre_escalation:
@@ -160,7 +160,7 @@ subagent pre_escalation:
             run @utils.transition to @subagent.support
 
 # ============================================================
-# ESCALATION TOPIC (Handoff)
+# ESCALATION SUBAGENT (Handoff)
 # ============================================================
 
 subagent escalation:

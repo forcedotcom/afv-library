@@ -114,7 +114,7 @@ start_agent agent_router:
             with low_confidence_warning = False
 
 # ============================================================
-# ROUTED TOPICS
+# ROUTED SUBAGENTS
 # ============================================================
 
 subagent billing:

@@ -74,8 +74,8 @@ language:
 	default_locale: "en_US"
 
 start_agent agent_router:
-	label: "Topic Selector"
-	description: "Routes to topics with procedural data loading"
+	label: "Subagent Router"
+	description: "Routes to subagents with procedural data loading"
 
 	actions:
 		# Data loading actions
@@ -172,7 +172,7 @@ subagent order_status:
 
 	reasoning:
 		instructions: ->
-			# ★ LAZY LOADING: Only fetch orders when user enters this topic
+			# ★ LAZY LOADING: Only fetch orders when user enters this subagent
 			if @variables.orders_loaded == False:
 				run @actions.load_orders
 					with contact_id=@variables.ContactId
@@ -267,7 +267,7 @@ subagent account_help:
 #   - Result: Efficient, context-aware agents
 
 # ★ Performance Benefits:
-#   - Fetch only what's needed per topic
+#   - Fetch only what's needed per subagent
 #   - Avoid loading all data upfront
 #   - Reduce API calls for simple conversations
 #   - Better response times

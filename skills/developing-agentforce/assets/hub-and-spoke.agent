@@ -2,7 +2,7 @@
 # ====================================
 #
 # This template demonstrates the Hub-and-Spoke pattern where a central
-# agent_router (hub) routes conversations to specialized topics (spokes).
+# agent_router (hub) routes conversations to specialized subagents (spokes).
 #
 # Pattern: Multi-purpose agents handling distinct request types
 # Use when: Users may have different intents (orders, support, returns)
@@ -33,13 +33,13 @@ variables:
 # ============================================================
 
 start_agent agent_router:
-   description: "Route to appropriate topic based on user intent"
+   description: "Route to appropriate subagent based on user intent"
    reasoning:
       instructions: |
          Determine what the customer needs and route accordingly:
-         - Order questions → orders topic
-         - Return/refund requests → returns topic
-         - General questions → support topic
+         - Order questions → orders subagent
+         - Return/refund requests → returns subagent
+         - General questions → support subagent
       actions:
          check_order: @utils.transition to @subagent.orders
             description: "Customer wants to check order status"
@@ -49,7 +49,7 @@ start_agent agent_router:
             description: "General support questions"
 
 # ============================================================
-# SPOKE: Orders Topic
+# SPOKE: Orders Subagent
 # ============================================================
 
 subagent orders:
@@ -69,7 +69,7 @@ subagent orders:
             description: "Return to main menu"
 
 # ============================================================
-# SPOKE: Returns Topic
+# SPOKE: Returns Subagent
 # ============================================================
 
 subagent returns:
@@ -88,7 +88,7 @@ subagent returns:
             description: "Return to main menu"
 
 # ============================================================
-# SPOKE: Support Topic
+# SPOKE: Support Subagent
 # ============================================================
 
 subagent support:

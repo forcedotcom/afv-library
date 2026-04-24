@@ -54,7 +54,7 @@ start_agent entry:
             description: "Start order lookup"
 
 # ============================================================
-# ORDER LOOKUP TOPIC (Flow Action Pattern)
+# ORDER LOOKUP SUBAGENT (Flow Action Pattern)
 # ============================================================
 
 subagent order_lookup:

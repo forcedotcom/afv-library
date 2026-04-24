@@ -39,7 +39,7 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	label: "Topic Selector"
+	label: "Subagent Router"
 	description: "Routes incoming questions to the FAQ handler"
 
 	reasoning:

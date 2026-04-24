@@ -47,7 +47,7 @@ start_agent entry:
             description: "Start knowledge search"
 
 # ============================================================
-# KNOWLEDGE SEARCH TOPIC (RAG Pattern)
+# KNOWLEDGE SEARCH SUBAGENT (RAG Pattern)
 # ============================================================
 
 subagent knowledge_search:
@@ -110,7 +110,7 @@ subagent knowledge_search:
             description: "Transfer to human agent"
 
 # ============================================================
-# FOLLOW-UP QUESTIONS TOPIC
+# FOLLOW-UP QUESTIONS SUBAGENT
 # ============================================================
 
 subagent follow_up:

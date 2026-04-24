@@ -84,8 +84,8 @@ connection messaging:
 
 # Entry point
 start_agent agent_router:
-	label: "Topic Selector"
-	description: "Routes users to appropriate topics based on intent"
+	label: "Subagent Router"
+	description: "Routes users to appropriate subagents based on intent"
 
 	reasoning:
 		instructions: ->

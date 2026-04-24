@@ -1,4 +1,4 @@
-# Single-Topic Agent Template
+# Single-Subagent Template
 # Copy this file to your AiAuthoringBundle directory and rename it to match
 # your agent's developer_name. Replace all placeholder values with real ones.
 
@@ -23,7 +23,7 @@ language:
     all_additional_locales: False
 
 start_agent agent_router:
-    description: "Welcome the user and determine the appropriate topic based on user input"
+    description: "Welcome the user and determine the appropriate subagent based on user input"
     reasoning:
         actions:
             go_to_main: @utils.transition to @subagent.main
@@ -31,12 +31,12 @@ start_agent agent_router:
             go_to_off_topic: @utils.transition to @subagent.off_topic
 
 subagent main:
-    label: "Main Topic"
-    description: "Describe what this topic handles. The Atlas Reasoning Engine matches user utterances against this description."
+    label: "Main Subagent"
+    description: "Describe what this subagent handles. The Atlas Reasoning Engine matches user utterances against this description."
 
     reasoning:
         instructions: ->
-            | Replace this with instructions for how the agent should handle requests in this topic.
+            | Replace this with instructions for how the agent should handle requests in this subagent.
               Reference actions with the syntax shown below.
 
         actions:
@@ -73,9 +73,9 @@ subagent escalation:
 
 subagent off_topic:
     label: "Off Topic"
-    description: "Redirect conversation to relevant topics when user request goes off-topic"
+    description: "Redirect conversation to relevant subagents when user request goes off-topic"
 
     reasoning:
         instructions: ->
             | The user request is off-topic. Do not answer general knowledge questions.
-              Redirect the conversation by asking how you can help with topics this agent supports.
+              Redirect the conversation by asking how you can help with the topics this agent supports.

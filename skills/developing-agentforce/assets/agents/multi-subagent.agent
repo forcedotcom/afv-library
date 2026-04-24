@@ -37,13 +37,13 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	label: "Topic Selector"
-	description: "Routes users to the appropriate topic based on their needs"
+	label: "Subagent Router"
+	description: "Routes users to the appropriate subagent based on their needs"
 
 	reasoning:
 		instructions: ->
 			| Determine what the user needs help with.
-			| Route them to the most appropriate topic.
+			| Route them to the most appropriate subagent.
 			| If unclear, ask clarifying questions.
 		actions:
 			go_to_topic_one: @utils.transition to @subagent.{{topic_one_name}}

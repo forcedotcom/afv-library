@@ -72,7 +72,7 @@ subagent identity_verification:
             | Too many failed attempts. Transferring to a human agent.
             transition to @subagent.escalation
 
-         # Already verified? Proceed to protected topics
+         # Already verified? Proceed to protected subagents
          if @variables.customer_verified == True:
             | Identity verified! How can I help you today?
 

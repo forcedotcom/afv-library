@@ -187,9 +187,9 @@ KNOWN BUG: Chained actions with Prompt Templates don't properly map inputs using
 
 For prompt template action definitions, input binding syntax, and grounded data patterns, see [Action Prompt Templates](action-prompt-templates.md).
 
-## Latch Variable Pattern for Topic Re-entry
+## Latch Variable Pattern for Subagent Re-entry
 
-Topic selector doesn't properly re-evaluate after user provides missing input. Use a "latch" variable to force re-entry:
+Subagent router doesn't properly re-evaluate after user provides missing input. Use a "latch" variable to force re-entry:
 
 ```yaml
 variables:
@@ -219,9 +219,9 @@ subagent verification:
 
 ## Loop Protection Guardrail
 
-Agent Scripts have a built-in guardrail that limits iterations to approximately **3-4 loops** before breaking out and returning to the Topic Selector.
+Agent Scripts have a built-in guardrail that limits iterations to approximately **3-4 loops** before breaking out and returning to the Subagent Router.
 
-**Best Practice**: Map out your execution paths and test for unintended circular references between topics.
+**Best Practice**: Map out your execution paths and test for unintended circular references between subagents.
 
 ## Token & Size Limits
 

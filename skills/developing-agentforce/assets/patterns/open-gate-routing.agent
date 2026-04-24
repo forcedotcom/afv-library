@@ -1,11 +1,11 @@
 # Open Gate Routing Pattern
-# 3-variable state machine for auth-gated topic routing with LLM bypass
+# 3-variable state machine for auth-gated subagent routing with LLM bypass
 #
 # ★ When To Use This Pattern:
-#   - Multiple protected topics require authentication before access
-#   - You want to bypass the LLM topic selector when a gate topic holds focus
+#   - Multiple protected subagents require authentication before access
+#   - You want to bypass the LLM subagent selector when a gate subagent holds focus
 #   - Users should be redirected to auth, then automatically returned to their
-#     original intended topic after authentication completes
+#     original intended subagent after authentication completes
 #   - You need an EXIT_PROTOCOL to reset state when users change intent
 #
 # ★ Key Insight (Zero Credit Bypass):
@@ -14,13 +14,13 @@
 #   This saves credits on every turn the gate holds focus.
 #
 # ★ The 3 Variables:
-#   open_gate    — Which topic currently holds focus ("null" = none)
+#   open_gate    — Which subagent currently holds focus ("null" = none)
 #   next_topic   — Deferred destination after auth completes
 #   authenticated — Whether the user has passed authentication
 #
 # ★ EXIT_PROTOCOL:
-#   Any topic can reset open_gate to "null" when the user changes intent.
-#   This releases the gate lock and returns control to the LLM topic selector.
+#   Any subagent can reset open_gate to "null" when the user changes intent.
+#   This releases the gate lock and returns control to the LLM subagent router.
 #
 # ★ Related Patterns:
 #   - Latch Variable (SKILL.md) — simpler 1-variable version, no auth gate
@@ -34,21 +34,22 @@
 variables:
 	# ... standard linked variables ...
 	open_gate: mutable string = "null"
-		description: "Which topic currently holds focus (null = LLM decides)"
+		description: "Which subagent currently holds focus (null = LLM decides)"
 	next_topic: mutable string = ""
 		description: "Deferred destination after authentication completes"
 	authenticated: mutable boolean = False
 		description: "Whether the user has passed authentication"
 
 # ─────────────────────────────────────────────────────────────────────
-# TOPIC SELECTOR (Entry Point)
+# SUBAGENT ROUTER (Entry Point)
 # When open_gate is set, bypasses LLM entirely (zero credit cost)
 # ─────────────────────────────────────────────────────────────────────
 start_agent agent_router:
-	description: "Routes to topics — deterministic bypass when open_gate is set"
+	label: "Subagent Router"
+	description: "Routes to subagents — deterministic bypass when open_gate is set"
 
 	before_reasoning:
-		# ★ GATE CHECK: If a topic holds focus, bypass LLM entirely
+		# ★ GATE CHECK: If a subagent holds focus, bypass LLM entirely
 		if @variables.open_gate == "protected_workflow":
 			transition to @subagent.protected_workflow
 		if @variables.open_gate == "account_management":
@@ -59,7 +60,7 @@ start_agent agent_router:
 	reasoning:
 		instructions: ->
 			| You are a customer service agent.
-			| Route the customer to the appropriate topic:
+			| Route the customer to the appropriate subagent:
 			| - Order status, returns, or shipping → protected workflow
 			| - Account settings or profile changes → account management
 			| - General questions → general inquiry
@@ -82,7 +83,7 @@ subagent protected_workflow:
 			set @variables.open_gate = "authentication_gate"
 			transition to @subagent.authentication_gate
 
-		# ★ FOCUS LOCK: Keep gate open so topic selector bypasses LLM
+		# ★ FOCUS LOCK: Keep gate open so subagent router bypasses LLM
 		set @variables.open_gate = "protected_workflow"
 
 	reasoning:
@@ -102,11 +103,11 @@ subagent protected_workflow:
 
 	after_reasoning:
 		# Logging or cleanup after each turn (optional)
-		set @variables.last_topic = "protected_workflow"
+		set @variables.last_subagent = "protected_workflow"
 
 # ─────────────────────────────────────────────────────────────────────
-# ACCOUNT MANAGEMENT (Second Protected Topic)
-# Demonstrates the pattern scales to N protected topics
+# ACCOUNT MANAGEMENT (Second Protected Subagent)
+# Demonstrates the pattern scales to N protected subagents
 # ─────────────────────────────────────────────────────────────────────
 subagent account_management:
 	description: "Handles account settings and profile changes (requires authentication)"
@@ -142,7 +143,7 @@ subagent account_management:
 # Handles auth flow, then routes back via next_topic
 # ─────────────────────────────────────────────────────────────────────
 subagent authentication_gate:
-	description: "Verifies customer identity before allowing access to protected topics"
+	description: "Verifies customer identity before allowing access to protected subagents"
 
 	before_reasoning:
 		# ★ FOCUS LOCK: Hold gate open during auth flow
@@ -174,10 +175,10 @@ subagent authentication_gate:
 
 # ─────────────────────────────────────────────────────────────────────
 # EXIT PROTOCOL (Resets Gate State)
-# Clears open_gate so LLM topic selector regains control
+# Clears open_gate so LLM subagent router regains control
 # ─────────────────────────────────────────────────────────────────────
 subagent exit_protocol:
-	description: "Resets gate state and returns to topic selector"
+	description: "Resets gate state and returns to subagent router"
 
 	before_reasoning:
 		# ★ RELEASE GATE: Clear all gate state
@@ -190,8 +191,8 @@ subagent exit_protocol:
 			| Redirecting you to the main menu.
 
 # ─────────────────────────────────────────────────────────────────────
-# GENERAL INQUIRY (Unprotected Topic)
-# Demonstrates that not every topic needs gating
+# GENERAL INQUIRY (Unprotected Subagent)
+# Demonstrates that not every subagent needs gating
 # ─────────────────────────────────────────────────────────────────────
 subagent general_inquiry:
 	description: "Handles general questions that do not require authentication"
@@ -199,7 +200,7 @@ subagent general_inquiry:
 	reasoning:
 		instructions: ->
 			| Help the customer with general questions.
-			| No authentication is needed for this topic.
+			| No authentication is needed for this subagent.
 			|
 			| If the customer needs help with orders or account settings,
 			| let them know they will need to verify their identity first.
@@ -272,7 +273,7 @@ subagent general_inquiry:
 # Step 7: User says "actually, never mind"
 #   → LLM selects exit_to_menu action
 #   → exit_protocol.before_reasoning: open_gate = "null"
-#   → transition to agent_router (LLM regains control)
+#   → transition to agent_router (subagent router regains control)
 #
 # ═════════════════════════════════════════════════════════════════════
 # PATTERN COMPARISON
