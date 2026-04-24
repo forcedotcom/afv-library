@@ -60,12 +60,12 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	description: "Route customers through verification then to the right topic"
+	description: "Route customers through verification then to the right subagent"
 	reasoning:
 		instructions: |
 			You are a router only. Do NOT answer questions or provide help directly.
 			Route all users to identity verification first.
-			If already verified, route to the appropriate topic:
+			If already verified, route to the appropriate subagent:
 			- Order questions -> use to_orders
 			- Returns -> use to_returns
 			- Tracking -> use to_tracking
@@ -173,7 +173,7 @@ subagent order_status:
 				available when @variables.tracking_number != ""
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 subagent shipment_tracking:
 	label: "Shipment Tracking"
@@ -209,7 +209,7 @@ subagent shipment_tracking:
 				with tracking_number = @variables.tracking_number
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 subagent returns:
 	label: "Returns"
@@ -252,7 +252,7 @@ subagent returns:
 				set @variables.return_label_url = @outputs.return_label_url
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 	after_reasoning: ->
 		if @variables.return_initiated == True:

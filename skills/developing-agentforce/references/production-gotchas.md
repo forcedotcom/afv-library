@@ -22,13 +22,13 @@ The `before_reasoning:` and `after_reasoning:` lifecycle hooks are validated. Co
 
 ### Cost Optimization Pattern
 
-Fetch data once in `before_reasoning:`, cache in variables, reuse across topics.
+Fetch data once in `before_reasoning:`, cache in variables, reuse across subagents.
 
 ## Lifecycle Hooks
 
 ```yaml
 subagent main:
-   description: "Topic with lifecycle hooks"
+   description: "Subagent with lifecycle hooks"
 
    # BEFORE: Runs deterministically BEFORE LLM sees instructions
    before_reasoning:
@@ -55,7 +55,7 @@ subagent main:
 - Reliable primitives: `set`, `if`/`else`, `transition to`. `run` has inconsistent runtime behavior across bundle types — use it in `reasoning.actions:` or `instructions: ->` instead
 - `before_reasoning:` is FREE (no credit cost) - use for data prep
 - `after_reasoning:` is FREE (no credit cost) - use for logging, cleanup
-- `transition to` works in `after_reasoning:` — but if a topic transitions mid-reasoning, the original topic's `after_reasoning:` does NOT run
+- `transition to` works in `after_reasoning:` — but if a subagent transitions mid-reasoning, the original subagent's `after_reasoning:` does NOT run
 
 **❌ WRONG Syntax (causes compile error):**
 ```yaml
@@ -78,7 +78,7 @@ before_reasoning:
 | **Supervision** | `@subagent.X` (as action reference) | Parent orchestrates, child returns, parent synthesizes | Expert consultation, sub-tasks |
 
 ```yaml
-# HANDOFF - child topic takes over completely:
+# HANDOFF - child subagent takes over completely:
 checkout: @utils.transition to @subagent.order_checkout
    description: "Proceed to checkout"
 # → @subagent.order_checkout generates the user-facing response
@@ -86,7 +86,7 @@ checkout: @utils.transition to @subagent.order_checkout
 # SUPERVISION - parent remains in control:
 get_advice: @subagent.product_expert
    description: "Consult product expert"
-# → @subagent.product_expert returns, parent topic synthesizes final response
+# → @subagent.product_expert returns, parent subagent synthesizes final response
 ```
 
 **KNOWN BUG**: Adding ANY new action in Canvas view may inadvertently change Supervision references to Handoff transitions.

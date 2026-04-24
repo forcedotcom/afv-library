@@ -31,13 +31,13 @@ start_agent agent_router:
     description: "Welcome the user and determine the appropriate subagent based on user input"
     reasoning:
         actions:
-            go_to_topic_a: @utils.transition to @subagent.topic_a
-            go_to_topic_b: @utils.transition to @subagent.topic_b
-            go_to_topic_c: @utils.transition to @subagent.topic_c
+            go_to_subagent_a: @utils.transition to @subagent.subagent_a
+            go_to_subagent_b: @utils.transition to @subagent.subagent_b
+            go_to_subagent_c: @utils.transition to @subagent.subagent_c
             go_to_escalation: @utils.transition to @subagent.escalation
             go_to_off_topic: @utils.transition to @subagent.off_topic
 
-subagent topic_a:
+subagent subagent_a:
     label: "Subagent A"
     description: "Describe what this subagent handles"
 
@@ -66,7 +66,7 @@ subagent topic_a:
                     is_displayable: True
                     filter_from_agent: False
 
-subagent topic_b:
+subagent subagent_b:
     label: "Subagent B"
     description: "Describe what this subagent handles"
 
@@ -102,7 +102,7 @@ subagent topic_b:
                     label: "Result"
                     is_displayable: False
 
-subagent topic_c:
+subagent subagent_c:
     label: "Subagent C"
     description: "Describe what this subagent handles"
 
@@ -157,4 +157,4 @@ subagent off_topic:
     reasoning:
         instructions: ->
             | The user request is off-topic. Do not answer general knowledge questions.
-              Redirect the conversation by asking how you can help with the topics this agent supports.
+              Redirect the conversation by asking how you can help with the subagents this agent supports.

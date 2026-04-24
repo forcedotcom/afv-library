@@ -9,7 +9,7 @@ Organized templates for building Agentforce agents.
 ```
 assets/
 ├── agents/       Complete, deployable agent examples
-├── components/   Reusable action and topic snippets
+├── components/   Reusable action and subagent snippets
 ├── patterns/     Advanced patterns (lifecycle, callbacks)
 └── metadata/     XML metadata templates
 ```
@@ -47,8 +47,8 @@ What do you need?
 | Template | Complexity | Description |
 |----------|------------|-------------|
 | `hello-world.agent` | Beginner | Minimal viable agent |
-| `simple-qa.agent` | Beginner | Single-topic Q&A |
-| `multi-subagent.agent` | Intermediate | Multi-topic routing |
+| `simple-qa.agent` | Beginner | Single-subagent Q&A |
+| `multi-subagent.agent` | Intermediate | Multi-subagent routing |
 | `production-faq.agent` | Advanced | Production-ready with escalation |
 
 ### components/ - Reusable Parts

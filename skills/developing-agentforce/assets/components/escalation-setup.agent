@@ -9,7 +9,7 @@
 # ★ Key Components:
 #   1. connection messaging: block - defines routing destination
 #   2. @utils.escalate action - triggers the transfer
-#   3. escalation topic - handles the handoff flow
+#   3. escalation subagent - handles the handoff flow
 #
 # ★ Prerequisites:
 #   - Omni-Channel configured in Salesforce
@@ -46,7 +46,7 @@ variables:
 	escalation_requested: mutable boolean = False
 		description: "Whether customer requested human agent"
 	escalation_reason: mutable string
-		description: "Reason for escalation"
+		description: "Reason for escalation subagent"
 	# ⚠️ Use 'number' not 'integer' - integer type is NOT supported in AiAuthoringBundle
 	attempts_before_escalation: mutable number = 0
 		description: "Number of attempts before escalating"

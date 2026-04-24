@@ -15,7 +15,7 @@
 # ★ CRITICAL SYNTAX RULES for Lifecycle Blocks:
 #   1. Use "transition to" NOT "@utils.transition to" for transitions
 #   2. The pipe (|) command is NOT supported in lifecycle blocks
-#   3. after_reasoning may NOT run if a transition occurs mid-topic
+#   3. after_reasoning may NOT run if a transition occurs mid-subagent
 #   4. `run` has inconsistent runtime behavior in lifecycle blocks —
 #      reliable primitives are `set`, `if`/`else`, `transition to`
 #
@@ -42,7 +42,7 @@ variables:
 
 subagent conversation:
 	label: "Conversation"
-	description: "Main conversation topic with lifecycle tracking"
+	description: "Main conversation subagent with lifecycle tracking"
 
 	actions:
 		get_timestamp:
@@ -68,7 +68,7 @@ subagent conversation:
 				turn_number: number
 					description: "Which turn this is"
 				topic_name: string
-					description: "Current topic"
+					description: "Current subagent"
 			outputs:
 				logged: boolean
 					description: "Whether log succeeded"

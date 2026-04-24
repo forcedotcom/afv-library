@@ -156,7 +156,7 @@ User wants to understand Agent Script agent they didn't write or need to revisit
 
 ### Modify an Existing Agent
 
-User wants to add, remove, or change subagents, actions, instructions, or flow control on existing agent. May describe change in plain language ("add a billing topic") or reference specific Agent Script constructs.
+User wants to add, remove, or change subagents, actions, instructions, or flow control on existing agent. May describe change in plain language ("add a billing subagent") or reference specific Agent Script constructs.
 
 #### Required Steps
 

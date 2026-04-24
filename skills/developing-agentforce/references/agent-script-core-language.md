@@ -8,7 +8,7 @@
 4. Expressions and Operators
 5. System and Config Blocks
 6. Variables
-7. Topics
+7. Subagents
 8. Reasoning Instructions
 9. Flow Control
 10. Actions

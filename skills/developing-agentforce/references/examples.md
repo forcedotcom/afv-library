@@ -62,7 +62,7 @@ Companion `bundle-meta.xml` (MUST be this exact content -- no extra fields):
 
 ## Minimal Employee Agent
 
-Employee agents differ from service agents in their config, variables, and connection blocks. This example shows a 2-topic IT Knowledge agent deployed to internal employees.
+Employee agents differ from service agents in their config, variables, and connection blocks. This example shows a 2-subagent IT Knowledge agent deployed to internal employees.
 
 ```
 system:
@@ -96,7 +96,7 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	description: "Route employees to the right IT support topic"
+	description: "Route employees to the right IT support subagent"
 	reasoning:
 		instructions: |
 			You are a router only. Do NOT answer questions directly.
@@ -140,7 +140,7 @@ subagent knowledge_search:
 				set @variables.search_query = @outputs.articles
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 subagent account_support:
 	label: "Account Support"
@@ -172,7 +172,7 @@ subagent account_support:
 			# human agents via messaging. Use a transition or case-creation
 			# action instead.
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 ```
 
 **What's deliberately absent (vs. service agents):**
@@ -183,7 +183,7 @@ subagent account_support:
 
 ---
 
-## Multi-Topic Agent with Actions
+## Multi-Subagent Agent with Actions
 
 ```
 system:
@@ -229,11 +229,11 @@ language:
 	all_additional_locales: False
 
 start_agent agent_router:
-	description: "Route customers to the right support topic"
+	description: "Route customers to the right support subagent"
 	reasoning:
 		instructions: |
 			You are a router only. Do NOT answer questions or provide help directly.
-			Always use a transition action to route to the correct topic immediately.
+			Always use a transition action to route to the correct subagent immediately.
 			- Order status or tracking -> use to_orders
 			- Returns or refunds -> use to_returns
 			- General questions -> use to_general
@@ -282,7 +282,7 @@ subagent order_support:
 				set @variables.order_status = @outputs.status
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 subagent return_support:
 	label: "Return Support"
@@ -316,7 +316,7 @@ subagent return_support:
 				set @variables.case_id = @outputs.return_id
 
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 	after_reasoning:
 		if @variables.case_id != "":
@@ -333,7 +333,7 @@ subagent general_support:
 			escalate_now: @utils.escalate
 				description: "Transfer to human agent"
 			back: @utils.transition to @subagent.agent_router
-				description: "Route to a different topic"
+				description: "Route to a different subagent"
 
 subagent confirmation:
 	label: "Confirmation"

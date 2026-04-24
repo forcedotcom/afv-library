@@ -29,7 +29,7 @@ variables:
 	user_question: mutable string
 		description: "The user's current question"
 	conversation_topic: mutable string
-		description: "The current topic being discussed"
+		description: "The current subject being discussed"
 	question_count: mutable number
 		description: "Number of questions answered in this session"
 
@@ -45,7 +45,7 @@ start_agent agent_router:
 	reasoning:
 		instructions: ->
 			| Listen to the user's question and determine how to help.
-			| If the question is about a specific topic, note it.
+			| If the question is about a specific subject, note it.
 			| Route to the FAQ handler for processing.
 		actions:
 			handle_faq: @utils.transition to @subagent.faq_handler

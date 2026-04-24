@@ -15,9 +15,9 @@ What do you need?
 │   └─► Use: lifecycle-events.agent
 │       (before_reasoning / after_reasoning blocks)
 │
-├─► Navigate to specialist and return with results?
+├─► Navigate to specialist subagent and return with results?
 │   └─► Use: bidirectional-routing.agent
-│       (store return address, specialist transitions back)
+│       (store return address, specialist subagent transitions back)
 │
 ├─► Complex parameter passing to actions?
 │   └─► Use: advanced-input-bindings.agent
@@ -88,20 +88,20 @@ subagent conversation:
 
 ### 3. [bidirectional-routing.agent](bidirectional-routing.agent)
 
-**Purpose**: Navigate to specialist topic and return with results.
+**Purpose**: Navigate to specialist subagent and return with results.
 
 **Use when**:
-- Complex workflows spanning multiple topics
+- Complex workflows spanning multiple subagents
 - "Consult an expert" pattern
 - Need to bring results back to coordinator
 - Want separation of concerns
 
 **Key syntax**:
 ```agentscript
-# In main topic
+# In main subagent
 consult_pricing: @utils.transition to @subagent.pricing_specialist
 
-# In specialist topic
+# In specialist subagent
 before_reasoning:
    set @variables.return_topic = "main_hub"
 
@@ -192,12 +192,12 @@ reasoning:
 
 ### 6. [open-gate-routing.agent](open-gate-routing.agent)
 
-**Purpose**: Auth-gated topic routing with LLM bypass using a 3-variable state machine.
+**Purpose**: Auth-gated subagent routing with LLM bypass using a 3-variable state machine.
 
 **Use when**:
-- Multiple protected topics require authentication before access
-- You want zero-credit LLM bypass while a gate topic holds focus
-- Users should be redirected to auth, then automatically returned to their intended topic
+- Multiple protected subagents require authentication before access
+- You want zero-credit LLM bypass while a gate subagent holds focus
+- Users should be redirected to auth, then automatically returned to their intended subagent
 - You need an EXIT_PROTOCOL to release gate state when users change intent
 
 **Key syntax**:
@@ -250,5 +250,5 @@ open-gate-routing + lifecycle-events
 | Lifecycle in wrong order | before_reasoning, reasoning, after_reasoning |
 | Forget return transition | Always include return action in specialists |
 | Use lifecycle for one-time setup | Use if @variables.turn_count == 1 |
-| Missing EXIT_PROTOCOL in gate pattern | Always include gate reset topic |
-| Hardcoding gate topic name in open_gate | Use variable-driven routing |
+| Missing EXIT_PROTOCOL in gate pattern | Always include gate reset subagent |
+| Hardcoding gate subagent name in open_gate | Use variable-driven routing |

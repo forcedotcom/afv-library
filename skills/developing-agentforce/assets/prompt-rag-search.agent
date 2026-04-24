@@ -64,7 +64,7 @@ subagent knowledge_search:
 
          # NO RESULTS: Escalate or try different search
          if @variables.has_results == False and @variables.search_query != "":
-            | I couldn't find information about that topic.
+            | I couldn't find information about that subject.
             | Would you like to try a different search, or speak with a human agent?
 
          # INITIAL STATE: Ask for question

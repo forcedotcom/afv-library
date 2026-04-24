@@ -31,10 +31,10 @@
     <!--
     Plugin Instructions:
     Natural language instructions for how the agent should use
-    functions in this plugin. Similar to topic instructions in Agent Script.
+    functions in this plugin. Similar to subagent instructions in Agent Script.
     -->
     <pluginInstructions>
-        {{Instructions for the agent on how to use functions in this topic.
+        {{Instructions for the agent on how to use functions in this plugin.
         Include guidance on when to use specific functions,
         how to handle edge cases, and any constraints.}}
     </pluginInstructions>

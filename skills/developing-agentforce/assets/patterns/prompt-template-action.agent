@@ -70,7 +70,7 @@ start_agent agent_router:
 			| 1. Personalized daily schedule
 			| 2. Professional email
 			|
-			| Route to the appropriate topic.
+			| Route to the appropriate subagent.
 		actions:
 			go_schedule: @utils.transition to @subagent.schedule_generation
 			go_email: @utils.transition to @subagent.email_generation

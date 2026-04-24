@@ -69,7 +69,7 @@ start_agent agent_router:
                | It sounds like you need help with **{!@variables.classified_intent}**.
                | Is that correct?
 
-         # INITIAL STATE: Ask for help topic
+         # INITIAL STATE: Ask for help subject
          if @variables.needs_classification == True:
             | I can help with billing, technical support, sales, or returns.
             | What do you need help with today?

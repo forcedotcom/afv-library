@@ -31,7 +31,7 @@ subagent secure_action:
 		# All three conditions must be true
 		if @variables.is_authenticated and @variables.has_permission and @variables.session_valid:
 			transition to @subagent.authorized_action
-		# Otherwise stay in this topic
+		# Otherwise stay in this subagent
 
 	reasoning:
 		instructions: ->

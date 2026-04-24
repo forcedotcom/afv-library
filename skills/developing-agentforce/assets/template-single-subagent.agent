@@ -78,4 +78,4 @@ subagent off_topic:
     reasoning:
         instructions: ->
             | The user request is off-topic. Do not answer general knowledge questions.
-              Redirect the conversation by asking how you can help with the topics this agent supports.
+              Redirect the conversation by asking how you can help with the subagents this agent supports.
