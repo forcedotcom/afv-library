@@ -211,8 +211,9 @@ semantics — for that, see `computeRelative`.
 - `label` — user-visible label.
 - `formulaExpression` — SFSQL (or DCSQL) expression. See `bdt-function-catalog.md`.
 - `type` — enum `DataType`: `TEXT`, `NUMBER`, `BOOLEAN`, `DATE_ONLY`, `DATETIME`.
-- `businessType` — a user-facing business-semantic type name. Enum `BusinessTypeEnum` —
-  canonical values:
+- **`businessType`** — a user-facing business-semantic type name. Enum `BusinessTypeEnum` —
+  **canonical values** (complete list; matches `BusinessTypeEnum.java` in core-262 as of the
+  capture date at the top of this file):
   - `"TEXT"`, `"NUMBER"`, `"BOOLEAN"`
   - `"EMAIL"`, `"PHONE"`, `"URL"` — text-valued with semantic meaning
   - `"PERCENT"`, `"CURRENCY"` — number-valued with semantic meaning
@@ -222,8 +223,9 @@ semantics — for that, see `computeRelative`.
 
   Note: `businessType` values map to underlying `type` (`DataType`) values. E.g.,
   `businessType: "PERCENT"` is stored as `type: "NUMBER"`; `businessType: "DATE"` is stored
-  as `type: "DATETIME"`; `businessType: "EMAIL"` is stored as `type: "TEXT"`. The canonical
-  mapping lives in `BusinessTypeEnum.java`.
+  as `type: "DATETIME"`; `businessType: "EMAIL"` is stored as `type: "TEXT"`. If the skill
+  ever encounters a `businessType` value outside this list, that is a sign the upstream BDT
+  schema has evolved — surface the raw value in narration and flag it as undocumented.
 - `precision` — integer precision (default 10 for numbers; characters for text).
 - `scale` — decimal places; only for NUMBER.
 - `defaultValue` — value when the expression yields NULL.

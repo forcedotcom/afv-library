@@ -34,7 +34,7 @@
 |---|---|---|
 | `abs(n)` | number → number | Absolute value (strips sign). |
 | `ceiling(n)` | number → number | Round up, away from zero for negatives. |
-| `floor(n)` | number → number | Round toward negative infinity (down on the number line). For negatives, rounds away from zero (e.g., `floor(-2.3) = -3`). |
+| `floor(n)` | number → number | Round toward negative infinity. Always rounds down on the number line: `floor(2.7) = 2`, `floor(-2.3) = -3`. |
 | `exp(n)` | number → number | e raised to n. |
 | `log(base, n)` | number → number | Logarithm of n in the given base. |
 | `max(a, b, …)` | number → number | Largest value. |

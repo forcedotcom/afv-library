@@ -128,7 +128,7 @@ class DataTransform:
         """Pick which definition the accessor properties (and the rest of the
         API surface) operate on. Raises `BdtNotFoundError` if `index` is out
         of range."""
-        if not isinstance(index, int) or index < 0 or index >= len(self.definitions):
+        if type(index) is not int or index < 0 or index >= len(self.definitions):
             raise BdtNotFoundError(
                 f"Definition index {index} out of range; payload has "
                 f"{len(self.definitions)} definitions "
@@ -296,31 +296,32 @@ class DataTransform:
 
     def topo_order(self) -> List[str]:
         """Kahn's algorithm. Raises BdtInputError on cycles."""
-        # Adjacency: for each node, its forward edges (consumers) and in-degree
+        from collections import deque
         in_degree: Dict[str, int] = {name: 0 for name in self.nodes}
         forward: Dict[str, List[str]] = {name: [] for name in self.nodes}
         for name, n in self.nodes.items():
             for s in n.sources:
                 if s not in self.nodes:
-                    # Broken reference — counted as in-edge so the dependent node stays blocked
-                    # (we surface broken refs via a separate method; topo should not crash here).
+                    # Broken reference — count as in-edge so the dependent node stays blocked
                     in_degree[name] += 1
                     continue
                 forward[s].append(name)
                 in_degree[name] += 1
 
-        # Start with all zero-in-degree nodes in deterministic order (sorted)
-        ready = sorted([name for name, d in in_degree.items() if d == 0])
+        # Sort zero-in-degree nodes once for deterministic starting order
+        ready = deque(sorted([name for name, d in in_degree.items() if d == 0]))
         order: List[str] = []
         while ready:
-            # Pop deterministically so output is stable across runs
-            ready.sort()
-            current = ready.pop(0)
+            current = ready.popleft()
             order.append(current)
-            for consumer in sorted(forward[current]):
+            # Collect newly-ready nodes, sort them once, append
+            newly_ready = []
+            for consumer in forward[current]:
                 in_degree[consumer] -= 1
                 if in_degree[consumer] == 0:
-                    ready.append(consumer)
+                    newly_ready.append(consumer)
+            for node in sorted(newly_ready):
+                ready.append(node)
 
         if len(order) != len(self.nodes):
             stuck = [n for n in self.nodes if n not in order]
@@ -1309,14 +1310,15 @@ def cmd_formula(bdt: "DataTransform", args) -> str:
     # For each consumed field, find the node that defines it (if any) — give
     # the LLM ready context for I2-style reasoning. Hoist `bdt.upstream(name)`
     # out of the loop — it's a pure function of `name` and walks the graph.
+    # Pre-compute fields_produced for every upstream node once (was O(consumed × upstream))
     upstream_names = bdt.upstream(name)
+    upstream_fields_map = {up_name: fields_produced(bdt.nodes[up_name]) for up_name in upstream_names}
     upstream_defs = {}
     for f in consumed:
-        # Prefer exact match; fall back to unqualified
         matches = []
         for up_name in upstream_names:
             up = bdt.nodes[up_name]
-            prod = fields_produced(up)
+            prod = upstream_fields_map[up_name]
             if f in prod or f.rsplit(".", 1)[-1] in prod:
                 matches.append({
                     "node": up_name,
@@ -1324,7 +1326,7 @@ def cmd_formula(bdt: "DataTransform", args) -> str:
                     "label": up.ui_label,
                 })
         if matches:
-            upstream_defs[f] = matches[-1]  # closest definer (last in topo order)
+            upstream_defs[f] = matches[-1]
 
     payload = {
         "node": name,

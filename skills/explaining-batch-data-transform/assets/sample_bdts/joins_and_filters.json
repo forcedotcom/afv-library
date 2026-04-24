@@ -25,9 +25,10 @@
       "parameters": {
         "filterExpressions": [
           {"type": "TEXT", "field": "ssot__Status__c", "operator": "EQUAL", "operands": ["Active"]},
-          {"type": "NUMBER", "field": "ssot__GrandTotalAmount__c", "operator": "GREATER_THAN", "operands": ["0"]}
+          {"type": "NUMBER", "field": "ssot__GrandTotalAmount__c", "operator": "GREATER_THAN", "operands": ["0"]},
+          {"type": "NUMBER", "field": "ssot__GrandTotalAmount__c", "operator": "IS_NOT_NULL", "operands": []}
         ],
-        "filterBooleanLogic": "1 AND 2"
+        "filterBooleanLogic": "1 AND 2 AND 3"
       }
     },
     "JOIN_ORDER_ACCOUNT": {

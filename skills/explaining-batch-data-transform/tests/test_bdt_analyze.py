@@ -38,8 +38,8 @@ class TestBadInput(unittest.TestCase):
 
     def test_invalid_json_raises(self):
         p = FIXTURES / "_tmp_invalid.json"
-        p.write_text("{not valid json")
         self.addCleanup(p.unlink, missing_ok=True)
+        p.write_text("{not valid json")
         with self.assertRaises(bdt_analyze.BdtInputError) as cm:
             bdt_analyze.DataTransform.from_path(p)
         self.assertIn("Invalid JSON", str(cm.exception))
@@ -711,15 +711,16 @@ class TestInputShapeDetection(unittest.TestCase):
         for subcmd, extra_arg in [("summary", None), ("stages", None), ("nodes", None),
                                    ("sources", None), ("outputs", None),
                                    ("lineage", "OUTPUT_X"), ("node", "LOAD_X")]:
-            argv = [subcmd, str(FIXTURES / "api_input_single.json")]
-            if extra_arg: argv.append(extra_arg)
-            out = io.StringIO(); err = io.StringIO()
-            try:
-                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-                    code = bdt_analyze.main(argv)
-            except SystemExit as e:
-                code = e.code
-            self.assertEqual(code, 0, f"Subcommand {subcmd} failed: {err.getvalue()}")
+            with self.subTest(subcmd=subcmd):
+                argv = [subcmd, str(FIXTURES / "api_input_single.json")]
+                if extra_arg: argv.append(extra_arg)
+                out = io.StringIO(); err = io.StringIO()
+                try:
+                    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                        code = bdt_analyze.main(argv)
+                except SystemExit as e:
+                    code = e.code
+                self.assertEqual(code, 0, f"Subcommand {subcmd} failed: {err.getvalue()}")
 
 
 class TestMultiDefinition(unittest.TestCase):

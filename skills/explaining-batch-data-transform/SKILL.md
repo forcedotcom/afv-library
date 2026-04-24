@@ -48,7 +48,7 @@ Before any further work, validate by running `python bdt_analyze.py summary <pat
 
 ### 3.1 Multi-definition payloads
 
-If the user provides a Connect API payload with a `definitions[]` array containing multiple entries, first run `python bdt_analyze.py definitions <path>` to list them. Then offer the user a choice — *"The payload has 3 definitions: MyTransform, OtherTransform, ThirdTransform. Which do you want me to explain?"* — and invoke subsequent subcommands with `--definition N` (0-indexed). Editor exports and single-definition payloads can be explained directly without this step; running `definitions` on them still succeeds and shows one row, so it is safe to run on any input if you are unsure.
+**Multi-definition payloads.** If the user provides a Connect API payload with a `definitions[]` array containing multiple entries, first run `python bdt_analyze.py definitions <path>` to list them. Then offer the user a choice — *"The payload has 3 definitions: MyTransform, OtherTransform, ThirdTransform. Which do you want me to explain?"* — and invoke subsequent subcommands with `--definition N` (0-indexed). For example: `python bdt_analyze.py summary <path> --definition 1`. All analysis subcommands (summary, sources, outputs, stages, nodes, node, lineage, field-trace, formula) accept the `--definition` flag. Editor exports and single-definition payloads can be explained directly without this step; running `definitions` on them still succeeds and shows one row, so it is safe to run on any input if you are unsure.
 
 ## 4. Explanation Flow (Job A — Progressive Disclosure)
 
@@ -86,7 +86,7 @@ When the user asks a follow-up question, route it to the right subcommand using 
 | "What DMOs/DLOs does this read from?" (L4) | `sources <path>` |
 | "What fields does OUTPUT N produce?" (L5) | `node <path> OUTPUT_N` |
 | "What does this formula mean?" (I1) | `formula <path> X` |
-| "Why would F be null/zero/unexpected?" (I2) | `field-trace <path> F` **then** `formula <path> <defining-node>` |
+| "Why would F be null/zero/unexpected?" (I2) | `field-trace <path> F` to locate the defining node(s), **then** `formula <path> <defining-node>` on the formula or computeRelative node that computes the field (not the output mapping — pick the earliest formula/computeRelative node in the field-trace output). |
 | "What does this filter do?" (I3) | `node <path> X` |
 
 After running the subcommand(s), translate the output into plain English. For I1/I2 you **must** consult `references/bdt-function-catalog.md` (and `references/bdt-window-functions.md` if it's a `computeRelative` node) before narrating.
@@ -119,7 +119,7 @@ After running the subcommand(s), translate the output into plain English. For I1
 |---|---|
 | Exit 3: `Invalid JSON at line X` | "This file isn't valid JSON at line X. Could you re-export from the BDT viewer?" Then paste the exact error. |
 | Exit 3: `Expected top-level 'nodes' object` | "This doesn't look like a BDT export — a BDT has a top-level `nodes` object. Is this the right file?" |
-| Exit 3: `Cycle or broken reference detected` | "This BDT has a dependency cycle (or a reference to a node that doesn't exist). A valid BDT shouldn't cycle — could you re-export and share? The unresolved nodes are: \<list\>." |
+| Exit 3: `Cycle or broken reference detected` | "This BDT has a dependency cycle or references a non-existent node. You'll need to edit the BDT in the Data Cloud viewer to fix the circular dependency or broken reference — re-exporting won't help because the cycle exists in the BDT definition itself. The problematic nodes are: \<list from stderr\>." |
 | Exit 2: `No node named 'X'` | "I don't see a node named `X` in this BDT. Did you mean one of: \<list of available names the script printed on stderr\>?" |
 | Exit 2: `Field 'F' is not defined by any node` | "That field isn't defined anywhere in this BDT. Closest matches from the fields I can see: \<list from stderr\>. Is it possibly a field from the source DMO that's not pulled in?" |
 | User's BDT uses an action type not in the catalog | "This BDT uses `<action>`, which isn't in my reference material. Here's what its parameters look like: \<raw params\>. I can describe the graph structure around it, but I can't vouch for the exact semantics of this action type." |
@@ -158,7 +158,7 @@ Common issues and how to address them:
 | `ModuleNotFoundError: No module named 'bdt_analyze'` | The script path is wrong. The script lives at `scripts/bdt_analyze.py` inside the skill directory. Run it by absolute path (the Bash tool invocation should include the full path from the repo root). |
 | BDT file path contains spaces (e.g. `"default B2C (Prod).json"`) | Quote the path when calling the script: `python bdt_analyze.py summary "default B2C (Prod).json"`. |
 | Script output is very large for a big BDT (Mode C) | Use `--limit 50` on the `nodes` subcommand, or recommend Mode B (layered) instead of Mode C. |
-| Field trace returns no match despite the field clearly appearing in the BDT | The field may only appear qualified (e.g., `SalesOrder.ssot__Id__c`). Try the qualified form. Also try stripping the `__c` suffix. |
+| Field trace returns no match despite the field clearly appearing in the BDT | The field may only appear qualified (e.g., `SalesOrder.ssot__Id__c`). Try the qualified form. If still no match, the field may be passed through from a source DMO but not explicitly defined in the BDT — in that case field-trace cannot locate it; narrate "this field originates from the load node's source DMO" instead. Do NOT attempt to trace it by stripping the `__c` suffix — that would risk matching a different field with a similar name. |
 | User says output "doesn't match what I see in BDT viewer" | Verify the version in the JSON header matches the org's current release. Canonical schema was synced against `core-264`, but older/newer BDTs may use variants not yet in the reference. Flag as "version drift" and narrate best-effort. |
 
 ## 11. Example Interactions

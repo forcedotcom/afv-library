@@ -23,7 +23,7 @@
             "label": "Order Rank",
             "formulaExpression": "row_number()",
             "type": "NUMBER",
-            "businessType": "Number",
+            "businessType": "NUMBER",
             "precision": 18,
             "scale": 0,
             "defaultValue": ""
@@ -31,13 +31,33 @@
         ]
       }
     },
+    "FIRST_ORDER_AMOUNT": {
+      "action": "formula",
+      "sources": ["RANK_ORDERS"],
+      "parameters": {
+        "expressionType": "SQL",
+        "fields": [
+          {
+            "name": "FirstOrderAmount__c",
+            "label": "First Order Amount (per account)",
+            "formulaExpression": "case when OrderRank__c = 1 then ssot__GrandTotalAmount__c else 0 end",
+            "type": "NUMBER",
+            "businessType": "NUMBER",
+            "precision": 18,
+            "scale": 2,
+            "defaultValue": "0"
+          }
+        ]
+      }
+    },
     "AGG_BY_ACCOUNT": {
       "action": "aggregate",
-      "sources": ["RANK_ORDERS"],
+      "sources": ["FIRST_ORDER_AMOUNT"],
       "parameters": {
         "groupings": ["ssot__AccountId__c"],
         "aggregations": [
           {"action": "SUM", "name": "TotalAmount__c", "source": "ssot__GrandTotalAmount__c"},
+          {"action": "SUM", "name": "FirstOrderTotal__c", "source": "FirstOrderAmount__c"},
           {"action": "COUNT", "name": "OrderCount__c", "source": "ssot__Id__c"}
         ],
         "nodeType": "STANDARD"
@@ -53,6 +73,7 @@
         "fieldsMappings": [
           {"sourceField": "ssot__AccountId__c", "targetField": "AccountId__c"},
           {"sourceField": "TotalAmount__c", "targetField": "TotalAmount__c"},
+          {"sourceField": "FirstOrderTotal__c", "targetField": "FirstOrderAmount__c"},
           {"sourceField": "OrderCount__c", "targetField": "OrderCount__c"}
         ]
       }
@@ -60,14 +81,16 @@
   },
   "ui": {
     "nodes": {
-      "LOAD_ORDERS":    {"label": "Sales Orders", "type": "LOAD_DATASET", "top": 100, "left": 100},
-      "RANK_ORDERS":    {"label": "Rank by account", "type": "COMPUTE_RELATIVE", "top": 100, "left": 260},
-      "AGG_BY_ACCOUNT": {"label": "Totals per account", "type": "AGGREGATE", "top": 100, "left": 420},
-      "OUTPUT_SUMMARY": {"label": "Account Summary", "type": "OUTPUT", "top": 100, "left": 580}
+      "LOAD_ORDERS":         {"label": "Sales Orders", "type": "LOAD_DATASET", "top": 100, "left": 100},
+      "RANK_ORDERS":         {"label": "Rank by account", "type": "COMPUTE_RELATIVE", "top": 100, "left": 260},
+      "FIRST_ORDER_AMOUNT":  {"label": "Extract first order amount", "type": "FORMULA", "top": 100, "left": 420},
+      "AGG_BY_ACCOUNT":      {"label": "Totals per account", "type": "AGGREGATE", "top": 100, "left": 580},
+      "OUTPUT_SUMMARY":      {"label": "Account Summary", "type": "OUTPUT", "top": 100, "left": 740}
     },
     "connectors": [
       {"source": "LOAD_ORDERS", "target": "RANK_ORDERS"},
-      {"source": "RANK_ORDERS", "target": "AGG_BY_ACCOUNT"},
+      {"source": "RANK_ORDERS", "target": "FIRST_ORDER_AMOUNT"},
+      {"source": "FIRST_ORDER_AMOUNT", "target": "AGG_BY_ACCOUNT"},
       {"source": "AGG_BY_ACCOUNT", "target": "OUTPUT_SUMMARY"}
     ]
   }
