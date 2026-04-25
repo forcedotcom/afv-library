@@ -212,8 +212,8 @@ semantics — for that, see `computeRelative`.
 - `formulaExpression` — SFSQL (or DCSQL) expression. See `bdt-function-catalog.md`.
 - `type` — enum `DataType`: `TEXT`, `NUMBER`, `BOOLEAN`, `DATE_ONLY`, `DATETIME`.
 - **`businessType`** — a user-facing business-semantic type name. Enum `BusinessTypeEnum` —
-  **canonical values** (complete list; matches `BusinessTypeEnum.java` in core-262 as of the
-  capture date at the top of this file):
+  **canonical values** (complete list; matches `BusinessTypeEnum.java` as of the capture date
+  at the top of this file):
   - `"TEXT"`, `"NUMBER"`, `"BOOLEAN"`
   - `"EMAIL"`, `"PHONE"`, `"URL"` — text-valued with semantic meaning
   - `"PERCENT"`, `"CURRENCY"` — number-valued with semantic meaning

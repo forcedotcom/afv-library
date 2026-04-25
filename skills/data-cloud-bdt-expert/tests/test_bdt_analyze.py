@@ -1,7 +1,7 @@
 """Unit tests for bdt_analyze.py.
 
 Run:
-    cd afv-library/skills/explaining-batch-data-transform
+    cd afv-library/skills/data-cloud-bdt-expert
     python -m unittest tests.test_bdt_analyze -v
 """
 import argparse

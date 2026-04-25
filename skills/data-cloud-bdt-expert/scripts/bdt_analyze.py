@@ -2,9 +2,9 @@
 """Analyze Salesforce Data Cloud Batch Data Transform (BDT) JSON.
 
 This module provides a generic typed-DAG parser over BDT JSON definitions.
-Grounded against the canonical BDT Connect API InputRepresentation classes
-(core-264-public). Design principle: structural facts come from deterministic
-graph walks here; narrative explanations are built by the host LLM.
+Grounded against the canonical BDT Connect API InputRepresentation classes.
+Design principle: structural facts come from deterministic graph walks here;
+narrative explanations are built by the host LLM.
 
 Usage (CLI lands in a later plan):
     python bdt_analyze.py <subcommand> <bdt.json> [...]

@@ -1,11 +1,6 @@
 ---
-name: explaining-batch-data-transform
+name: data-cloud-bdt-expert
 description: "Explain and investigate an existing Salesforce Data Cloud Batch Data Transform (BDT) JSON definition. Use when the user provides or references a BDT JSON export and asks to understand, summarize, walk through, trace lineage in, or debug that specific BDT — for example, 'explain this BDT', 'what does this batch data transform do', 'where does field X come from in this BDT', 'which nodes feed OUTPUT5', or 'what does this computeRelative formula mean'. Accepts a path to a BDT JSON file or pasted JSON content. Does not author, edit, run, or fetch BDTs from an org."
-license: Apache-2.0
-compatibility: Requires Python 3.9+
-metadata:
-  author: afv-library
-  version: "1.0"
 allowed-tools: Bash Read Write
 ---
 
@@ -159,7 +154,7 @@ Common issues and how to address them:
 | BDT file path contains spaces (e.g. `"default B2C (Prod).json"`) | Quote the path when calling the script: `python bdt_analyze.py summary "default B2C (Prod).json"`. |
 | Script output is very large for a big BDT (Mode C) | Use `--limit 50` on the `nodes` subcommand, or recommend Mode B (layered) instead of Mode C. |
 | Field trace returns no match despite the field clearly appearing in the BDT | The field may only appear qualified (e.g., `SalesOrder.ssot__Id__c`). Try the qualified form. If still no match, the field may be passed through from a source DMO but not explicitly defined in the BDT — in that case field-trace cannot locate it; narrate "this field originates from the load node's source DMO" instead. Do NOT attempt to trace it by stripping the `__c` suffix — that would risk matching a different field with a similar name. |
-| User says output "doesn't match what I see in BDT viewer" | Verify the version in the JSON header matches the org's current release. Canonical schema was synced against `core-264`, but older/newer BDTs may use variants not yet in the reference. Flag as "version drift" and narrate best-effort. |
+| User says output "doesn't match what I see in BDT viewer" | Verify the version in the JSON header matches the org's current release. The canonical schema reference in `references/bdt-node-catalog.md` may predate the user's BDT, so older/newer BDTs may use variants not yet documented. Flag as "version drift" and narrate best-effort. |
 
 ## 11. Example Interactions
 
