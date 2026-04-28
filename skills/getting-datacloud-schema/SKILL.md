@@ -31,7 +31,26 @@ This skill retrieves Data Lake Object (DLO) and Data Model Object (DMO) schema i
 2. **dlo_name** (optional): Specific DLO developer name (e.g., 'Employee__dll')
 3. **dmo_name** (optional): Specific DMO developer name (e.g., 'Individual__dlm')
 
-### Step 1: Validate SF CLI Authentication
+### Step 1: Discover Connected Org
+
+First, run `sf org list` to find out which org is connected and extract the alias to use for all subsequent calls:
+
+```bash
+sf org list
+```
+
+Example output:
+```
+┌────┬───────┬──────────────────────────┬────────────────────┬───────────┐
+│    │ Alias │ Username                 │ Org Id             │ Status    │
+├────┼───────┼──────────────────────────┼────────────────────┼───────────┤
+│ 🍁 │ myorg │ chandresh@afvidedemo.org │ 00DKZ00000b80NT2AY │ Connected │
+└────┴───────┴──────────────────────────┴────────────────────┴───────────┘
+```
+
+Extract the **Alias** value (e.g., `myorg`) from the output and use it as the `<org_alias>` for all subsequent calls. Use `--all` to see expired and deleted scratch orgs as well.
+
+### Step 2: Validate SF CLI Authentication
 
 Before making API calls, verify the org is connected:
 
@@ -44,7 +63,7 @@ If not connected, inform user to run:
 sf org login web --alias <org_alias>
 ```
 
-### Step 2a: Execute DLO Schema Script
+### Step 3a: Execute DLO Schema Script
 
 Use the Python script to retrieve DLO information:
 
@@ -58,7 +77,7 @@ python3 ./scripts/get_dlo_schema.py <org_alias>
 python3 ./scripts/get_dlo_schema.py <org_alias> <dlo_name>
 ```
 
-### Step 2b: Execute DMO Schema Script
+### Step 3b: Execute DMO Schema Script
 
 Use the Python script to retrieve DMO information:
 
@@ -72,7 +91,7 @@ python3 ./scripts/get_dmo_schema.py <org_alias>
 python3 ./scripts/get_dmo_schema.py <org_alias> <dmo_name>
 ```
 
-### Step 3: Present Results
+### Step 4: Present Results
 
 Parse and present the results in a user-friendly format:
 
@@ -104,7 +123,7 @@ Parse and present the results in a user-friendly format:
   - Nullable status
 - Show dataspace information if available
 
-### Step 4: Offer Next Steps
+### Step 5: Offer Next Steps
 
 After displaying results, suggest relevant follow-up actions:
 - Query data from the DLO
@@ -204,9 +223,10 @@ Response structure (same as individual object in list response, but wrapped in p
 User: "Show me all DLOs in afvibe org"
 
 Response:
-1. Authenticate to afvibe
-2. Run: python3 ./scripts/get_dlo_schema.py afvibe
-3. Display formatted list of DLOs
+1. Run sf org list to discover connected org alias
+2. Authenticate to afvibe
+3. Run: python3 ./scripts/get_dlo_schema.py afvibe
+4. Display formatted list of DLOs
 ```
 
 **Example 2: Get specific DLO schema**
@@ -214,9 +234,10 @@ Response:
 User: "Get the schema for Employee__dll in afvibe"
 
 Response:
-1. Authenticate to afvibe
-2. Run: python3 ./scripts/get_dlo_schema.py afvibe Employee__dll
-3. Display field schema with types and metadata
+1. Run sf org list to discover connected org alias
+2. Authenticate to afvibe
+3. Run: python3 ./scripts/get_dlo_schema.py afvibe Employee__dll
+4. Display field schema with types and metadata
 ```
 
 **Example 3: Explore DLOs then get schema**
@@ -224,10 +245,11 @@ Response:
 User: "What DLOs exist in myorg and show me the schema for the Employee one"
 
 Response:
-1. List all DLOs in myorg
-2. Identify Employee__dll
-3. Get detailed schema for Employee__dll
-4. Present both results
+1. Run sf org list to discover connected org alias
+2. List all DLOs in myorg
+3. Identify Employee__dll
+4. Get detailed schema for Employee__dll
+5. Present both results
 ```
 
 **Example 4: List all DMOs**
@@ -235,9 +257,10 @@ Response:
 User: "Show me all DMOs in afvibe org"
 
 Response:
-1. Authenticate to afvibe
-2. Run: python3 ./scripts/get_dmo_schema.py afvibe
-3. Display formatted list of DMOs
+1. Run sf org list to discover connected org alias
+2. Authenticate to afvibe
+3. Run: python3 ./scripts/get_dmo_schema.py afvibe
+4. Display formatted list of DMOs
 ```
 
 **Example 5: Get specific DMO schema**
@@ -245,9 +268,10 @@ Response:
 User: "Get the schema for Individual__dlm in afvibe"
 
 Response:
-1. Authenticate to afvibe
-2. Run: python3 ./scripts/get_dmo_schema.py afvibe Individual__dlm
-3. Display field schema with types and metadata
+1. Run sf org list to discover connected org alias
+2. Authenticate to afvibe
+3. Run: python3 ./scripts/get_dmo_schema.py afvibe Individual__dlm
+4. Display field schema with types and metadata
 ```
 
 **Example 6: Explore DMOs then get schema**
@@ -255,10 +279,11 @@ Response:
 User: "What DMOs exist in myorg and show me the schema for the Individual one"
 
 Response:
-1. List all DMOs in myorg
-2. Identify Individual__dlm
-3. Get detailed schema for Individual__dlm
-4. Present both results
+1. Run sf org list to discover connected org alias
+2. List all DMOs in myorg
+3. Identify Individual__dlm
+4. Get detailed schema for Individual__dlm
+5. Present both results
 ```
 
 ## Output Format
