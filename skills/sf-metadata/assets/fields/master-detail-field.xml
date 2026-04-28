@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Master-Detail Field Template
+
+    Usage: Required parent relationship with cascade delete
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Account__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Account")
+    - {{RELATED_OBJECT}} - Parent object (e.g., "Account")
+    - {{RELATIONSHIP_LABEL}} - Label on related list (e.g., "Line Items")
+    - {{RELATIONSHIP_NAME}} - API name for relationship (e.g., "Line_Items")
+    - {{RELATIONSHIP_ORDER}} - 0 for primary, 1 for secondary M-D
+    - {{REPARENTABLE}} - true or false (allow changing parent)
+    - {{WRITE_REQUIRES_MASTER}} - true or false
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Child records are deleted when parent is deleted
+    - Supports roll-up summary fields on parent
+    - Child sharing is controlled by parent (ControlledByParent)
+    - Cannot be converted to Lookup after creation
+    - Maximum 2 Master-Detail fields per object
+    - First M-D determines the primary parent for sharing
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>MasterDetail</type>
+    <referenceTo>{{RELATED_OBJECT}}</referenceTo>
+    <relationshipLabel>{{RELATIONSHIP_LABEL}}</relationshipLabel>
+    <relationshipName>{{RELATIONSHIP_NAME}}</relationshipName>
+    <relationshipOrder>{{RELATIONSHIP_ORDER}}</relationshipOrder>
+    <reparentableMasterDetail>{{REPARENTABLE}}</reparentableMasterDetail>
+    <writeRequiresMasterRead>{{WRITE_REQUIRES_MASTER}}</writeRequiresMasterRead>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

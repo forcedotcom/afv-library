@@ -1,0 +1,12 @@
+<template>
+    <lightning-card title={cardTitle} icon-name="standard:account">
+        <div class="slds-var-p-around_medium">
+            <template for:each={items} for:item="item">
+                <p key={item.id}>{item.name}</p>
+            </template>
+            <template if:true={hasItems}>
+                <lightning-button label="Refresh" onclick={handleRefresh}></lightning-button>
+            </template>
+        </div>
+    </lightning-card>
+</template>

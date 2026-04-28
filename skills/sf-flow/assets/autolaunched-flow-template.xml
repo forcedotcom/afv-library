@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <label>{{FLOW_LABEL}}</label>
+    <description>{{FLOW_DESCRIPTION}}</description>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Draft</status>
+
+    <!-- Input Variables -->
+    <variables>
+        <name>varInputRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Output Variables -->
+    <variables>
+        <name>varOutputSuccess</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+
+    <variables>
+        <name>varOutputMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- Internal Variables -->
+    <variables>
+        <name>varRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>{{OBJECT_NAME}}</objectType>
+    </variables>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Get_Record</targetReference>
+        </connector>
+    </start>
+
+    <!-- Get Records -->
+    <recordLookups>
+        <name>Get_Record</name>
+        <label>Get Record</label>
+        <locationX>50</locationX>
+        <locationY>150</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Record_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varInputRecordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>{{OBJECT_NAME}}</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <!-- Decision: Check if Record Found -->
+    <decisions>
+        <name>Decision_Record_Found</name>
+        <label>Record Found?</label>
+        <locationX>50</locationX>
+        <locationY>250</locationY>
+        <defaultConnector>
+            <targetReference>Set_Error_Message</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Record_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Record</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Process_Record</targetReference>
+            </connector>
+            <label>Record Exists</label>
+        </rules>
+    </decisions>
+
+    <!-- Assignment: Process Record -->
+    <assignments>
+        <name>Process_Record</name>
+        <label>Process Record</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>varOutputSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOutputMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Record processed successfully</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Assignment: Set Error Message -->
+    <assignments>
+        <name>Set_Error_Message</name>
+        <label>Set Error Message</label>
+        <locationX>200</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>varOutputSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOutputMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Record not found</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+</Flow>

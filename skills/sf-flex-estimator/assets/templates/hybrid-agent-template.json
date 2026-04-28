@@ -1,0 +1,33 @@
+{
+  "agent_structure": {
+    "prompts": {
+      "basic": 1,
+      "standard": 3,
+      "advanced": 0
+    },
+    "actions": {
+      "standard": 5,
+      "voice": 0,
+      "sandbox": 0
+    },
+    "token_overages": {
+      "prompts": 0,
+      "actions": 0
+    }
+  },
+  "data_cloud_operations": {
+    "operations": {
+      "data_360_prep": 10.0,
+      "data_360_streaming_pipeline": 2.0,
+      "data_360_queries": 5.0,
+      "data_360_segmentation": 1.0
+    },
+    "private_connect": false
+  },
+  "assumptions": [
+    "Data Cloud volumes represent a 1K-invocation baseline for scenario scaling",
+    "No token overages",
+    "No Private Connect",
+    "Single-org rollout"
+  ]
+}

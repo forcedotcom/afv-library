@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Bypass Check Decision Pattern (v2.0.0)
+
+    Purpose: Reusable decision element pattern for bypassing flow execution during
+    data loads, migrations, or integration batch processing.
+
+    Usage:
+    1. Create Custom Metadata Type: Flow_Bypass_Settings__mdt
+       - Field: Bypass_All_Flows__c (Checkbox) - Master kill switch
+       - Field: [YourFlowApiName]__c (Checkbox) - Per-flow bypass
+
+    2. Create a Custom Metadata record named 'Default'
+
+    3. Copy this decision element into your flow's start section
+
+    4. To bypass: Check the appropriate field in Custom Metadata
+       - No code deployment needed
+       - Instant enable/disable
+       - Can be done by admins
+
+    Benefits:
+    - Data migrations run faster without flow overhead
+    - Integration batch processing avoids unwanted automation
+    - Emergency "kill switch" for problematic flows
+    - No deployment required to toggle
+
+    Note: Replace [YourFlowApiName] with your actual flow's API name.
+    Example: Account_Creation_Handler__c for Account_Creation_Handler flow
+-->
+
+<!-- ============================================================ -->
+<!-- OPTION 1: Simple Master Bypass Check                          -->
+<!-- Use when you want ONE switch to disable ALL flows             -->
+<!-- ============================================================ -->
+<decisions>
+    <name>Check_Bypass_Setting</name>
+    <label>Check Bypass Setting</label>
+    <locationX>0</locationX>
+    <locationY>0</locationY>
+    <defaultConnector>
+        <!-- Continue to your main flow logic here -->
+        <targetReference>Your_First_Flow_Element</targetReference>
+    </defaultConnector>
+    <defaultConnectorLabel>Continue Flow</defaultConnectorLabel>
+    <rules>
+        <name>Bypass_Enabled</name>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>$CustomMetadata.Flow_Bypass_Settings__mdt.Default.Bypass_All_Flows__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <booleanValue>true</booleanValue>
+            </rightValue>
+        </conditions>
+        <!-- No connector = flow ends immediately (bypassed) -->
+        <label>Bypass Enabled</label>
+    </rules>
+</decisions>
+
+<!-- ============================================================ -->
+<!-- OPTION 2: Per-Flow Bypass Check                               -->
+<!-- Use when you want individual control over each flow           -->
+<!-- Replace [YourFlowApiName] with your flow's API name          -->
+<!-- ============================================================ -->
+<!--
+<decisions>
+    <name>Check_Flow_Bypass</name>
+    <label>Check Flow Bypass</label>
+    <locationX>0</locationX>
+    <locationY>0</locationY>
+    <defaultConnector>
+        <targetReference>Your_First_Flow_Element</targetReference>
+    </defaultConnector>
+    <defaultConnectorLabel>Continue Flow</defaultConnectorLabel>
+    <rules>
+        <name>Flow_Bypassed</name>
+        <conditionLogic>or</conditionLogic>
+        <conditions>
+            <leftValueReference>$CustomMetadata.Flow_Bypass_Settings__mdt.Default.Bypass_All_Flows__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <booleanValue>true</booleanValue>
+            </rightValue>
+        </conditions>
+        <conditions>
+            <leftValueReference>$CustomMetadata.Flow_Bypass_Settings__mdt.Default.[YourFlowApiName]__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <booleanValue>true</booleanValue>
+            </rightValue>
+        </conditions>
+        <label>Flow Bypassed</label>
+    </rules>
+</decisions>
+-->
+
+<!-- ============================================================ -->
+<!-- OPTION 3: User-Based Bypass                                   -->
+<!-- Use when specific users (integration users) should bypass     -->
+<!-- Requires Custom Permission: Bypass_Flows                      -->
+<!-- ============================================================ -->
+<!--
+<decisions>
+    <name>Check_User_Bypass</name>
+    <label>Check User Bypass</label>
+    <locationX>0</locationX>
+    <locationY>0</locationY>
+    <defaultConnector>
+        <targetReference>Your_First_Flow_Element</targetReference>
+    </defaultConnector>
+    <defaultConnectorLabel>Continue Flow</defaultConnectorLabel>
+    <rules>
+        <name>User_Has_Bypass</name>
+        <conditionLogic>or</conditionLogic>
+        <conditions>
+            <leftValueReference>$CustomMetadata.Flow_Bypass_Settings__mdt.Default.Bypass_All_Flows__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <booleanValue>true</booleanValue>
+            </rightValue>
+        </conditions>
+        <conditions>
+            <leftValueReference>$Permission.Bypass_Flows</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <booleanValue>true</booleanValue>
+            </rightValue>
+        </conditions>
+        <label>User Has Bypass</label>
+    </rules>
+</decisions>
+-->
+
+<!-- ============================================================ -->
+<!-- SETUP INSTRUCTIONS                                            -->
+<!-- ============================================================ -->
+<!--
+Step 1: Create Custom Metadata Type
+    - Label: Flow Bypass Settings
+    - API Name: Flow_Bypass_Settings
+    - Add fields as needed (all Checkbox type)
+
+Step 2: Create Custom Metadata Record
+    - Label: Default
+    - Name: Default
+    - Set all bypass fields to false (unchecked)
+
+Step 3: (Optional) Create Custom Permission
+    - Label: Bypass Flows
+    - API Name: Bypass_Flows
+    - Assign to integration user profiles
+
+Step 4: Add Decision to Your Flow
+    - Copy appropriate option above
+    - Place immediately after Start element
+    - Update targetReference to your first element
+
+Step 5: To Bypass During Data Load
+    - Edit Flow_Bypass_Settings__mdt.Default
+    - Check appropriate bypass field(s)
+    - Run your data load
+    - Uncheck bypass field(s) when complete
+
+IMPORTANT: Always uncheck bypass settings after data operations!
+-->

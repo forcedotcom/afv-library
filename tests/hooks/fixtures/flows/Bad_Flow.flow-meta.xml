@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <label>Bad Flow</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+    <triggerType>RecordAfterSave</triggerType>
+    <start>
+        <connector>
+            <targetReference>get_Records</targetReference>
+        </connector>
+        <object>Contact</object>
+        <recordTriggerType>Create</recordTriggerType>
+    </start>
+    <recordLookups>
+        <name>get_Records</name>
+        <label>Get Records</label>
+        <connector>
+            <targetReference>loop_Contacts</targetReference>
+        </connector>
+        <object>Contact</object>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+    </recordLookups>
+    <loops>
+        <name>loop_Contacts</name>
+        <label>Loop Contacts</label>
+        <collectionReference>get_Records</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>update_Contact</targetReference>
+        </nextValueConnector>
+    </loops>
+    <recordUpdates>
+        <name>update_Contact</name>
+        <label>Update Contact</label>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <stringValue>Updated by flow</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>loop_Contacts</inputReference>
+    </recordUpdates>
+</Flow>

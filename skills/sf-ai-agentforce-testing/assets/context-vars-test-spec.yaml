@@ -1,0 +1,142 @@
+# Context Variables Test Specification Template
+# Demonstrates injecting session context (record IDs) into CLI test cases
+#
+# Context variables enable action flows to receive real record IDs instead of
+# the topic's internal name. Without RoutableId, an action's recordId parameter
+# receives something like "p_16jPl000000GwEX_Field_Support_Routing_16j8eeef13560aa".
+# With RoutableId, it receives a real MessagingSession ID like "0Mwbb000007MGoTCAW".
+#
+# Compatible with: sf agent test create --spec <file> --api-name <name>
+#
+# Variable names: Both bare (RoutableId) and prefixed ($Context.RoutableId) work.
+# The runtime resolves both formats. Bare names are recommended for simplicity.
+#
+# Discovery — find valid IDs for your org:
+#   sf data query --query "SELECT Id FROM MessagingSession WHERE Status='Active' LIMIT 1" --target-org [alias]
+#   sf data query --query "SELECT Id FROM Case ORDER BY CreatedDate DESC LIMIT 1" --target-org [alias]
+#   sf data query --query "SELECT Id FROM Contact LIMIT 1" --target-org [alias]
+
+# Description: [Brief description of what this test suite validates]
+
+# Required: Display name (MasterLabel) — deploy FAILS without this
+name: "[Agent_Name] Context Variable Tests"
+
+# Required: Must be AGENT
+subjectType: AGENT
+
+# Required: Agent BotDefinition DeveloperName (API name)
+subjectName: [Agent_Name]
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 1: Action with RoutableId context
+  # The RoutableId injects a real MessagingSession ID into the action flow,
+  # so the flow's recordId parameter receives a valid session reference.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers an action needing session context]"
+    expectedTopic: [topic_with_action]
+    expectedActions:
+      - [action_name]
+    expectedOutcome: "Agent should process the request using session context"
+    contextVariables:
+      - name: "$Context.RoutableId"      # Prefixed format (recommended) — bare RoutableId also works
+        value: "[MessagingSession_Id]"  # e.g., 0Mwbb000007MGoTCAW
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 2: Action with RoutableId + CaseId context
+  # Some actions need both a session reference and a case reference.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers an action needing session + case context]"
+    expectedTopic: [topic_with_action]
+    expectedActions:
+      - [action_name]
+    expectedOutcome: "Agent should process the request with full context"
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+      - name: "$Context.CaseId"
+        value: "[Case_Id]"             # e.g., 500XX0000000001
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 3: Action with EndUserId context
+  # EndUserId identifies the end user — useful for user-specific flows.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers a user-specific action]"
+    expectedTopic: [topic_with_user_action]
+    expectedActions:
+      - [user_action_name]
+    contextVariables:
+      - name: "$Context.EndUserId"
+        value: "[Contact_Id]"          # e.g., 003XX0000000001
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 4: Control test — NO context variables
+  # Run the same action WITHOUT context to see the difference.
+  # Without RoutableId, the action's recordId gets the topic's internal name.
+  # Compare results with Test 1 to verify context variable effect.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Same message as Test 1 — without context]"
+    expectedTopic: [topic_with_action]
+    expectedActions:
+      - [action_name]
+    expectedOutcome: "Agent may ask for missing context or use fallback behavior"
+    # No contextVariables — this is the control test
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 5: Multiple context variables combined
+  # Inject all available context for maximum action coverage.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that benefits from rich context]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+      - name: CaseId
+        value: "[Case_Id]"
+      - name: "$Context.ContactId"
+        value: "[Contact_Id]"
+
+# ═══════════════════════════════════════════════════════════════════════
+# NOTES
+#
+# Context Variable Name Rules:
+#   Both formats work: $Context.RoutableId OR bare RoutableId
+#   $Context. prefix is recommended (matches Merge Field syntax in Flow Builder)
+#   The CLI passes names verbatim to XML — the runtime resolves both formats.
+#
+# Effect on Action Flows:
+#   Without RoutableId: action receives topic internal name as recordId
+#     e.g., recordId = "p_16jPl000000GwEX_Field_Support_Routing_16j8eeef13560aa"
+#   With RoutableId: action receives real MessagingSession ID
+#     e.g., recordId = "0Mwbb000007MGoTCAW"
+#
+# Authentication Topics:
+#   Standard context variables (RoutableId, CaseId) do NOT unlock auth-gated topics.
+#   Injecting RoutableId + CaseId does NOT satisfy User_Authentication flows.
+#   The agent still routes based on available data, not auth state.
+#
+#   However, custom boolean auth-state variables CAN bypass authentication for
+#   testing post-auth business topics directly. If the agent uses a boolean
+#   variable (e.g., Verified_Check) to gate topics behind authentication,
+#   injecting that variable as a context variable unlocks those topics:
+#
+#     contextVariables:
+#       - name: "$Context.Verified_Check"
+#         value: "true"
+#       - name: "$Context.RoutableId"
+#         value: "[MessagingSession_Id]"
+#
+#   This allows testing post-auth business topics (payments, appointments, etc.)
+#   without running through the full authentication flow in each test case.
+#
+# Verification — use --verbose to confirm:
+#   sf agent test run --api-name [Test_Name] --wait 10 --verbose --result-format json --json --target-org [alias]
+#   jq '.result.testCases[].generatedData.invokedActions | fromjson | .[0][0].function.input.recordId'
+# ═══════════════════════════════════════════════════════════════════════

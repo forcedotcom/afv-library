@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    GenAI Prompt Template: Basic Flex Template
+
+    Use Case: Create reusable Prompt Builder templates for Agentforce,
+    Flow, or Apex-driven generation.
+
+    Setup Steps:
+    1. Replace all {{placeholder}} values
+    2. Keep flex templates at 5 inputs or fewer
+    3. Deploy to org as GenAiPromptTemplate metadata
+    4. Publish the template version before wiring dependent actions
+
+    File Location:
+    force-app/main/default/genAiPromptTemplates/{{TemplateName}}.genAiPromptTemplate-meta.xml
+-->
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <developerName>{{TemplateName}}</developerName>
+    <masterLabel>{{TemplateLabel}}</masterLabel>
+    <type>einstein_gpt__flex</type>
+
+    <templateVersions>
+        <content>
+You are an AI assistant helping with {{UseCaseDescription}}.
+
+Context:
+{!$Input:Context}
+
+Task:
+{{TaskDescription}}
+
+Instructions:
+1. {{Instruction1}}
+2. {{Instruction2}}
+3. {{Instruction3}}
+
+Return a clear, structured response.
+        </content>
+
+        <inputs>
+            <apiName>Context</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Context</masterLabel>
+            <referenceName>Input:Context</referenceName>
+            <required>true</required>
+        </inputs>
+
+        <primaryModel>sfdc_ai__DefaultAnthropic</primaryModel>
+        <status>Published</status>
+    </templateVersions>
+</GenAiPromptTemplate>

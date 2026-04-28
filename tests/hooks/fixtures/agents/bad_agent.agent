@@ -1,0 +1,35 @@
+system:
+  instructions: |
+    You are a test agent.
+
+variables:
+  Status:
+    type: string
+    description: "Current status"
+  bad__name:
+    type: string
+    description: "Invalid variable name"
+  flag:
+    type: boolean
+    default: true
+
+start_agent:
+  description: "Main entry point"
+  instructions: |
+    Welcome the user.
+
+  actions:
+    greet:
+      description: "Greets the user"
+      inputs:
+        name:
+          type: string
+      run: flow://Greet_Flow
+      outputs:
+        message:
+          type: string
+
+topic test_topic:
+  description: "A test topic"
+  instructions: |
+    Handle test requests.

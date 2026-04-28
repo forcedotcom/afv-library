@@ -1,0 +1,121 @@
+# Multi-Turn Context Preservation Test Suite
+# Tests information retention and context usage across conversation turns
+#
+# Usage: Claude reads this template, adapts scenarios to the target agent's
+#        capabilities, and executes via Agent Runtime API.
+#
+# Customize: Replace entity names and utterances to match actual org data.
+
+apiVersion: v1
+kind: AgentAPITestSuite
+metadata:
+  name: "Multi_Turn_Context_Preservation"
+  testMode: "agent-api"
+  description: "Validates that the agent retains and uses information from prior turns"
+  category: "context_preservation"
+
+prerequisites:
+  eca_required: true
+  agent_published: true
+  agent_activated: true
+  agent_variables: []
+  test_data_required:
+    - "At least one Account record accessible to the execution user"
+    - "At least one Order or Case record for testing"
+
+scenarios:
+  # Scenario 1: User identity retention
+  - name: "context_user_identity"
+    description: >
+      User provides their name early in conversation. Agent should remember
+      and use it in subsequent turns without re-asking.
+    priority: high
+    turns:
+      - user: "Hi, my name is Sarah and I need some help"
+        expect:
+          response_not_empty: true
+          response_contains_any: ["Sarah", "help"]
+      - user: "Can you look up my account?"
+        expect:
+          response_not_empty: true
+      - user: "What name do you have for me?"
+        expect:
+          response_not_empty: true
+          response_contains: "Sarah"
+
+  # Scenario 2: Entity reference persistence
+  - name: "context_entity_persistence"
+    description: >
+      User references an entity (order number) in the first turn. Subsequent
+      turns should use that entity without re-asking.
+    priority: high
+    turns:
+      - user: "Look up order number 12345"
+        expect:
+          response_not_empty: true
+          response_references: "12345"
+      - user: "What's the shipping status for that order?"
+        expect:
+          response_not_empty: true
+          no_re_ask_for: "order number"
+      - user: "And when will it arrive?"
+        expect:
+          response_not_empty: true
+          context_retained: true
+
+  # Scenario 3: Cross-topic context retention
+  - name: "context_cross_topic"
+    description: >
+      Context established in one topic persists when the user switches to a
+      different topic. The agent shouldn't lose entity references on topic switch.
+    priority: high
+    turns:
+      - user: "I'm calling about account Edge Communications"
+        expect:
+          response_not_empty: true
+          topic_contains: "account"
+      - user: "Are there any open cases on that account?"
+        expect:
+          response_not_empty: true
+          topic_contains: "case"
+          context_uses: "Edge Communications"
+      - user: "And what about recent orders for the same account?"
+        expect:
+          response_not_empty: true
+          context_uses: "Edge Communications"
+
+  # Scenario 4: Multi-entity tracking
+  - name: "context_multi_entity"
+    description: >
+      User mentions multiple entities. Agent should track each separately and
+      correctly resolve references like "the first one" or "the second".
+    priority: medium
+    turns:
+      - user: "I have two open cases: case 100 and case 200"
+        expect:
+          response_not_empty: true
+      - user: "What's the status of the first one?"
+        expect:
+          response_not_empty: true
+          response_references: "100"
+      - user: "And the second?"
+        expect:
+          response_not_empty: true
+          response_references: "200"
+      - user: "Close both of them"
+        expect:
+          response_not_empty: true
+          response_references_both: ["100", "200"]
+
+# Evaluation criteria for context preservation scenarios
+evaluation:
+  pass_criteria:
+    - "Agent does not re-ask for information already provided"
+    - "Entity references resolve correctly in later turns"
+    - "Context persists across topic switches"
+    - "Multiple entities tracked independently"
+  fail_categories:
+    - CONTEXT_PRESERVATION_FAILURE
+  scoring:
+    weight: 15  # Out of 100 total points
+    per_scenario: true

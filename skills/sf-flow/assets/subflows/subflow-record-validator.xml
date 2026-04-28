@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Reusable validation subflow for common record validation patterns. Checks if required fields are populated and returns validation status. Extend with custom validation rules as needed.</description>
+    <assignments>
+        <name>Set_Invalid</name>
+        <label>Set Invalid</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varIsValid</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varValidationMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Validation failed: Required field is missing</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Valid</name>
+        <label>Set Valid</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varIsValid</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varValidationMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Validation passed</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Check_Required_Field</name>
+        <label>Check Required Field</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Set_Invalid</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Missing</defaultConnectorLabel>
+        <rules>
+            <name>Field_Populated</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varFieldValue</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Valid</targetReference>
+            </connector>
+            <label>Field Populated</label>
+        </rules>
+    </decisions>
+    <label>Sub_ValidateRecord</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_Required_Field</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>varFieldValue</name>
+        <dataType>String</dataType>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varIsValid</name>
+        <dataType>Boolean</dataType>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varValidationMessage</name>
+        <dataType>String</dataType>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

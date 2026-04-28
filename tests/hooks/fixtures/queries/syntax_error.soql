@@ -1,0 +1,4 @@
+SELECT Id, Name
+FROM Contact
+WHERE (Name == 'Test'
+AND CreatedDate = TODAY

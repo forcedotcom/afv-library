@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Picklist Field Template
+
+    Usage: Single-select dropdown with predefined values
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Status__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Status")
+    - {{REQUIRED}} - true or false
+    - {{RESTRICTED}} - true (only defined values) or false (allows new values)
+    - {{SORTED}} - true (alphabetical) or false (maintain order)
+    - {{PICKLIST_VALUES}} - Replace entire section with value elements
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - For reusable picklists across objects, use Global Value Sets instead
+    - Restricted picklists prevent data quality issues
+    - Consider validation rules for complex dependencies
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Picklist</type>
+    <required>{{REQUIRED}}</required>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <valueSet>
+        <restricted>{{RESTRICTED}}</restricted>
+        <valueSetDefinition>
+            <sorted>{{SORTED}}</sorted>
+            <!-- Example values - replace with actual values -->
+            <value>
+                <fullName>New</fullName>
+                <default>true</default>
+                <label>New</label>
+            </value>
+            <value>
+                <fullName>In_Progress</fullName>
+                <default>false</default>
+                <label>In Progress</label>
+            </value>
+            <value>
+                <fullName>Completed</fullName>
+                <default>false</default>
+                <label>Completed</label>
+            </value>
+            <value>
+                <fullName>Cancelled</fullName>
+                <default>false</default>
+                <label>Cancelled</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

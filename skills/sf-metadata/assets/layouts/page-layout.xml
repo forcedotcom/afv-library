@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Page Layout Template
+
+    Usage: Define field arrangement and sections for record pages
+
+    Placeholders:
+    - {{LAYOUT_NAME}} - Full name (Object-Layout Name, e.g., "Account-Business Account Layout")
+
+    Notes:
+    - Page layouts are complex XML structures
+    - Consider using Lightning Record Pages instead for modern UIs
+    - Layout determines:
+      - Field arrangement in sections
+      - Related lists
+      - Actions/buttons
+      - Canvas apps, Visualforce pages
+-->
+<Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    ═══════════════════════════════════════════
+    LAYOUT SECTIONS
+    ═══════════════════════════════════════════
+    -->
+    <layoutSections>
+        <customLabel>false</customLabel>
+        <detailHeading>false</detailHeading>
+        <editHeading>true</editHeading>
+        <label>Information</label>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Name</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Type</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>OwnerId</field>
+            </layoutItems>
+        </layoutColumns>
+        <style>TwoColumnsTopToBottom</style>
+    </layoutSections>
+
+    <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>Additional Information</label>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Description</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns/>
+        <style>TwoColumnsLeftToRight</style>
+    </layoutSections>
+
+    <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>System Information</label>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>CreatedById</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>LastModifiedById</field>
+            </layoutItems>
+        </layoutColumns>
+        <style>TwoColumnsLeftToRight</style>
+    </layoutSections>
+
+    <!--
+    ═══════════════════════════════════════════
+    RELATED LISTS
+    ═══════════════════════════════════════════
+    -->
+    <relatedLists>
+        <fields>FULL_NAME</fields>
+        <fields>CONTACT.TITLE</fields>
+        <fields>CONTACT.EMAIL</fields>
+        <fields>CONTACT.PHONE1</fields>
+        <relatedList>RelatedContactList</relatedList>
+    </relatedLists>
+
+    <relatedLists>
+        <fields>OPPORTUNITY.NAME</fields>
+        <fields>OPPORTUNITY.STAGE_NAME</fields>
+        <fields>OPPORTUNITY.AMOUNT</fields>
+        <fields>OPPORTUNITY.CLOSE_DATE</fields>
+        <relatedList>RelatedOpportunityList</relatedList>
+    </relatedLists>
+
+    <!--
+    ═══════════════════════════════════════════
+    QUICK ACTIONS
+    ═══════════════════════════════════════════
+    -->
+    <quickActionList>
+        <quickActionListItems>
+            <quickActionName>FeedItem.TextPost</quickActionName>
+        </quickActionListItems>
+        <quickActionListItems>
+            <quickActionName>NewTask</quickActionName>
+        </quickActionListItems>
+        <quickActionListItems>
+            <quickActionName>NewEvent</quickActionName>
+        </quickActionListItems>
+        <quickActionListItems>
+            <quickActionName>LogACall</quickActionName>
+        </quickActionListItems>
+    </quickActionList>
+
+    <!--
+    ═══════════════════════════════════════════
+    DISPLAY OPTIONS
+    ═══════════════════════════════════════════
+    -->
+    <showEmailCheckbox>false</showEmailCheckbox>
+    <showHighlightsPanel>false</showHighlightsPanel>
+    <showInteractionLogPanel>false</showInteractionLogPanel>
+    <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
+    <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
+</Layout>
+
+<!--
+    LAYOUT BEHAVIOR OPTIONS
+    ════════════════════════════════════════════
+
+    Field behaviors:
+    - Required: Field must have value (red bar)
+    - Edit: Field is editable
+    - Readonly: Field is read-only
+    - Hidden: Field not shown (rare in layout)
+
+    Section styles:
+    - TwoColumnsTopToBottom
+    - TwoColumnsLeftToRight
+    - OneColumn
+    - CustomLinks
+
+
+    PAGE LAYOUT VS LIGHTNING RECORD PAGE
+    ════════════════════════════════════════════
+
+    Page Layout (Classic + Lightning):
+    ├── Controls field arrangement
+    ├── Controls related lists
+    ├── Works in Classic and Lightning
+    └── Assigned via Profile
+
+    Lightning Record Page (Lightning only):
+    ├── Drag-and-drop App Builder
+    ├── Controls page structure
+    ├── Supports components, tabs, accordions
+    └── More flexible than page layouts
+
+    RECOMMENDATION: Use Lightning Record Pages for modern UIs,
+    Page Layouts for field organization and related lists.
+
+
+    FILE NAMING
+    ════════════════════════════════════════════
+
+    Location: force-app/main/default/layouts/
+    Format: [ObjectName]-[Layout Name].layout-meta.xml
+
+    Examples:
+    - Account-Account Layout.layout-meta.xml
+    - Account-Business Account Layout.layout-meta.xml
+    - Custom_Object__c-Custom Object Layout.layout-meta.xml
+-->

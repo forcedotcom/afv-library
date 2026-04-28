@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    URL Field Template
+
+    Usage: Web addresses with clickable links
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Website__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Website")
+    - {{REQUIRED}} - true or false
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Max 255 characters
+    - Automatically renders as clickable link
+    - Should include protocol (https://)
+    - Opens in new tab when clicked
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Url</type>
+    <required>{{REQUIRED}}</required>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

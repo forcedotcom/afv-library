@@ -1,0 +1,172 @@
+# Multi-Turn Agent Script Comprehensive Test Suite
+# Test suite specifically designed for Agent Script (AiAuthoringBundle) agents
+# tested via the Agent Runtime API.
+#
+# Key differences from standard Agent Builder agents:
+#   - Agent Script agents embed action results in Inform text (no ActionResult type)
+#   - Use response_contains/response_contains_any instead of action_invoked
+#   - plannerSurfaces + surfacesEnabled must be configured for API access
+#
+# Usage:
+#   python3 multi_turn_test_runner.py \
+#     --my-domain YOUR_DOMAIN.my.salesforce.com \
+#     --consumer-key $KEY --consumer-secret $SECRET \
+#     --agent-id 0XxXXXXXXXXXXXXXXX \
+#     --scenarios multi-turn-agentscript-comprehensive.yaml \
+#     --output results.json --verbose
+
+apiVersion: v1
+kind: AgentAPITestSuite
+metadata:
+  name: "AgentScript_Comprehensive"
+  testMode: "agent-api"
+  description: "Multi-turn test suite for Agent Script agents via Agent Runtime API"
+  category: "agent-script"
+
+prerequisites:
+  eca_required: true
+  agent_published: true
+  agent_activated: true
+  notes: |
+    Agent Script agents require additional metadata for API access:
+    1. GenAiPlannerBundle must include plannerSurfaces with EinsteinAgentApiChannel
+    2. BotVersion must have surfacesEnabled=true
+    Without these, the API returns 500 UNKNOWN_EXCEPTION.
+
+scenarios:
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 1: Happy Path — Full Multi-Turn Flow
+  # ═══════════════════════════════════════════════════════
+
+  - name: "happy_path_full_flow"
+    description: "Complete conversation from greeting through action execution to farewell"
+    pattern: "happy_path"
+    priority: high
+    turns:
+      - user: "Hi, I need help with my order"
+        expect:
+          response_not_empty: true
+          # Agent Script start_agent routes to appropriate topic
+          topic_contains: "order"
+      - user: "ORD-1001"
+        expect:
+          response_not_empty: true
+          # Use response_contains instead of action_invoked for Agent Script
+          response_contains: "CUSTOMER_NAME_HERE"
+          response_contains_any:
+            - "Shipped"
+            - "shipped"
+            - "Delivered"
+            - "delivered"
+      - user: "Thanks, that's all!"
+        expect:
+          response_not_empty: true
+
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 2: Error Recovery — Not Found then Retry
+  # ═══════════════════════════════════════════════════════
+
+  - name: "error_recovery_retry"
+    description: "Agent handles not-found gracefully, then succeeds on retry"
+    pattern: "error_recovery"
+    priority: high
+    turns:
+      - user: "Check my order status"
+        expect:
+          response_not_empty: true
+      - user: "ORD-9999"
+        expect:
+          response_not_empty: true
+          response_acknowledges_error: true
+          response_contains_any:
+            - "could not find"
+            - "not found"
+            - "no order"
+            - "double-check"
+            - "couldn't"
+            - "unable to"
+      - user: "Sorry, let me try ORD-1002"
+        expect:
+          response_not_empty: true
+          response_contains: "CUSTOMER_NAME_HERE"
+
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 3: Context Preservation — No Re-Ask
+  # ═══════════════════════════════════════════════════════
+
+  - name: "context_preservation"
+    description: "Agent retains context — does not re-ask for previously provided data"
+    pattern: "context_preservation"
+    priority: high
+    turns:
+      - user: "I need to check order ORD-1001"
+        expect:
+          response_not_empty: true
+          response_contains: "CUSTOMER_NAME_HERE"
+      - user: "What's the shipping status?"
+        expect:
+          response_not_empty: true
+          no_re_ask_for: "order number"
+          context_retained: true
+      - user: "And the tracking number?"
+        expect:
+          response_not_empty: true
+          no_re_ask_for: "order number"
+          response_contains: "TRK-TRACKING-HERE"
+
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 4: Topic Switching
+  # ═══════════════════════════════════════════════════════
+
+  - name: "topic_switch"
+    description: "User switches between different topics naturally"
+    pattern: "topic_re_matching"
+    priority: medium
+    turns:
+      - user: "What does Shipped status mean?"
+        expect:
+          response_not_empty: true
+          response_contains_any:
+            - "shipped"
+            - "carrier"
+            - "on its way"
+      - user: "Ok, let me check my order ORD-1004"
+        expect:
+          response_not_empty: true
+          response_contains: "ORD-1004"
+
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 5: Escalation Flow
+  # ═══════════════════════════════════════════════════════
+
+  - name: "escalation_request"
+    description: "User requests human agent — agent escalates or acknowledges"
+    pattern: "escalation"
+    priority: medium
+    turns:
+      - user: "I have a problem with my order"
+        expect:
+          response_not_empty: true
+      - user: "I need to speak with a real person right now"
+        expect:
+          response_not_empty: true
+          # Agent Script escalation may use @utils.escalate or soft acknowledgment
+          escalation_triggered: true
+
+  # ═══════════════════════════════════════════════════════
+  # PATTERN 6: Guardrail — Off-Topic Redirect
+  # ═══════════════════════════════════════════════════════
+
+  - name: "guardrail_off_topic"
+    description: "Agent redirects off-topic questions back to its domain"
+    pattern: "guardrail"
+    priority: medium
+    turns:
+      - user: "Check order ORD-1003"
+        expect:
+          response_not_empty: true
+      - user: "What's the weather like today?"
+        expect:
+          response_not_empty: true
+          # Agent Script agents often use soft redirects rather than hard refusals
+          guardrail_triggered: true

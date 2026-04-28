@@ -1,0 +1,261 @@
+# ⚠️ PHASE A ONLY — Multi-Turn API Testing Template
+# This template is for use with multi_turn_test_runner.py (Agent Runtime API).
+# It is NOT compatible with `sf agent test create` (CLI Testing Center).
+# For CLI-compatible specs, see standard-test-spec.yaml or basic-test-spec.yaml.
+#
+# Escalation Tests Template
+# Human handoff and escalation path validation tests
+#
+# Usage:
+# 1. Replace [Agent_Name] with your agent's API name
+# 2. Customize escalation triggers based on your agent's design
+# 3. Add business-specific escalation scenarios
+# 4. Run via multi_turn_test_runner.py or use as reference for scenario design
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════
+  # EXPLICIT ESCALATION REQUESTS
+  # User directly asks for human help
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_explicit_manager
+    category: escalation
+    utterance: "I need to speak with a manager"
+    expectedBehavior: escalation_triggered
+    description: "Direct manager request"
+
+  - name: escalation_explicit_supervisor
+    category: escalation
+    utterance: "Transfer me to a supervisor"
+    expectedBehavior: escalation_triggered
+    description: "Direct supervisor request"
+
+  - name: escalation_explicit_human
+    category: escalation
+    utterance: "I want to talk to a real person"
+    expectedBehavior: escalation_triggered
+    description: "Direct human request"
+
+  - name: escalation_explicit_agent
+    category: escalation
+    utterance: "Connect me with a human agent"
+    expectedBehavior: escalation_triggered
+    description: "Direct human agent request"
+
+  - name: escalation_explicit_representative
+    category: escalation
+    utterance: "I need a customer service representative"
+    expectedBehavior: escalation_triggered
+    description: "Direct representative request"
+
+  - name: escalation_explicit_someone
+    category: escalation
+    utterance: "Can I speak to someone in charge?"
+    expectedBehavior: escalation_triggered
+    description: "Request for authority figure"
+
+  # ═══════════════════════════════════════════════════════════════
+  # FRUSTRATION-BASED ESCALATION
+  # User expresses frustration, should offer escalation
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_frustrated_general
+    category: escalation
+    utterance: "This is so frustrating! I need real help"
+    expectedBehavior: escalation_triggered
+    description: "General frustration"
+
+  - name: escalation_frustrated_not_helping
+    category: escalation
+    utterance: "You're not helping me at all!"
+    expectedBehavior: escalation_triggered
+    description: "Complaint about bot helpfulness"
+
+  - name: escalation_frustrated_ridiculous
+    category: escalation
+    utterance: "This is ridiculous, I've been trying for an hour"
+    expectedBehavior: escalation_triggered
+    description: "Time-based frustration"
+
+  - name: escalation_frustrated_useless
+    category: escalation
+    utterance: "This chatbot is useless"
+    expectedBehavior: escalation_triggered
+    description: "Direct bot criticism"
+
+  - name: escalation_frustrated_done
+    category: escalation
+    utterance: "I'm done with this automated system"
+    expectedBehavior: escalation_triggered
+    description: "Giving up on bot"
+
+  # ═══════════════════════════════════════════════════════════════
+  # COMPLEXITY-BASED ESCALATION
+  # Issue too complex for automated handling
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_complex_billing_dispute
+    category: escalation
+    utterance: "I have a billing dispute that's been ongoing for months"
+    expectedBehavior: escalation_triggered
+    description: "Complex billing issue"
+
+  - name: escalation_complex_legal
+    category: escalation
+    utterance: "I need to discuss potential legal action"
+    expectedBehavior: escalation_triggered
+    description: "Legal matter"
+
+  - name: escalation_complex_complaint
+    category: escalation
+    utterance: "I want to file a formal complaint about your company"
+    expectedBehavior: escalation_triggered
+    description: "Formal complaint"
+
+  - name: escalation_complex_account_issue
+    category: escalation
+    utterance: "Someone has been making unauthorized changes to my account"
+    expectedBehavior: escalation_triggered
+    description: "Security/account issue"
+
+  - name: escalation_complex_multiple_issues
+    category: escalation
+    utterance: "I have multiple issues that need to be resolved together"
+    expectedBehavior: escalation_triggered
+    description: "Multiple interrelated issues"
+
+  # ═══════════════════════════════════════════════════════════════
+  # EMOTIONAL/SENSITIVE ESCALATION
+  # Emotionally charged situations need human touch
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_emotional_upset
+    category: escalation
+    utterance: "I'm really upset and need someone who can actually help"
+    expectedBehavior: escalation_triggered
+    description: "Emotional distress"
+
+  - name: escalation_emotional_angry
+    category: escalation
+    utterance: "I'm extremely angry about how I've been treated"
+    expectedBehavior: escalation_triggered
+    description: "Anger expression"
+
+  - name: escalation_emotional_disappointed
+    category: escalation
+    utterance: "I'm so disappointed with your service, I need to talk to someone"
+    expectedBehavior: escalation_triggered
+    description: "Disappointment expression"
+
+  - name: escalation_sensitive_bereavement
+    category: escalation
+    utterance: "I need to close an account due to a death in the family"
+    expectedBehavior: escalation_triggered
+    description: "Bereavement situation"
+
+  # ═══════════════════════════════════════════════════════════════
+  # VIP/PRIORITY ESCALATION
+  # High-value or priority customers
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_vip_loyal_customer
+    category: escalation
+    utterance: "I've been a customer for 15 years and deserve better treatment"
+    expectedBehavior: escalation_triggered
+    description: "Long-term customer"
+
+  - name: escalation_vip_large_order
+    category: escalation
+    utterance: "I need help with my $50,000 order"
+    expectedBehavior: escalation_triggered
+    description: "High-value transaction"
+
+  - name: escalation_vip_enterprise
+    category: escalation
+    utterance: "I'm calling on behalf of [Enterprise Company] about our contract"
+    expectedBehavior: escalation_triggered
+    description: "Enterprise/B2B customer"
+
+  # ═══════════════════════════════════════════════════════════════
+  # NO ESCALATION SCENARIOS
+  # Simple queries should NOT escalate
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: no_escalation_simple_hours
+    category: escalation
+    utterance: "What are your business hours?"
+    expectedBehavior: no_escalation
+    description: "Simple FAQ - no escalation needed"
+
+  - name: no_escalation_simple_tracking
+    category: escalation
+    utterance: "Where is my order?"
+    expectedBehavior: no_escalation
+    description: "Simple tracking - no escalation needed"
+
+  - name: no_escalation_simple_return
+    category: escalation
+    utterance: "How do I return an item?"
+    expectedBehavior: no_escalation
+    description: "Simple return query - no escalation needed"
+
+  - name: no_escalation_polite_thanks
+    category: escalation
+    utterance: "Thank you for your help"
+    expectedBehavior: no_escalation
+    description: "Polite acknowledgment - no escalation"
+
+  - name: no_escalation_minor_issue
+    category: escalation
+    utterance: "My order arrived a day late"
+    expectedBehavior: no_escalation
+    description: "Minor issue - can be resolved by bot"
+
+  # ═══════════════════════════════════════════════════════════════
+  # ESCALATION PATH VERIFICATION
+  # Verify correct escalation routing
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_routing_billing
+    category: escalation
+    utterance: "I need to dispute a charge on my bill"
+    expectedBehavior: escalation_triggered
+    expectedResponse:
+      contains: "billing"
+    description: "Route to billing team"
+
+  - name: escalation_routing_technical
+    category: escalation
+    utterance: "I have a complex technical issue with your API"
+    expectedBehavior: escalation_triggered
+    expectedResponse:
+      contains: "technical"
+    description: "Route to technical support"
+
+  - name: escalation_routing_sales
+    category: escalation
+    utterance: "I want to discuss upgrading our enterprise contract"
+    expectedBehavior: escalation_triggered
+    expectedResponse:
+      contains: "sales"
+    description: "Route to sales team"
+
+  # ═══════════════════════════════════════════════════════════════
+  # MULTI-TURN ESCALATION
+  # Escalation after failed resolution attempts
+  # ═══════════════════════════════════════════════════════════════
+
+  - name: escalation_multi_turn_third_attempt
+    category: multi_turn
+    conversationHistory:
+      - role: user
+        content: "My order hasn't arrived"
+      - role: assistant
+        content: "I'm sorry to hear that. Let me check the status for you."
+      - role: user
+        content: "It still shows pending after a week"
+      - role: assistant
+        content: "I apologize for the delay. Would you like me to..."
+    utterance: "This isn't working, I need to talk to someone who can actually fix this"
+    expectedBehavior: escalation_triggered
+    description: "Escalation after failed resolution attempts"

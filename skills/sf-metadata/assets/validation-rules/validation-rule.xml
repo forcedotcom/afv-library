@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Validation Rule Template
+
+    Usage: Enforce data quality by preventing invalid data entry
+
+    Placeholders:
+    - {{RULE_API_NAME}} - API name (e.g., "Require_Close_Date_When_Closed")
+    - {{ACTIVE}} - true or false
+    - {{DESCRIPTION}} - Rule purpose and business logic
+    - {{ERROR_FORMULA}} - Formula that returns TRUE when invalid
+    - {{ERROR_FIELD}} - Field to display error on (optional)
+    - {{ERROR_MESSAGE}} - User-friendly error message
+
+    Notes:
+    - Formula returns TRUE = validation fails (error shown)
+    - Formula returns FALSE = validation passes (record saved)
+    - Keep formulas simple for maintainability
+    - Consider bypass mechanism for integrations/admins
+-->
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{RULE_API_NAME}}</fullName>
+    <active>{{ACTIVE}}</active>
+    <description>{{DESCRIPTION}}</description>
+    <errorConditionFormula>{{ERROR_FORMULA}}</errorConditionFormula>
+    <!-- Optional: Display error on specific field instead of top of page -->
+    <errorDisplayField>{{ERROR_FIELD}}</errorDisplayField>
+    <errorMessage>{{ERROR_MESSAGE}}</errorMessage>
+</ValidationRule>
+
+<!--
+    COMMON VALIDATION PATTERNS
+    ════════════════════════════════════════════
+
+    1. Required Field Based on Status:
+    ───────────────────────────────────────────
+    AND(
+        ISPICKVAL(Status__c, 'Closed'),
+        ISBLANK(Close_Date__c)
+    )
+    Error: "Close Date is required when Status is Closed"
+
+    2. Date Must Be Future:
+    ───────────────────────────────────────────
+    Due_Date__c < TODAY()
+    Error: "Due Date must be in the future"
+
+    3. Date Range Validation:
+    ───────────────────────────────────────────
+    End_Date__c < Start_Date__c
+    Error: "End Date must be after Start Date"
+
+    4. Numeric Range:
+    ───────────────────────────────────────────
+    OR(
+        Discount_Percent__c < 0,
+        Discount_Percent__c > 100
+    )
+    Error: "Discount must be between 0% and 100%"
+
+    5. Email Format:
+    ───────────────────────────────────────────
+    NOT(REGEX(Email__c, "^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
+    Error: "Please enter a valid email address"
+
+    6. Phone Format (US):
+    ───────────────────────────────────────────
+    NOT(REGEX(Phone__c, "^\\(?[0-9]{3}\\)?[-. ]?[0-9]{3}[-. ]?[0-9]{4}$"))
+    Error: "Phone must be in format: (XXX) XXX-XXXX"
+
+    7. Cross-Object Validation:
+    ───────────────────────────────────────────
+    AND(
+        NOT(ISBLANK(Account.Type)),
+        Account.Type != 'Customer',
+        Amount__c > 100000
+    )
+    Error: "Opportunities over $100K require Customer account type"
+
+    8. Dependent Picklist Enforcement:
+    ───────────────────────────────────────────
+    AND(
+        ISPICKVAL(Type__c, 'Service'),
+        NOT(ISPICKVAL(Sub_Type__c, 'Consulting')),
+        NOT(ISPICKVAL(Sub_Type__c, 'Support'))
+    )
+    Error: "Service type requires Consulting or Support sub-type"
+
+    9. Prevent Editing Closed Records:
+    ───────────────────────────────────────────
+    AND(
+        NOT(ISNEW()),
+        ISPICKVAL(PRIORVALUE(Status__c), 'Closed'),
+        ISCHANGED(Status__c)
+    )
+    Error: "Cannot reopen closed records"
+
+    10. Bypass Pattern (Recommended):
+    ───────────────────────────────────────────
+    AND(
+        NOT($Permission.Bypass_Validation__c),
+        [your validation logic here]
+    )
+    Note: Create Custom Permission "Bypass_Validation__c" for admins/integrations
+
+
+    VALIDATION RULE BEST PRACTICES
+    ════════════════════════════════════════════
+
+    ✓ Include bypass mechanism for system integrations
+    ✓ Use clear, actionable error messages
+    ✓ Display error on specific field when possible
+    ✓ Document business requirement in description
+    ✓ Test with bulk data operations
+    ✓ Consider impact on integrations and data loads
+
+    ✗ Don't create complex formulas (hard to maintain)
+    ✗ Don't duplicate validation logic in triggers
+    ✗ Don't use validation for business logic (use flows/triggers)
+    ✗ Don't block system users from fixing data issues
+-->

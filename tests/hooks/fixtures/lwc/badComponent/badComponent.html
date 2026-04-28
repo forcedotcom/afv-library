@@ -1,0 +1,15 @@
+<template>
+    <div if:true={count > 0}>
+        <p>{firstName + ' ' + lastName}</p>
+        <p>{items.length}</p>
+        <p>{isActive ? 'Yes' : 'No'}</p>
+        <template v-for="item in items">
+            <span className="item-class">{item.name}</span>
+        </template>
+        <template for:each={otherItems} for:item="other">
+            <span>{other.name}</span>
+        </template>
+        <button onclick={handleClick(item.id)}>Click</button>
+        <button onclick={() => handleDelete(item)}>Delete</button>
+    </div>
+</template>

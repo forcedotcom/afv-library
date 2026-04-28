@@ -1,0 +1,37 @@
+# Hello World Employee Agent
+# The minimal viable Employee Agent -- NO dedicated user, NO messaging vars
+#
+# Key differences from Service Agent:
+#   - agent_type: "AgentforceEmployeeAgent" (runs as logged-in user)
+#   - NO default_agent_user (would cause HTTP 500 on publish)
+#   - NO Messaging-linked variables (EndUserId, RoutableId, ContactId)
+#   - NO language block (optional for all agents, not Employee-specific)
+#   - NO connection block (Messaging routing is Service Agent only)
+#
+# For the Service Agent version, see hello-world.agent
+#
+# Deploy with: sf agent publish authoring-bundle --api-name Hello_World_Employee --target-org [alias]
+
+system:
+	instructions: "You are a friendly internal assistant. Help employees with their questions."
+	# Static welcome/error text uses quotes. If you later add {!@variables.x}
+	# personalization here, switch that message to block form with `|`.
+	messages:
+		welcome: "Hello! How can I help you today?"
+		error: "I'm sorry, something went wrong. Please try again."
+
+config:
+	developer_name: "Hello_World_Employee"
+	agent_type: "AgentforceEmployeeAgent"
+	agent_label: "Hello World Employee Agent"
+	description: "A minimal Employee Agent example -- no dedicated user needed"
+
+start_agent main:
+	label: "Main"
+	description: "Greets employees and provides help"
+
+	reasoning:
+		instructions: ->
+			| Welcome the employee warmly.
+			| Ask how you can help them today.
+			| Be friendly and professional.

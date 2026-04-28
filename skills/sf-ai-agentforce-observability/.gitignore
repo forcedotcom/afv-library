@@ -1,0 +1,22 @@
+# Network capture data — contains session tokens, org URLs, and client-specific content
+captures/
+*.har
+
+# Python
+__pycache__/
+*.pyc
+.trace-venv/
+
+# Dev-only test harness (contains hardcoded org references)
+scripts/test_v65.py
+
+# Output data
+stdm_data/
+*.parquet
+trace-results/
+
+# Builder URL cache (contains org-specific URLs)
+.builder-url-cache.json
+
+# Debug screenshots
+debug-*.png

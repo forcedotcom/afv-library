@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║ APEX ACTION TEMPLATE                                                          ║
+║ Template: apex-action-template.xml                                            ║
+║ API Version: 66.0+                                                            ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║ PURPOSE:                                                                       ║
+║ Demonstrates how to call @InvocableMethod Apex from a Flow                    ║
+║                                                                               ║
+║ KEY PATTERNS:                                                                 ║
+║ - actionCalls element with actionType="apex"                                  ║
+║ - inputParameters mapping Flow vars → Apex Request                            ║
+║ - outputParameters mapping Apex Response → Flow vars                          ║
+║ - faultConnector for Apex exception handling                                  ║
+║ - Decision element for checking success/failure                               ║
+║                                                                               ║
+║ PREREQUISITES:                                                                ║
+║ 1. Deploy the Apex class with @InvocableMethod first                          ║
+║ 2. Apex class name = actionName in actionCalls                                ║
+║ 3. @InvocableVariable names must match inputParameters/outputParameters       ║
+║                                                                               ║
+║ USAGE:                                                                        ║
+║ Replace {{PLACEHOLDERS}} with actual values                                   ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+-->
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>{{FLOW_DESCRIPTION}} - Demonstrates calling @InvocableMethod Apex</description>
+    <label>{{FLOW_LABEL}}</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Draft</status>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         START ELEMENT
+         Entry point of the Flow
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Call_Apex_Action</targetReference>
+        </connector>
+    </start>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         APEX ACTION CALL
+         This element invokes the @InvocableMethod in your Apex class
+
+         KEY ATTRIBUTES:
+         - actionName: Must match the Apex class name exactly (case-sensitive)
+         - actionType: "apex" for @InvocableMethod
+         - inputParameters: Map Flow variables to @InvocableVariable properties in Request class
+         - outputParameters: Map @InvocableVariable properties in Response class to Flow variables
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <actionCalls>
+        <name>Call_Apex_Action</name>
+        <label>Call Apex Action</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+
+        <!-- ACTION CONFIGURATION -->
+        <actionName>{{ApexClassName}}</actionName>
+        <actionType>apex</actionType>
+
+        <!-- CONNECTORS -->
+        <connector>
+            <targetReference>Check_Apex_Result</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Apex_Fault</targetReference>
+        </faultConnector>
+
+        <!-- INPUT PARAMETERS
+             Maps Flow variables → Apex @InvocableVariable in Request class
+             name = @InvocableVariable property name in Apex
+             value = Flow variable reference or literal -->
+        <inputParameters>
+            <name>recordId</name>
+            <value>
+                <elementReference>inp_RecordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>operationType</name>
+            <value>
+                <stringValue>process</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>includeRelated</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+
+        <!-- OUTPUT PARAMETERS
+             Maps Apex @InvocableVariable in Response class → Flow variables
+             name = @InvocableVariable property name in Apex
+             assignToReference = Flow variable to receive the value -->
+        <outputParameters>
+            <assignToReference>var_IsSuccess</assignToReference>
+            <name>isSuccess</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <name>errorMessage</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>var_OutputMessage</assignToReference>
+            <name>outputMessage</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>out_ProcessedRecordId</assignToReference>
+            <name>outputRecordId</name>
+        </outputParameters>
+    </actionCalls>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         DECISION: Check Apex Result
+         Checks if the Apex action succeeded or returned an error
+
+         Pattern: Apex returns isSuccess=true/false instead of throwing exceptions
+         This allows for graceful error handling in Flow
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <decisions>
+        <name>Check_Apex_Result</name>
+        <label>Check Apex Result</label>
+        <locationX>374</locationX>
+        <locationY>158</locationY>
+        <defaultConnector>
+            <targetReference>Handle_Apex_Error</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Apex Returned Error</defaultConnectorLabel>
+        <rules>
+            <name>Is_Success</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_IsSuccess</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Success_Processing</targetReference>
+            </connector>
+            <label>Success</label>
+        </rules>
+    </decisions>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SUCCESS PATH
+         Continue flow processing after successful Apex call
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <assignments>
+        <name>Success_Processing</name>
+        <label>Success Processing</label>
+        <locationX>242</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>out_IsSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_OutputMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <!-- Flow ends after success -->
+    </assignments>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         ERROR PATH: Apex Returned isSuccess=false
+         Handle business logic errors returned by Apex
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <assignments>
+        <name>Handle_Apex_Error</name>
+        <label>Handle Apex Error</label>
+        <locationX>506</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>out_IsSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_ErrorMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         FAULT PATH: Apex Threw Exception
+         Handle unhandled exceptions from Apex (system errors, governor limits, etc.)
+
+         $Flow.FaultMessage contains the exception message
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <assignments>
+        <name>Handle_Apex_Fault</name>
+        <label>Handle Apex Fault</label>
+        <locationX>506</locationX>
+        <locationY>50</locationY>
+        <assignmentItems>
+            <assignToReference>out_IsSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>System Error: </stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_Message</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         INPUT VARIABLES
+         These receive values from the process/system that invokes this Flow
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>inp_RecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         INTERNAL VARIABLES
+         Used to hold values between Flow elements
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>var_IsSuccess</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_OutputMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         OUTPUT VARIABLES
+         These return values to the process/system that invoked this Flow
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>out_ProcessedRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <variables>
+        <name>out_IsSuccess</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <variables>
+        <name>out_Message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

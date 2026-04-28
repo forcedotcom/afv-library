@@ -1,0 +1,117 @@
+# Multi-Turn Topic Routing Test Suite
+# Tests topic switching and re-matching accuracy across conversation turns
+#
+# Usage: Claude reads this template, adapts scenarios to the target agent's
+#        topics, and executes via Agent Runtime API.
+#
+# Customize: Replace topic names and utterances to match your agent's
+#            actual topics and classificationDescriptions.
+
+apiVersion: v1
+kind: AgentAPITestSuite
+metadata:
+  name: "Multi_Turn_Topic_Routing"
+  testMode: "agent-api"
+  description: "Validates topic switching and re-matching across multi-turn conversations"
+  category: "topic_routing"
+
+prerequisites:
+  eca_required: true
+  agent_published: true
+  agent_activated: true
+  agent_variables: []
+
+scenarios:
+  # Scenario 1: Natural topic switch (user changes mind)
+  - name: "topic_switch_natural"
+    description: >
+      User starts with one intent (cancel) then switches to another (reschedule).
+      Agent should recognize the new intent and route to the correct topic.
+    priority: high
+    turns:
+      - user: "I need to cancel my appointment"
+        expect:
+          response_not_empty: true
+          topic_contains: "cancel"
+      - user: "Actually, can I reschedule it instead?"
+        expect:
+          response_not_empty: true
+          topic_contains: "reschedule"
+          response_acknowledges_change: true
+      - user: "Make it for next Tuesday at 2pm"
+        expect:
+          response_not_empty: true
+          topic_contains: "reschedule"
+
+  # Scenario 2: Rapid topic switching (3 topics in succession)
+  - name: "topic_switch_rapid"
+    description: >
+      User quickly switches between three different topics.
+      Each turn should route to the correct topic without confusion.
+    priority: high
+    turns:
+      - user: "What's my account balance?"
+        expect:
+          response_not_empty: true
+          topic_contains: "account"
+      - user: "Never mind that, where is my order?"
+        expect:
+          response_not_empty: true
+          topic_contains: "order"
+      - user: "Actually forget it, I want to file a complaint"
+        expect:
+          response_not_empty: true
+          topic_contains: "complaint"
+
+  # Scenario 3: Detour and return to original topic
+  - name: "topic_return_original"
+    description: >
+      User starts with a topic, detours to another, then returns to the original.
+      Agent should handle the return without losing context.
+    priority: medium
+    turns:
+      - user: "Help me cancel my order"
+        expect:
+          response_not_empty: true
+          topic_contains: "cancel"
+      - user: "Wait, what's your return policy?"
+        expect:
+          response_not_empty: true
+          topic_contains: "faq"
+      - user: "OK thanks. Go ahead and cancel the order now"
+        expect:
+          response_not_empty: true
+          topic_contains: "cancel"
+
+  # Scenario 4: Implicit topic change (no explicit switch phrase)
+  - name: "topic_switch_implicit"
+    description: >
+      User shifts topic without explicitly saying "actually" or "never mind".
+      The agent should detect the new intent from context alone.
+    priority: medium
+    turns:
+      - user: "Can you check the status of my appointment?"
+        expect:
+          response_not_empty: true
+          topic_contains: "appointment"
+      - user: "That price seems high, is there a discount available?"
+        expect:
+          response_not_empty: true
+          topic_contains: "billing"
+      - user: "Also, can you update my phone number on file?"
+        expect:
+          response_not_empty: true
+          topic_contains: "account"
+
+# Evaluation criteria for topic routing scenarios
+evaluation:
+  pass_criteria:
+    - "Each turn routes to the expected topic"
+    - "Topic switch is acknowledged in response language"
+    - "No state leakage from previous topic (e.g., agent doesn't continue cancel flow after switch to reschedule)"
+  fail_categories:
+    - TOPIC_RE_MATCHING_FAILURE
+    - TOPIC_NOT_MATCHED
+  scoring:
+    weight: 15  # Out of 100 total points
+    per_scenario: true

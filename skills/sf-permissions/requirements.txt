@@ -1,0 +1,9 @@
+# sf-permissions dependencies
+# Install with: pip install -r requirements.txt
+
+# Salesforce API client
+simple-salesforce>=1.12.0
+
+# Rich TUI library for terminal output
+# Provides: trees, tables, panels, progress bars, syntax highlighting
+rich>=13.0.0

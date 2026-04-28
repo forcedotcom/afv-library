@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Loop Element Patterns v1.0.0
+    API Version: 66.0+
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    LOOP ELEMENT STRUCTURE
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Loops iterate over collections (SObject[], String[], Number[], etc.)
+
+    KEY CONNECTORS:
+    ┌─────────────────────────┬────────────────────────────────────────────────┐
+    │ Connector               │ Purpose                                        │
+    ├─────────────────────────┼────────────────────────────────────────────────┤
+    │ nextValueConnector      │ Points to FIRST element INSIDE the loop body  │
+    │ noMoreValuesConnector   │ Points to element AFTER loop completes        │
+    └─────────────────────────┴────────────────────────────────────────────────┘
+
+    ITERATION ORDER:
+    - Asc: Process collection from first to last (default)
+    - Desc: Process collection from last to first
+
+    LOOP VARIABLE ACCESS:
+    - Automatic: Reference loop element name directly (e.g., Loop_Contacts)
+    - Manual: Use assignNextValueToReference to store in named variable
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    CRITICAL: AVOID DML INSIDE LOOPS!
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ❌ BAD: Create/Update/Delete Record inside loop = N DML operations
+    ✅ GOOD: Collect records in loop, single DML after loop exits
+
+    Pattern:
+    1. Loop through source collection
+    2. Inside loop: Add modified record to UPDATE collection
+    3. After loop (noMoreValuesConnector): Single Update Records element
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_Counter)
+    - col_ for collections (e.g., col_Contacts)
+    - rec_ for record variables (e.g., rec_CurrentContact)
+    - inp_ for input variables (e.g., inp_AccountId)
+    - out_ for output variables (e.g., out_ProcessedCount)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    ASSIGNMENTS: Initialize variables before loop
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+    <assignments>
+        <name>Add_To_Update_Collection</name>
+        <label>Add To Update Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <!-- Add current record to collection for bulk update -->
+            <assignToReference>col_RecordsToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rec_CurrentRecord</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <!-- Increment counter -->
+            <assignToReference>var_ProcessedCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <!-- Loop back to continue iteration -->
+        <connector>
+            <targetReference>Loop_Through_Records</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>Initialize_Variables</name>
+        <label>Initialize Variables</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ProcessedCount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Records</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>Process_Current_Record</name>
+        <label>Process Current Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <!-- Copy loop variable to working record variable -->
+            <assignToReference>rec_CurrentRecord</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Through_Records</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <!-- Modify field on working record -->
+            <assignToReference>rec_CurrentRecord.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Processed by Flow</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_To_Update_Collection</targetReference>
+        </connector>
+    </assignments>
+
+    <description>Template demonstrating Loop element patterns with proper connector structure and bulkification.</description>
+    <label>Loop_Element_Patterns</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 1: BASIC LOOP (Ascending Order)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Standard loop pattern iterating first-to-last through collection.
+
+    Flow:
+    Loop_Through_Records
+        │
+        ├─── nextValueConnector ──→ Process_Current_Record (inside loop)
+        │                                    │
+        │                                    ↓
+        │                           Add_To_Update_Collection
+        │                                    │
+        │←───────────────────────────────────┘ (loops back)
+        │
+        └─── noMoreValuesConnector ──→ Bulk_Update_Records (after loop)
+    -->
+    <loops>
+        <name>Loop_Through_Records</name>
+        <label>Loop Through Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <!-- Collection to iterate over -->
+        <collectionReference>col_SourceRecords</collectionReference>
+        <!-- Ascending = first to last -->
+        <iterationOrder>Asc</iterationOrder>
+        <!-- INSIDE the loop body - first element to execute per iteration -->
+        <nextValueConnector>
+            <targetReference>Process_Current_Record</targetReference>
+        </nextValueConnector>
+        <!-- AFTER loop completes - when collection exhausted -->
+        <noMoreValuesConnector>
+            <targetReference>Bulk_Update_Records</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 2: DESCENDING ORDER LOOP
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Process collection from last to first. Useful when:
+    - Processing in reverse chronological order
+    - Removing items while iterating (avoid index shifting issues)
+    -->
+    <loops>
+        <name>Loop_Reverse_Order</name>
+        <label>Loop Reverse Order</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>col_SourceRecords</collectionReference>
+        <!-- Descending = last to first -->
+        <iterationOrder>Desc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Process_Current_Record</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Bulk_Update_Records</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 3: LOOP WITH MANUAL VARIABLE ASSIGNMENT
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Use assignNextValueToReference when you need:
+    - A specifically named loop variable
+    - Better readability in complex flows
+    - Consistency with existing variable naming conventions
+
+    NOTE: When using assignNextValueToReference, the loop element name
+    CANNOT be used as a reference - only the assigned variable works.
+    -->
+    <loops>
+        <name>Loop_With_Named_Variable</name>
+        <label>Loop With Named Variable</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>col_SourceRecords</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <!-- Explicitly assign current item to named variable -->
+        <assignNextValueToReference>rec_LoopItem</assignNextValueToReference>
+        <nextValueConnector>
+            <targetReference>Process_Current_Record</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Bulk_Update_Records</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <!-- Get Records to populate collection -->
+    <recordLookups>
+        <name>Get_Records</name>
+        <label>Get Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Has_Records</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Account</object>
+        <outputReference>col_SourceRecords</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Description</queriedFields>
+    </recordLookups>
+
+    <!-- Bulk Update AFTER loop (critical for performance) -->
+    <recordUpdates>
+        <name>Bulk_Update_Records</name>
+        <label>Bulk Update Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Handle_Error</targetReference>
+        </faultConnector>
+        <inputReference>col_RecordsToUpdate</inputReference>
+    </recordUpdates>
+
+    <!-- Error Handler -->
+    <assignments>
+        <name>Handle_Error</name>
+        <label>Handle Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Decision: Check if records exist before looping -->
+    <decisions>
+        <name>Decision_Has_Records</name>
+        <label>Has Records?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Records</defaultConnectorLabel>
+        <rules>
+            <name>Has_Records</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>col_SourceRecords</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Through_Records</targetReference>
+            </connector>
+            <label>Has Records</label>
+        </rules>
+    </decisions>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Initialize_Variables</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLES
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <!-- Source collection (populated by Get Records) -->
+    <variables>
+        <name>col_SourceRecords</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- Collection for bulk update -->
+    <variables>
+        <name>col_RecordsToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- Current record being processed -->
+    <variables>
+        <name>rec_CurrentRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- For Pattern 3: Named loop variable -->
+    <variables>
+        <name>rec_LoopItem</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- Counter -->
+    <variables>
+        <name>var_ProcessedCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <scale>0</scale>
+    </variables>
+
+    <!-- Error message -->
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICES FOR LOOPS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. ALWAYS CHECK FOR EMPTY COLLECTION
+       - Add Decision element before Loop
+       - Check: col_Records IsNull = false
+       - Prevents unnecessary processing
+
+    2. AVOID DML INSIDE LOOPS
+       - Collect records in col_RecordsToUpdate
+       - Single Update after noMoreValuesConnector
+       - Prevents governor limit exhaustion
+
+    3. USE MEANINGFUL VARIABLE NAMES
+       - col_ prefix for collections
+       - rec_ prefix for single records
+       - var_ prefix for primitives
+
+    4. CONSIDER ITERATION ORDER
+       - Asc: Standard processing
+       - Desc: When removing items or reverse chronological
+
+    5. HANDLE LARGE COLLECTIONS
+       - Flow handles batching automatically
+       - Consider Batch Apex for 50,000+ records
+
+    6. REFERENCE LOOP VARIABLE CORRECTLY
+       - Without assignNextValueToReference: Use loop element name
+       - With assignNextValueToReference: Use the assigned variable name
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    COMMON MISTAKES
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ❌ MISTAKE 1: DML inside loop
+    Loop → Update Record → Loop (BAD!)
+
+    ✅ CORRECT:
+    Loop → Add to Collection → Loop → (after loop) → Bulk Update
+
+    ❌ MISTAKE 2: No null check before loop
+    Get Records → Loop (may fail on null)
+
+    ✅ CORRECT:
+    Get Records → Decision (IsNull check) → Loop
+
+    ❌ MISTAKE 3: Wrong connector back to loop
+    Loop → Process → (missing connector back)
+
+    ✅ CORRECT:
+    Last element inside loop MUST connect back to Loop element
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+</Flow>

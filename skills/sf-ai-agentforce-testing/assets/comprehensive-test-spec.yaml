@@ -1,0 +1,262 @@
+# Comprehensive Test Specification Template
+# Full coverage template for production-ready agent testing
+#
+# Compatible with: sf agent test create --spec <file> --api-name <name>
+#
+# Usage:
+#   1. Replace all [placeholders] with actual values
+#   2. Add/remove test cases as needed for your agent
+#   3. Ensure every topic and action has at least one test
+#   4. Create: sf agent test create --spec comprehensive-test-spec.yaml --api-name [Test_Name] --target-org [alias]
+#   5. Run:    sf agent test run --api-name [Test_Name] --wait 10 --result-format json --target-org [alias]
+#
+# IMPORTANT: This YAML is parsed by @salesforce/agents — NOT a generic AiEvaluationDefinition format.
+# Only the fields below are recognized. Do NOT add apiVersion, kind, metadata, or settings.
+
+# Description: [Brief description of what this test suite validates]
+
+# Required: Display name for the test (MasterLabel) — deploy FAILS without this
+name: "[Agent_Name] Comprehensive Tests"
+
+# Required: Must be AGENT
+subjectType: AGENT
+
+# Required: Agent BotDefinition DeveloperName (API name)
+subjectName: [Agent_Name]
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════
+  # TOPIC ROUTING TESTS
+  # Goal: 100% topic coverage with 3+ phrasings per topic
+  # ═══════════════════════════════════════════════════════════════
+
+  # --- Topic 1: [topic_name] ---
+  - utterance: "[Primary phrasing for topic 1]"
+    expectedTopic: [topic_name]
+
+  - utterance: "[Alternative phrasing for topic 1]"
+    expectedTopic: [topic_name]
+
+  - utterance: "[Informal/casual phrasing for topic 1]"
+    expectedTopic: [topic_name]
+
+  # --- Topic 2: [another_topic] ---
+  - utterance: "[Primary phrasing for topic 2]"
+    expectedTopic: [another_topic]
+
+  - utterance: "[Alternative phrasing for topic 2]"
+    expectedTopic: [another_topic]
+
+  - utterance: "[Informal phrasing for topic 2]"
+    expectedTopic: [another_topic]
+
+  # Add more topics as needed...
+
+  # ═══════════════════════════════════════════════════════════════
+  # ACTION INVOCATION TESTS
+  # Goal: 100% action coverage
+  # expectedActions is a FLAT list of action name strings
+  # ═══════════════════════════════════════════════════════════════
+
+  # --- Action 1: [action_name] ---
+  - utterance: "[Message that triggers action 1]"
+    expectedTopic: [relevant_topic]
+    expectedActions:
+      - [action_name]
+
+  - utterance: "[Alternative message for action 1]"
+    expectedTopic: [relevant_topic]
+    expectedActions:
+      - [action_name]
+
+  # --- Action 2: [another_action] ---
+  - utterance: "[Message that triggers action 2]"
+    expectedTopic: [relevant_topic]
+    expectedActions:
+      - [another_action]
+
+  # --- Multiple actions in one test ---
+  - utterance: "[Message that should trigger both actions]"
+    expectedTopic: [relevant_topic]
+    expectedActions:
+      - [action_name]
+      - [another_action]
+
+  # ═══════════════════════════════════════════════════════════════
+  # OUTCOME VALIDATION TESTS
+  # expectedOutcome is a natural language description of the
+  # expected agent response — evaluated by LLM-as-judge
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message with expected response]"
+    expectedTopic: [topic_name]
+    expectedOutcome: "Agent should provide specific information about [topic]"
+
+  - utterance: "[Another message with outcome check]"
+    expectedTopic: [another_topic]
+    expectedOutcome: "Agent should acknowledge the request and provide next steps"
+
+  # ═══════════════════════════════════════════════════════════════
+  # ESCALATION TESTS
+  # Standard topic "Escalation" uses localDeveloperName
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "I need to speak with a manager"
+    expectedTopic: Escalation
+
+  - utterance: "I want to talk to a real person"
+    expectedTopic: Escalation
+
+  - utterance: "This is ridiculous, I need human help"
+    expectedTopic: Escalation
+
+  # ═══════════════════════════════════════════════════════════════
+  # EDGE CASE TESTS
+  # Test unusual inputs — topic routing still applies
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "asdfkjh qwerty12345 !!@@##"
+    expectedTopic: [expected_fallback_topic]
+
+  - utterance: "Where is my ordr?"
+    expectedTopic: [relevant_topic]
+
+  # ═══════════════════════════════════════════════════════════════
+  # MULTI-TURN CONVERSATION TESTS
+  # Use conversationHistory to provide prior turns as context
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "When will it arrive?"
+    expectedTopic: [relevant_topic]
+    conversationHistory:
+      - role: user
+        message: "I want to check on order 12345"
+      - role: agent
+        topic: [relevant_topic]
+        message: "I'd be happy to help you check on order 12345. Let me look that up."
+
+  - utterance: "Yes, please do that"
+    expectedTopic: [relevant_topic]
+    expectedActions:
+      - [create_case_action]
+    conversationHistory:
+      - role: user
+        message: "My product is broken"
+      - role: agent
+        topic: [relevant_topic]
+        message: "I'm sorry to hear that. I can help you create a support case."
+
+  # ═══════════════════════════════════════════════════════════════
+  # CONTEXT VARIABLE TESTS
+  # Inject real record IDs so action flows receive valid data
+  # Discovery:
+  #   sf data query --query "SELECT Id FROM MessagingSession WHERE Status='Active' LIMIT 1" --target-org [alias]
+  #   sf data query --query "SELECT Id FROM Case ORDER BY CreatedDate DESC LIMIT 1" --target-org [alias]
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers an action needing record context]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    expectedOutcome: "Agent should [expected behavior with context]"
+    contextVariables:
+      - name: "$Context.RoutableId"      # Prefixed format (recommended) — bare RoutableId also works
+        value: "[MessagingSession_Id]"  # e.g., 0Mwbb000007MGoTCAW
+
+  - utterance: "[Another message triggering a different action with context]"
+    expectedTopic: [another_topic]
+    expectedActions:
+      - [another_action]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+      - name: CaseId
+        value: "[Case_Id]"             # e.g., 500XX0000000001
+
+  # ═══════════════════════════════════════════════════════════════
+  # METRICS — add to any test case for quality scoring
+  # Recommended: coherence + output_latency_milliseconds
+  # Skip: conciseness (broken), completeness (misleading for routing)
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message to quality-check]"
+    expectedTopic: [topic_name]
+    expectedOutcome: "Agent should provide clear, helpful response"
+    metrics:
+      - coherence
+      - instruction_following
+      - output_latency_milliseconds
+    # NOTE: Skip 'conciseness' — returns score=0 (Spring '26 bug)
+    # NOTE: Skip 'completeness' — penalizes routing/triage agents
+
+  # ═══════════════════════════════════════════════════════════════
+  # CUSTOM EVALUATIONS — JSONPath assertions on action inputs/outputs
+  # ⚠️ SPRING '26 BUG: Results API returns RETRY → HTTP 500
+  #    Deploy these tests, but results may only be viewable in UI
+  #    TODO: Remove bug warning after Spring '26 platform patch
+  # ═══════════════════════════════════════════════════════════════
+
+  # Uncomment below when Spring '26 custom eval bug is fixed:
+  #
+  # - utterance: "[Message that triggers specific action input]"
+  #   expectedTopic: [topic_name]
+  #   expectedActions:
+  #     - [action_name]
+  #   contextVariables:
+  #     - name: RoutableId
+  #       value: "[MessagingSession_Id]"
+  #   customEvaluations:
+  #     - label: "[What you're checking — e.g., supportPath is Field Support]"
+  #       name: string_comparison
+  #       parameters:
+  #         - name: operator
+  #           value: equals
+  #           isReference: false
+  #         - name: actual
+  #           value: "$.generatedData.invokedActions[0][0].function.input.[field]"
+  #           isReference: true
+  #         - name: expected
+  #           value: "[expected_value]"
+  #           isReference: false
+  #
+  # - utterance: "[Message to check action latency]"
+  #   expectedTopic: [topic_name]
+  #   expectedActions:
+  #     - [action_name]
+  #   customEvaluations:
+  #     - label: "Action completes within 5 seconds"
+  #       name: numeric_comparison
+  #       parameters:
+  #         - name: operator
+  #           value: less_than
+  #           isReference: false
+  #         - name: actual
+  #           value: "$.generatedData.invokedActions[0][0].executionLatency"
+  #           isReference: true
+  #         - name: expected
+  #           value: "5000"
+  #           isReference: false
+
+# ═══════════════════════════════════════════════════════════════════════
+# NOTES
+#
+# Topic Name Resolution:
+#   Standard topics (Escalation, Off_Topic) → use localDeveloperName
+#   Promoted topics (p_16j... prefix) → use FULL runtime developerName with hash
+#   See references/topic-name-resolution.md for details
+#
+# Action Assertions (superset matching):
+#   Expected: [ActionA] / Actual: [ActionA, ActionB] → PASS
+#   The CLI passes if the agent invokes AT LEAST the expected actions.
+#
+# Empty expectedActions:
+#   expectedActions: [] means "not testing actions" → always PASS
+#   Omitting expectedActions entirely has the same effect.
+#
+# Missing expectedOutcome:
+#   Omitting expectedOutcome causes output_validation to report ERROR status.
+#   This is HARMLESS — topic and action assertions still run normally.
+#
+# conversationHistory roles:
+#   Use "user" and "agent" (NOT "assistant"). Agent entries need "topic" field.
+# ═══════════════════════════════════════════════════════════════════════

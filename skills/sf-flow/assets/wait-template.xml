@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Wait Element Patterns v1.0.0
+    API Version: 66.0+
+
+    IMPORTANT: Wait elements can ONLY be used in:
+    - Autolaunched Flows (NO screens or choices)
+    - Scheduled Flows
+    - Orchestrations
+
+    Wait elements CANNOT be used in:
+    - Screen Flows
+    - Record-Triggered Flows
+    - Subflows called from Record-Triggered Flows
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    THREE WAIT ELEMENT TYPES (Winter '24+)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. WAIT FOR AMOUNT OF TIME (Duration-based)
+       - Fixed wait: minutes, hours, days, or months
+       - Optional: Resume at specific time of day
+       - Use case: Follow-up emails, case escalation delays
+
+    2. WAIT UNTIL DATE (Date-based)
+       - Resume at specific date/time
+       - Dynamic via formula or variable
+       - Use case: Contract renewals, scheduled notifications
+
+    3. WAIT FOR CONDITIONS (Event-based)
+       - Resume when field condition is met
+       - Optional maximum wait time
+       - Use case: Approval completion, status changes
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_WaitDays)
+    - col_ for collections (e.g., col_RecordIds)
+    - rec_ for record variables (e.g., rec_Case)
+    - inp_ for input variables (e.g., inp_RecordId)
+    - out_ for output variables (e.g., out_IsComplete)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!-- Assignment: Initialize before wait -->
+    <assignments>
+        <name>Initialize_Variables</name>
+        <label>Initialize Variables</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ProcessingStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Waiting</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Wait_Duration_Example</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- Assignment: Process after wait -->
+    <assignments>
+        <name>Process_After_Wait</name>
+        <label>Process After Wait</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ProcessingStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <description>Template demonstrating all three Wait element patterns: Duration, Date, and Condition-based waits.</description>
+    <label>Wait_Element_Patterns</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Initialize_Variables</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!-- Variables -->
+    <variables>
+        <name>inp_RecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ProcessingStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ResumeDate</name>
+        <dataType>DateTime</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_WaitDays</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>7.0</numberValue>
+        </value>
+    </variables>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 1: WAIT FOR AMOUNT OF TIME (Duration-Based)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Use when you need to pause for a fixed duration before continuing.
+
+    Examples:
+    - Wait 24 hours before sending follow-up email
+    - Wait 7 days before escalating case
+    - Wait 1 hour before retry
+
+    Key elements:
+    - waitEvents: Contains the wait configuration
+    - eventType: AlarmEvent (for duration/time-based)
+    - inputParameters: Define duration and unit
+    -->
+    <waits>
+        <name>Wait_Duration_Example</name>
+        <label>Wait for Duration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Wait Timeout</defaultConnectorLabel>
+        <waitEvents>
+            <name>Wait_Duration_Event</name>
+            <conditionLogic>and</conditionLogic>
+            <connector>
+                <targetReference>Process_After_Wait</targetReference>
+            </connector>
+            <eventType>AlarmEvent</eventType>
+            <inputParameters>
+                <name>AlarmTime</name>
+                <value>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>TimeOffset</name>
+                <value>
+                    <numberValue>7.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>TimeOffsetUnit</name>
+                <value>
+                    <stringValue>Days</stringValue>
+                </value>
+            </inputParameters>
+            <label>Duration Complete</label>
+        </waitEvents>
+    </waits>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 2: WAIT UNTIL DATE (Date-Based)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Use when you need to resume at a specific date/time.
+
+    Examples:
+    - Resume on contract expiration date
+    - Resume on subscription renewal date
+    - Resume at scheduled meeting time
+
+    Key elements:
+    - eventType: DateRefAlarmEvent
+    - inputParameters: Reference to date field or variable
+
+    NOTE: Use a formula or assignment to calculate the target date
+    before the wait element.
+    -->
+    <waits>
+        <name>Wait_Until_Date_Example</name>
+        <label>Wait Until Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Date Reached</defaultConnectorLabel>
+        <waitEvents>
+            <name>Wait_Date_Event</name>
+            <conditionLogic>and</conditionLogic>
+            <connector>
+                <targetReference>Process_After_Wait</targetReference>
+            </connector>
+            <eventType>DateRefAlarmEvent</eventType>
+            <inputParameters>
+                <name>DateTime</name>
+                <value>
+                    <elementReference>var_ResumeDate</elementReference>
+                </value>
+            </inputParameters>
+            <label>Target Date Reached</label>
+        </waitEvents>
+    </waits>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 3: WAIT FOR CONDITIONS (Condition-Based)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Use when you need to resume when a field changes to meet criteria.
+
+    Examples:
+    - Resume when Case Status = 'Closed'
+    - Resume when Approval Status = 'Approved'
+    - Resume when Payment Status = 'Received'
+
+    Key elements:
+    - conditions: Define field criteria to check
+    - resumeDate... elements: Optional max wait timeout
+    - Multiple waitEvents: Different paths based on conditions
+
+    WARNING: This is the most complex wait pattern.
+    Consider if a Platform Event flow might be simpler.
+    -->
+    <waits>
+        <name>Wait_Conditions_Example</name>
+        <label>Wait for Conditions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Process_After_Wait</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Max Wait Exceeded</defaultConnectorLabel>
+        <waitEvents>
+            <name>Condition_Met_Event</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>rec_Case.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Process_After_Wait</targetReference>
+            </connector>
+            <eventType>AlarmEvent</eventType>
+            <inputParameters>
+                <name>AlarmTime</name>
+                <value>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>TimeOffset</name>
+                <value>
+                    <numberValue>30.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>TimeOffsetUnit</name>
+                <value>
+                    <stringValue>Days</stringValue>
+                </value>
+            </inputParameters>
+            <label>Condition Met</label>
+        </waitEvents>
+    </waits>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICES FOR WAIT ELEMENTS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. ONLY USE IN AUTOLAUNCHED FLOWS
+       - Wait elements break Screen Flows and Record-Triggered Flows
+       - If you need a wait in a triggered flow, call an Autolaunched subflow
+
+    2. CONSIDER GOVERNOR LIMITS
+       - Waiting flows count against org limits
+       - Long waits with many instances can accumulate
+
+    3. TEST CAREFULLY
+       - Use debug logs to verify wait behavior
+       - In sandbox, consider shorter durations for testing
+
+    4. HANDLE TIMEOUT PATHS
+       - Always define defaultConnector for timeout scenarios
+       - Log or notify when max wait exceeded
+
+    5. PREFER PLATFORM EVENTS WHEN POSSIBLE
+       - For complex event-driven scenarios
+       - Platform Event triggers are often simpler than Wait for Conditions
+
+    6. DOCUMENT WAIT LOGIC
+       - Add comments explaining why wait duration was chosen
+       - Document timeout handling behavior
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+</Flow>

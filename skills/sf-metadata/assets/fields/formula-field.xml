@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Formula Field Template
+
+    Usage: Calculated field based on other fields
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Full_Name__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Full Name")
+    - {{FORMULA_RETURN_TYPE}} - Text, Number, Currency, Date, DateTime, Checkbox
+    - {{FORMULA}} - The formula expression
+    - {{PRECISION}} - Total digits (for Number/Currency/Percent)
+    - {{SCALE}} - Decimal places (for Number/Currency/Percent)
+    - {{BLANK_AS_ZERO}} - true (treat blank as zero) or false (treat as blank)
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Return Type Options:
+    - Text: Returns string value
+    - Number: Returns numeric value
+    - Currency: Returns monetary value
+    - Percent: Returns percentage (0-100 stored, displayed with %)
+    - Date: Returns date value
+    - DateTime: Returns date/time value
+    - Checkbox: Returns true/false
+
+    Notes:
+    - Formula fields are read-only
+    - Counted against formula character limit (5,000 compiled)
+    - Can reference fields up to 10 relationships away
+    - Use TEXT() for picklist values in formulas
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>{{FORMULA_RETURN_TYPE}}</type>
+    <!-- Include precision/scale for Number, Currency, Percent types -->
+    <precision>{{PRECISION}}</precision>
+    <scale>{{SCALE}}</scale>
+    <formula>{{FORMULA}}</formula>
+    <formulaTreatBlanksAs>{{BLANK_AS_ZERO}}</formulaTreatBlanksAs>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>
+
+<!--
+    Common Formula Examples:
+
+    Text concatenation:
+    FirstName__c & " " & LastName__c
+
+    Conditional (IF):
+    IF(Amount__c > 100000, "Large", IF(Amount__c > 10000, "Medium", "Small"))
+
+    Date calculation:
+    TODAY() - CreatedDate
+
+    Picklist reference:
+    TEXT(Status__c)
+
+    Cross-object reference:
+    Account.Industry
+
+    NULL handling:
+    BLANKVALUE(Phone__c, "No Phone")
+
+    CASE statement:
+    CASE(Status__c,
+        "New", 1,
+        "In Progress", 2,
+        "Completed", 3,
+        0)
+-->

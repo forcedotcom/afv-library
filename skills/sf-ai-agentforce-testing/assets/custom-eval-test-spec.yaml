@@ -1,0 +1,214 @@
+# Custom Evaluations Test Specification Template
+# Demonstrates JSONPath-based assertions on action inputs and outputs
+#
+# ╔══════════════════════════════════════════════════════════════════════╗
+# ║  ⚠️  SPRING '26 PLATFORM BUG — CUSTOM EVALUATIONS BLOCKED          ║
+# ║                                                                      ║
+# ║  Custom evaluations with isReference: true (JSONPath) cause the      ║
+# ║  server to return "RETRY" status. The results API then crashes:      ║
+# ║  INTERNAL_SERVER_ERROR: The specified enum type has no constant       ║
+# ║  with the specified name: RETRY                                      ║
+# ║                                                                      ║
+# ║  This is a SERVER-SIDE bug (confirmed via direct curl).              ║
+# ║  Both filter expressions and direct indexing trigger it.             ║
+# ║  Tests WITHOUT custom evals on the same run complete fine.           ║
+# ║                                                                      ║
+# ║  Workarounds:                                                        ║
+# ║    1. Use Testing Center UI (Setup → Agent Testing)                  ║
+# ║    2. Skip custom evals until platform patch                         ║
+# ║    3. Use expectedOutcome (LLM-as-judge) instead                     ║
+# ║                                                                      ║
+# ║  TODO: Remove this warning after Spring '26 platform patch           ║
+# ╚══════════════════════════════════════════════════════════════════════╝
+#
+# Compatible with: sf agent test create --spec <file> --api-name <name>
+#
+# Workflow to build custom evaluations:
+#   1. Run tests with --verbose to see generatedData.invokedActions
+#   2. Parse the stringified JSON to find field names and values
+#   3. Build JSONPath expressions targeting specific fields
+#   4. Add customEvaluations to your YAML test spec
+#   5. Deploy and run — results may only be viewable in Testing Center UI
+
+# Required: Display name (MasterLabel) — deploy FAILS without this
+name: "[Agent_Name] Custom Evaluation Tests"
+
+# Required: Must be AGENT
+subjectType: AGENT
+
+# Required: Agent BotDefinition DeveloperName (API name)
+subjectName: [Agent_Name]
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 1: String comparison — equals
+  # Verify an action input field has an exact expected value
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers action with known input]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+    customEvaluations:
+      - label: "[fieldName] equals [expected_value]"
+        name: string_comparison
+        parameters:
+          - name: operator
+            value: equals
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].function.input.[fieldName]"
+            isReference: true       # JSONPath resolved against generatedData
+          - name: expected
+            value: "[expected_value]"
+            isReference: false
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 2: String comparison — contains
+  # Verify an action input field contains a substring
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message with partial match expectation]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+    customEvaluations:
+      - label: "[fieldName] contains [substring]"
+        name: string_comparison
+        parameters:
+          - name: operator
+            value: contains
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].function.input.[fieldName]"
+            isReference: true
+          - name: expected
+            value: "[substring]"
+            isReference: false
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 3: Numeric comparison — less_than (latency check)
+  # Verify an action completes within a time threshold
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers a timed action]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    customEvaluations:
+      - label: "Action completes within 5 seconds"
+        name: numeric_comparison
+        parameters:
+          - name: operator
+            value: less_than
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].executionLatency"
+            isReference: true
+          - name: expected
+            value: "5000"           # 5000ms = 5 seconds
+            isReference: false
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 4: String comparison — verify action receives real recordId
+  # When RoutableId is injected via contextVariables, the action
+  # should receive the MessagingSession ID, not the topic name.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message that triggers action with recordId]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"  # e.g., 0Mwbb000007MGoTCAW
+    customEvaluations:
+      - label: "recordId is the injected MessagingSession ID"
+        name: string_comparison
+        parameters:
+          - name: operator
+            value: equals
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].function.input.recordId"
+            isReference: true
+          - name: expected
+            value: "[MessagingSession_Id]"  # Must match contextVariables.RoutableId value
+            isReference: false
+
+  # ═══════════════════════════════════════════════════════════════
+  # TEST 5: Multiple custom evaluations on same test case
+  # You can stack multiple assertions on a single test case
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "[Message triggering action with multiple checkable fields]"
+    expectedTopic: [topic_name]
+    expectedActions:
+      - [action_name]
+    contextVariables:
+      - name: RoutableId
+        value: "[MessagingSession_Id]"
+    customEvaluations:
+      - label: "[field1] equals [value1]"
+        name: string_comparison
+        parameters:
+          - name: operator
+            value: equals
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].function.input.[field1]"
+            isReference: true
+          - name: expected
+            value: "[value1]"
+            isReference: false
+      - label: "[field2] contains [substring]"
+        name: string_comparison
+        parameters:
+          - name: operator
+            value: contains
+            isReference: false
+          - name: actual
+            value: "$.generatedData.invokedActions[0][0].function.input.[field2]"
+            isReference: true
+          - name: expected
+            value: "[substring]"
+            isReference: false
+
+# ═══════════════════════════════════════════════════════════════════════
+# NOTES
+#
+# JSONPath Expression Structure:
+#   invokedActions is a STRINGIFIED JSON array: "[[{...}]]"
+#   The JSONPath engine parses it automatically.
+#
+#   Common paths:
+#     $.generatedData.invokedActions[0][0].function.name          → action name
+#     $.generatedData.invokedActions[0][0].function.input.[field] → action input
+#     $.generatedData.invokedActions[0][0].function.output.[field] → action output
+#     $.generatedData.invokedActions[0][0].executionLatency       → latency (ms)
+#
+#   For multiple actions in one turn:
+#     $.generatedData.invokedActions[0][1].function.input.[field] → 2nd action
+#
+# String Comparison Operators:
+#   equals, contains, startswith, endswith
+#
+# Numeric Comparison Operators:
+#   equals, greater_than, less_than, greater_than_or_equal, less_than_or_equal
+#
+# Parameter Fields:
+#   name: operator | actual | expected
+#   value: the literal value or JSONPath expression
+#   isReference: true if value is a JSONPath expression, false if literal
+#
+# ⚠️ SPRING '26 BUG REMINDER:
+#   All custom evaluations with isReference: true trigger RETRY → HTTP 500.
+#   This template is provided for reference and future use.
+#   Use expectedOutcome (LLM-as-judge) as a workaround until patched.
+# ═══════════════════════════════════════════════════════════════════════

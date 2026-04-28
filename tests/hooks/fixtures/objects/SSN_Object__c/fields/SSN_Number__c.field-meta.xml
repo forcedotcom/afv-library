@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SSN_Number__c</fullName>
+    <label>SSN Number</label>
+    <type>Text</type>
+    <length>11</length>
+    <required>false</required>
+    <externalId>false</externalId>
+</CustomField>

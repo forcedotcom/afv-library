@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Get Records (recordLookups) Patterns v1.0.0
+    API Version: 66.0+
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    RECORDLOOKUPS ELEMENT OPTIONS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ┌──────────────────────────────────┬─────────────────────────────────────────┐
+    │ Element                          │ Purpose                                 │
+    ├──────────────────────────────────┼─────────────────────────────────────────┤
+    │ object                           │ API name of SObject to query            │
+    │ filters                          │ WHERE clause conditions                 │
+    │ filterLogic                      │ "and" / "or" / custom (1 AND 2 OR 3)    │
+    │ queriedFields                    │ SELECT fields (explicit list)           │
+    │ getFirstRecordOnly               │ true = single record, false = collection│
+    │ sortField                        │ ORDER BY field                          │
+    │ sortOrder                        │ Asc / Desc                              │
+    │ limit                            │ LIMIT clause (max records)              │
+    │ outputReference                  │ Variable to store result                │
+    │ storeOutputAutomatically         │ Auto-create variable (NOT RECOMMENDED)  │
+    │ assignNullValuesIfNoRecordsFound │ Set fields to null on no match          │
+    └──────────────────────────────────┴─────────────────────────────────────────┘
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    ⚠️ CRITICAL: RELATIONSHIP FIELDS NOT SUPPORTED
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Flow recordLookups CANNOT query parent relationship fields!
+
+    ❌ FAILS: <queriedFields>Account.Name</queriedFields>
+    ❌ FAILS: <queriedFields>Manager.Email</queriedFields>
+
+    ✅ SOLUTION: Two-step query pattern (see Pattern 4 below)
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    ⚠️ SECURITY: AVOID storeOutputAutomatically
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    When storeOutputAutomatically="true", ALL fields are retrieved.
+    This can expose sensitive data (SSN, Salary, etc.) unintentionally.
+
+    ✅ ALWAYS specify explicit queriedFields + outputReference
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_RecordCount)
+    - col_ for collections (e.g., col_Accounts)
+    - rec_ for record variables (e.g., rec_Account)
+    - inp_ for input variables (e.g., inp_AccountId)
+    - out_ for output variables (e.g., out_FoundRecord)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <description>Template demonstrating all recordLookups patterns: single record, collection, sorting, filtering, and two-step queries.</description>
+    <label>Get_Records_Patterns</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 1: GET SINGLE RECORD BY ID
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Most common pattern - fetch one record by its unique identifier.
+
+    Equivalent SOQL:
+    SELECT Id, Name, Industry, Website FROM Account WHERE Id = :inp_AccountId LIMIT 1
+    -->
+    <recordLookups>
+        <name>Get_Account_By_Id</name>
+        <label>Get Account By Id</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Account_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <!-- Return single record, not collection -->
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <!-- Explicit variable - RECOMMENDED -->
+        <outputReference>rec_Account</outputReference>
+        <!-- Only fetch fields you need - SECURITY BEST PRACTICE -->
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Industry</queriedFields>
+        <queriedFields>Website</queriedFields>
+    </recordLookups>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 2: GET COLLECTION WITH FILTERS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Fetch multiple records matching criteria.
+
+    Equivalent SOQL:
+    SELECT Id, Name, Amount, StageName FROM Opportunity
+    WHERE AccountId = :inp_AccountId AND StageName = 'Closed Won'
+    -->
+    <recordLookups>
+        <name>Get_Closed_Opportunities</name>
+        <label>Get Closed Won Opportunities</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Has_Opportunities</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Closed Won</stringValue>
+            </value>
+        </filters>
+        <!-- Return collection, not single record -->
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <outputReference>col_ClosedOpportunities</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Amount</queriedFields>
+        <queriedFields>StageName</queriedFields>
+        <queriedFields>CloseDate</queriedFields>
+    </recordLookups>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 3: GET RECORDS WITH SORTING AND LIMIT
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Fetch records with specific order and limit count.
+
+    Equivalent SOQL:
+    SELECT Id, Name, CreatedDate FROM Case
+    WHERE AccountId = :inp_AccountId AND Status != 'Closed'
+    ORDER BY CreatedDate DESC
+    LIMIT 10
+    -->
+    <recordLookups>
+        <name>Get_Recent_Open_Cases</name>
+        <label>Get Recent Open Cases</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Process_Cases</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <!-- LIMIT clause -->
+        <limit>10</limit>
+        <object>Case</object>
+        <outputReference>col_RecentCases</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Subject</queriedFields>
+        <queriedFields>Status</queriedFields>
+        <queriedFields>Priority</queriedFields>
+        <queriedFields>CreatedDate</queriedFields>
+        <!-- ORDER BY field -->
+        <sortField>CreatedDate</sortField>
+        <!-- Desc = newest first -->
+        <sortOrder>Desc</sortOrder>
+    </recordLookups>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 4: TWO-STEP QUERY (Parent Record Lookup)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    When you need parent fields (e.g., Account.Owner.Email from Contact):
+    1. Get child record with lookup ID field
+    2. Query parent record using that ID
+
+    This pattern works around Flow's lack of relationship query support.
+    -->
+
+    <!-- Step 1: Get Contact with AccountId (lookup ID only) -->
+    <recordLookups>
+        <name>Get_Contact_With_AccountId</name>
+        <label>Get Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Contact_Has_Account</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_ContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <outputReference>rec_Contact</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>FirstName</queriedFields>
+        <queriedFields>LastName</queriedFields>
+        <!-- Get the LOOKUP ID, not the parent fields -->
+        <queriedFields>AccountId</queriedFields>
+    </recordLookups>
+
+    <!-- Step 2: Get Account using the AccountId from Contact -->
+    <recordLookups>
+        <name>Get_Parent_Account</name>
+        <label>Get Parent Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Process_With_Account</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <!-- Reference the lookup ID from step 1 -->
+                <elementReference>rec_Contact.AccountId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <outputReference>rec_ParentAccount</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Industry</queriedFields>
+        <queriedFields>OwnerId</queriedFields>
+    </recordLookups>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 5: CUSTOM FILTER LOGIC (OR conditions)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Use custom filterLogic for complex conditions.
+
+    Equivalent SOQL:
+    SELECT Id, Name FROM Lead
+    WHERE (Status = 'Open' OR Status = 'Working') AND LeadSource = 'Web'
+
+    filterLogic format: "(1 OR 2) AND 3"
+    - Numbers correspond to filter order (1-indexed)
+    -->
+    <recordLookups>
+        <name>Get_Active_Web_Leads</name>
+        <label>Get Active Web Leads</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Process_Leads</targetReference>
+        </connector>
+        <!-- Custom logic: (filter1 OR filter2) AND filter3 -->
+        <filterLogic>(1 OR 2) AND 3</filterLogic>
+        <filters>
+            <!-- Filter 1 -->
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Open - Not Contacted</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <!-- Filter 2 -->
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Working - Contacted</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <!-- Filter 3 -->
+            <field>LeadSource</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Web</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Lead</object>
+        <outputReference>col_ActiveLeads</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Status</queriedFields>
+        <queriedFields>LeadSource</queriedFields>
+    </recordLookups>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    DECISIONS: Null Checks After Get Records
+    ═══════════════════════════════════════════════════════════════════════════════
+    ALWAYS check if record was found before using it!
+    -->
+    <decisions>
+        <name>Decision_Account_Found</name>
+        <label>Account Found?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Account_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>rec_Account</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Process_Account</targetReference>
+            </connector>
+            <label>Found</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>Decision_Contact_Has_Account</name>
+        <label>Contact Has Account?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Account</defaultConnectorLabel>
+        <rules>
+            <name>Has_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>rec_Contact.AccountId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Parent_Account</targetReference>
+            </connector>
+            <label>Has Account</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>Decision_Has_Opportunities</name>
+        <label>Has Opportunities?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Opportunities</defaultConnectorLabel>
+        <rules>
+            <name>Has_Opps</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>col_ClosedOpportunities</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Opportunities</targetReference>
+            </connector>
+            <label>Has Opportunities</label>
+        </rules>
+    </decisions>
+
+    <!-- Placeholder elements for flow connectivity -->
+    <assignments>
+        <name>Process_Account</name>
+        <label>Process Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Result</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rec_Account.Name</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <assignments>
+        <name>Process_Cases</name>
+        <label>Process Cases</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Result</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Cases processed</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <assignments>
+        <name>Process_Leads</name>
+        <label>Process Leads</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Result</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Leads processed</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <assignments>
+        <name>Process_With_Account</name>
+        <label>Process With Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Result</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rec_ParentAccount.Name</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <loops>
+        <name>Loop_Opportunities</name>
+        <label>Loop Opportunities</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>col_ClosedOpportunities</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Process_Single_Opportunity</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Finalize_Processing</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <assignments>
+        <name>Process_Single_Opportunity</name>
+        <label>Process Single Opportunity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_TotalAmount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Opportunities.Amount</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Opportunities</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>Finalize_Processing</name>
+        <label>Finalize Processing</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_Result</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Processing complete</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Account_By_Id</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLES
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <!-- Input Variables -->
+    <variables>
+        <name>inp_AccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>inp_ContactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Single Record Variables -->
+    <variables>
+        <name>rec_Account</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <variables>
+        <name>rec_Contact</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+
+    <variables>
+        <name>rec_ParentAccount</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- Collection Variables -->
+    <variables>
+        <name>col_ClosedOpportunities</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Opportunity</objectType>
+    </variables>
+
+    <variables>
+        <name>col_RecentCases</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Case</objectType>
+    </variables>
+
+    <variables>
+        <name>col_ActiveLeads</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Lead</objectType>
+    </variables>
+
+    <!-- Processing Variables -->
+    <variables>
+        <name>var_Result</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_TotalAmount</name>
+        <dataType>Currency</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <scale>2</scale>
+    </variables>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICES FOR RECORDLOOKUPS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. ALWAYS SPECIFY EXPLICIT FIELDS
+       - Use queriedFields to list only needed fields
+       - NEVER use storeOutputAutomatically (security risk)
+
+    2. ALWAYS CHECK FOR NULL
+       - Add Decision after Get Records
+       - Check: rec_Record IsNull = false
+       - Prevents null pointer errors
+
+    3. USE APPROPRIATE getFirstRecordOnly
+       - true: When expecting single record (by Id, unique field)
+       - false: When expecting multiple records (by lookup, criteria)
+
+    4. OPTIMIZE WITH SORTING AND LIMITS
+       - Use sortField + sortOrder for ordered results
+       - Use limit to cap record count
+
+    5. AVOID RELATIONSHIP FIELDS
+       - ❌ Can't use: Account.Name, Owner.Email
+       - ✅ Use two-step query pattern instead
+
+    6. FILTER LOGIC PATTERNS
+       - "and": All conditions must match
+       - "or": Any condition can match
+       - Custom: "(1 AND 2) OR 3" for complex logic
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    FILTER OPERATORS REFERENCE
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ┌────────────────────┬────────────────────────────────────────────────────────┐
+    │ Operator           │ Description                                            │
+    ├────────────────────┼────────────────────────────────────────────────────────┤
+    │ EqualTo            │ Exact match                                            │
+    │ NotEqualTo         │ Not equal                                              │
+    │ GreaterThan        │ Greater than (numbers, dates)                          │
+    │ GreaterThanOrEqual │ Greater than or equal                                  │
+    │ LessThan           │ Less than                                              │
+    │ LessThanOrEqualTo  │ Less than or equal                                     │
+    │ Contains           │ String contains (LIKE '%value%')                       │
+    │ StartsWith         │ String starts with (LIKE 'value%')                     │
+    │ EndsWith           │ String ends with (LIKE '%value')                       │
+    │ IsNull             │ Field is null (true) or not null (false)               │
+    │ IsChanged          │ Field changed (Record-Triggered only, with $Record)    │
+    └────────────────────┴────────────────────────────────────────────────────────┘
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+</Flow>

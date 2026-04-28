@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Profile Template
+
+    Usage: User profile defining permissions and access
+
+    RECOMMENDATION: Use Permission Sets instead of Profiles for granular permissions.
+    Profiles should define base access; Permission Sets for feature-specific access.
+
+    Placeholders:
+    - {{PROFILE_NAME}} - Profile API name
+    - {{DESCRIPTION}} - Profile purpose
+    - {{USER_LICENSE}} - License type (Salesforce, Salesforce Platform, etc.)
+    - {{IS_CUSTOM}} - true for custom profiles, false for standard
+
+    Notes:
+    - Standard profiles cannot be deleted
+    - Profile determines record types, page layouts, and login hours
+    - Field permissions and object permissions are typically managed here
+    - Consider using Permission Set Groups for complex permission models
+-->
+<Profile xmlns="http://soap.sforce.com/2006/04/metadata">
+    <custom>{{IS_CUSTOM}}</custom>
+    <description>{{DESCRIPTION}}</description>
+    <userLicense>{{USER_LICENSE}}</userLicense>
+
+    <!--
+    ═══════════════════════════════════════════
+    OBJECT PERMISSIONS
+    ═══════════════════════════════════════════
+    Define CRUD access for each object
+    -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Account</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+
+    <!-- Add more object permissions as needed -->
+    <!--
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Custom_Object__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    FIELD PERMISSIONS (FLS)
+    ═══════════════════════════════════════════
+    Define read/edit access for specific fields
+    -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Industry</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- Add more field permissions as needed -->
+    <!--
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.Sensitive_Field__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    TAB VISIBILITY
+    ═══════════════════════════════════════════
+    DefaultOn, DefaultOff, or Hidden
+    -->
+    <tabVisibilities>
+        <tab>standard-Account</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
+
+    <!--
+    ═══════════════════════════════════════════
+    RECORD TYPE ASSIGNMENTS
+    ═══════════════════════════════════════════
+    Assign available record types
+    -->
+    <!--
+    <recordTypeVisibilities>
+        <default>true</default>
+        <recordType>Account.Business_Account</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    PAGE LAYOUT ASSIGNMENTS
+    ═══════════════════════════════════════════
+    Map record types to page layouts
+    -->
+    <!--
+    <layoutAssignments>
+        <layout>Account-Account Layout</layout>
+    </layoutAssignments>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    APPLICATION VISIBILITY
+    ═══════════════════════════════════════════
+    -->
+    <applicationVisibilities>
+        <application>standard__LightningSales</application>
+        <default>true</default>
+        <visible>true</visible>
+    </applicationVisibilities>
+
+    <!--
+    ═══════════════════════════════════════════
+    USER PERMISSIONS (SYSTEM PERMISSIONS)
+    ═══════════════════════════════════════════
+    Enable specific system permissions
+    -->
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ViewSetup</name>
+    </userPermissions>
+</Profile>

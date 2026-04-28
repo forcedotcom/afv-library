@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Roll-Up Summary Field Template
+
+    Usage: Aggregate child records (only on Master-Detail parent)
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Total_Amount__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Total Amount")
+    - {{SUMMARIZED_OBJECT}} - Child object API name (e.g., "Line_Item__c")
+    - {{SUMMARY_TYPE}} - SUM, COUNT, MIN, or MAX
+    - {{SUMMARIZED_FIELD}} - Field to aggregate (for SUM, MIN, MAX)
+    - {{FILTER_CRITERIA}} - Optional filter (XML block)
+    - {{PRECISION}} - Total digits (for currency/number results)
+    - {{SCALE}} - Decimal places
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Summary Type Options:
+    - COUNT: Count of child records (no field needed)
+    - SUM: Sum of numeric field values
+    - MIN: Minimum value
+    - MAX: Maximum value
+
+    Notes:
+    - Only available on Master-Detail parent objects
+    - Cannot summarize formula fields (except cross-object formulas)
+    - Cannot summarize Long Text Area or Multi-Select Picklist
+    - For Lookup relationships, use DLRS or trigger-based calculation
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Summary</type>
+    <summarizedField>{{SUMMARIZED_OBJECT}}.{{SUMMARIZED_FIELD}}</summarizedField>
+    <summaryForeignKey>{{SUMMARIZED_OBJECT}}.{{MASTER_DETAIL_FIELD}}</summaryForeignKey>
+    <summaryOperation>{{SUMMARY_TYPE}}</summaryOperation>
+    <!-- Include precision/scale for SUM, MIN, MAX on numeric fields -->
+    <precision>{{PRECISION}}</precision>
+    <scale>{{SCALE}}</scale>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <!--
+    Optional: Filter criteria (only aggregate records matching criteria)
+    <summaryFilterItems>
+        <field>{{SUMMARIZED_OBJECT}}.Status__c</field>
+        <operation>equals</operation>
+        <value>Completed</value>
+    </summaryFilterItems>
+    -->
+</CustomField>
+
+<!--
+    Examples:
+
+    COUNT all line items:
+    <summaryOperation>count</summaryOperation>
+    (no summarizedField needed)
+
+    SUM of Amount:
+    <summaryOperation>sum</summaryOperation>
+    <summarizedField>Line_Item__c.Amount__c</summarizedField>
+
+    MAX Close Date:
+    <summaryOperation>max</summaryOperation>
+    <summarizedField>Opportunity__c.CloseDate</summarizedField>
+
+    With Filter (only Won opportunities):
+    <summaryFilterItems>
+        <field>Opportunity__c.StageName</field>
+        <operation>equals</operation>
+        <value>Closed Won</value>
+    </summaryFilterItems>
+-->

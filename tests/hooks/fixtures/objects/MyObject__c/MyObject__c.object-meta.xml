@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Inventory__c</fullName>
+    <label>Inventory</label>
+    <description>Tracks warehouse inventory levels, movements, and reorder thresholds for supply chain management.</description>
+    <sharingModel>Private</sharingModel>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>true</enableActivities>
+    <enableHistory>true</enableHistory>
+</CustomObject>

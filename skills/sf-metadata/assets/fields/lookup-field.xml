@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Lookup Field Template
+
+    Usage: Optional relationship to another object
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Primary_Contact__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Primary Contact")
+    - {{RELATED_OBJECT}} - Object to relate to (e.g., "Contact")
+    - {{RELATIONSHIP_LABEL}} - Label on related list (e.g., "Related Accounts")
+    - {{RELATIONSHIP_NAME}} - API name for relationship (e.g., "Related_Accounts")
+    - {{REQUIRED}} - true or false
+    - {{DELETE_CONSTRAINT}} - SetNull, Restrict, or blank
+    - {{LOOKUP_FILTER}} - Optional filter criteria (XML block)
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Delete Constraint Options:
+    - (blank): Clear the value (default)
+    - SetNull: Set to null when parent deleted
+    - Restrict: Prevent deletion if children exist
+
+    Notes:
+    - For required parent relationships, use Master-Detail instead
+    - Lookup relationships don't support roll-up summaries
+    - Child records are NOT deleted when parent is deleted
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Lookup</type>
+    <referenceTo>{{RELATED_OBJECT}}</referenceTo>
+    <relationshipLabel>{{RELATIONSHIP_LABEL}}</relationshipLabel>
+    <relationshipName>{{RELATIONSHIP_NAME}}</relationshipName>
+    <required>{{REQUIRED}}</required>
+    <deleteConstraint>{{DELETE_CONSTRAINT}}</deleteConstraint>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <!--
+    Optional: Lookup Filter
+    <lookupFilter>
+        <active>true</active>
+        <booleanFilter>1</booleanFilter>
+        <filterItems>
+            <field>{{RELATED_OBJECT}}.IsActive__c</field>
+            <operation>equals</operation>
+            <value>true</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    -->
+</CustomField>

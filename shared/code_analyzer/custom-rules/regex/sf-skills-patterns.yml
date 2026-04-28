@@ -1,0 +1,225 @@
+# =============================================================================
+# sf-skills Custom Regex Patterns for Code Analyzer V5
+# =============================================================================
+# Pattern-based rules to complement PMD analysis.
+# These catch Salesforce-specific anti-patterns that PMD may miss.
+#
+# Regex Format Requirements:
+# - Pattern must include global modifier (e.g., /pattern/gi)
+# - Use file_extensions to target specific file types
+#
+# Documentation: https://developer.salesforce.com/docs/platform/salesforce-code-analyzer
+# =============================================================================
+
+custom_rules:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # APEX PATTERNS (.cls, .trigger)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ---------------------------------------------------------------------------
+  # SECURITY
+  # ---------------------------------------------------------------------------
+
+  - name: HardcodedSalesforceUrl
+    description: "Hardcoded Salesforce URL won't work across orgs"
+    message: "Use URL.getOrgDomainUrl() or Named Credentials instead of hardcoded Salesforce URLs"
+    file_extensions:
+      - ".cls"
+      - ".trigger"
+    regex: /https?:\/\/[a-zA-Z0-9-]+\.(salesforce|force|my\.salesforce|lightning\.force)\.com/gi
+    severity: 2
+    tags:
+      - Security
+      - BestPractices
+      - sf-skills
+
+  - name: HardcodedSalesforceId
+    description: "Hardcoded 15 or 18 character Salesforce ID"
+    message: "Use Custom Metadata, Custom Settings, or SOQL to retrieve IDs dynamically"
+    file_extensions:
+      - ".cls"
+      - ".trigger"
+    # Matches common Salesforce ID prefixes (001=Account, 003=Contact, 005=User, etc.)
+    regex: /['"][0-9a-zA-Z]{15}['"]|['"][0-9a-zA-Z]{18}['"]/g
+    severity: 3
+    tags:
+      - BestPractices
+      - CleanCode
+      - sf-skills
+
+  # ---------------------------------------------------------------------------
+  # TESTING
+  # ---------------------------------------------------------------------------
+
+  - name: DeprecatedTestIsRunning
+    description: "Using deprecated Test.isRunningTest() pattern"
+    message: "Use @TestVisible annotation or dependency injection instead of Test.isRunningTest()"
+    file_extensions:
+      - ".cls"
+    regex: /Test\.isRunningTest\s*\(\s*\)/gi
+    severity: 3
+    tags:
+      - Testing
+      - BestPractices
+      - sf-skills
+
+  - name: OldAssertMethods
+    description: "Using deprecated System.assert methods instead of Assert class"
+    message: "Use Assert.areEqual(), Assert.isTrue(), etc. instead of System.assert* (Winter '23+)"
+    file_extensions:
+      - ".cls"
+    regex: /System\.(assert|assertEquals|assertNotEquals)\s*\(/gi
+    severity: 4
+    tags:
+      - Testing
+      - BestPractices
+      - sf-skills
+
+  # ---------------------------------------------------------------------------
+  # CLEAN CODE
+  # ---------------------------------------------------------------------------
+
+  - name: DebugWithoutLoggingLevel
+    description: "System.debug without logging level"
+    message: "Use System.debug(LoggingLevel.INFO, msg) to control log visibility"
+    file_extensions:
+      - ".cls"
+      - ".trigger"
+    regex: /System\.debug\s*\(\s*[^L]/gi
+    severity: 4
+    tags:
+      - CleanCode
+      - Debugging
+      - sf-skills
+
+  - name: TodoComment
+    description: "TODO comment found - track in issue tracker instead"
+    message: "Consider tracking TODOs in your issue tracker for visibility"
+    file_extensions:
+      - ".cls"
+      - ".trigger"
+    regex: /\/\/\s*TODO|\/\*\s*TODO/gi
+    severity: 5
+    tags:
+      - Documentation
+      - sf-skills
+
+  - name: FixmeComment
+    description: "FIXME comment indicates known issue"
+    message: "FIXME comments indicate technical debt - prioritize resolution"
+    file_extensions:
+      - ".cls"
+      - ".trigger"
+    regex: /\/\/\s*FIXME|\/\*\s*FIXME/gi
+    severity: 4
+    tags:
+      - Documentation
+      - TechnicalDebt
+      - sf-skills
+
+  # ---------------------------------------------------------------------------
+  # ARCHITECTURE (TAF Pattern)
+  # ---------------------------------------------------------------------------
+
+  - name: DirectTriggerLogic
+    description: "Logic directly in trigger body (should use handler)"
+    message: "Move business logic to a handler class following Trigger Actions Framework pattern"
+    file_extensions:
+      - ".trigger"
+    # Matches SOQL/DML directly in trigger body
+    regex: /trigger\s+\w+\s+on\s+\w+[^}]*(\[\s*SELECT|\binsert\b|\bupdate\b|\bdelete\b|\bupsert\b)/gis
+    severity: 3
+    tags:
+      - Architecture
+      - TriggerPattern
+      - sf-skills
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FLOW PATTERNS (.flow-meta.xml)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  - name: FlowOldApiVersion
+    description: "Flow using API version older than 66.0"
+    message: "Update Flow to API version 66.0 or later for latest features"
+    file_extensions:
+      - ".flow-meta.xml"
+    regex: /<apiVersion>(4[0-9]|5[0-9]|6[0-5])\.[0-9]<\/apiVersion>/g
+    severity: 3
+    tags:
+      - BestPractices
+      - Flow
+      - sf-skills
+
+  - name: FlowMissingDescription
+    description: "Flow element without description"
+    message: "Add descriptions to Flow elements for maintainability"
+    file_extensions:
+      - ".flow-meta.xml"
+    # Matches elements without <description> child
+    regex: /<(recordCreates|recordUpdates|recordDeletes|recordLookups|decisions|assignments|screens|subflows)[^>]*>(?:(?!<description>).)*?<\/\1>/gis
+    severity: 4
+    tags:
+      - Documentation
+      - Flow
+      - sf-skills
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LWC PATTERNS (.js)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  - name: LwcInnerHtml
+    description: "Using innerHTML in LWC (XSS risk)"
+    message: "Avoid innerHTML - use lwc:dom='manual' with proper sanitization or template bindings"
+    file_extensions:
+      - ".js"
+    regex: /\.innerHTML\s*=/gi
+    severity: 2
+    tags:
+      - Security
+      - XSS
+      - LWC
+      - sf-skills
+
+  - name: LwcDocumentQuery
+    description: "Using document.querySelector in LWC"
+    message: "Use this.template.querySelector() instead of document.querySelector() in LWC"
+    file_extensions:
+      - ".js"
+    regex: /document\.(querySelector|querySelectorAll|getElementById)/gi
+    severity: 3
+    tags:
+      - BestPractices
+      - LWC
+      - sf-skills
+
+  - name: LwcConsoleLog
+    description: "Console.log in production LWC code"
+    message: "Remove console.log statements or use a logging utility for production code"
+    file_extensions:
+      - ".js"
+    regex: /console\.(log|warn|error|info|debug)\s*\(/gi
+    severity: 4
+    tags:
+      - CleanCode
+      - LWC
+      - sf-skills
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # METADATA PATTERNS (-meta.xml)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  - name: OldApiVersionMeta
+    description: "Metadata using API version older than 66.0"
+    message: "Update metadata to API version 66.0 or later"
+    file_extensions:
+      - ".cls-meta.xml"
+      - ".trigger-meta.xml"
+      - ".component-meta.xml"
+      - ".page-meta.xml"
+    regex: /<apiVersion>(4[0-9]|5[0-9]|6[0-5])\.[0-9]<\/apiVersion>/g
+    severity: 4
+    tags:
+      - BestPractices
+      - Metadata
+      - sf-skills

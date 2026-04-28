@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <description>Automatically updates account status when key fields change. Triggered on record update.</description>
+    <label>RTF Account Status Update</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+    <triggerType>RecordAfterSave</triggerType>
+    <start>
+        <connector>
+            <targetReference>decision_CheckStatus</targetReference>
+        </connector>
+        <object>Account</object>
+        <recordTriggerType>Update</recordTriggerType>
+    </start>
+    <decisions>
+        <name>decision_CheckStatus</name>
+        <label>Check Status</label>
+        <description>Evaluates whether the account status needs to be updated based on field changes.</description>
+        <defaultConnectorLabel>No Update Needed</defaultConnectorLabel>
+        <rules>
+            <name>rule_NeedsUpdate</name>
+            <label>Needs Update</label>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Active</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>update_AccountStatus</targetReference>
+            </connector>
+        </rules>
+    </decisions>
+    <recordUpdates>
+        <name>update_AccountStatus</name>
+        <label>Update Account Status</label>
+        <description>Sets the account status to Active.</description>
+        <faultConnector>
+            <targetReference>fault_Handler</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <stringValue>Active</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <screens>
+        <name>fault_Handler</name>
+        <label>Error Screen</label>
+        <description>Displays error details when the update fails.</description>
+        <fields>
+            <name>errorMessage</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>An error occurred: {!$Flow.FaultMessage}</fieldText>
+        </fields>
+    </screens>
+</Flow>

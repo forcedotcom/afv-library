@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Record Delete (recordDeletes) Patterns v1.0.0
+    API Version: 66.0+
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    RECORDDELETES ELEMENT OPTIONS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ┌──────────────────────────────────┬─────────────────────────────────────────┐
+    │ Element                          │ Purpose                                 │
+    ├──────────────────────────────────┼─────────────────────────────────────────┤
+    │ object                           │ API name of SObject (filter-based)      │
+    │ filters                          │ WHERE clause for filter-based delete    │
+    │ filterLogic                      │ "and" / "or" / custom logic             │
+    │ inputReference                   │ Variable reference for direct delete    │
+    │ connector                        │ Next element on success                 │
+    │ faultConnector                   │ Next element on failure                 │
+    └──────────────────────────────────┴─────────────────────────────────────────┘
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    TWO DELETE APPROACHES
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. FILTER-BASED DELETE
+       - Specify object + filters
+       - Flow queries and deletes matching records
+       - Use for: Deleting records by criteria
+
+    2. REFERENCE-BASED DELETE
+       - Specify inputReference (record or collection variable)
+       - Deletes the referenced record(s)
+       - Use for: Deleting records you've already queried
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    ⚠️ IMPORTANT: DELETE IS PERMANENT (unless Recycle Bin)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    - Records go to Recycle Bin (recoverable for 15 days)
+    - Hard delete requires Apex with Database.emptyRecycleBin()
+    - Always add confirmation in Screen Flows before delete
+    - Consider soft delete (Status field) instead for audit trails
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_DeleteCount)
+    - col_ for collections (e.g., col_RecordsToDelete)
+    - rec_ for record variables (e.g., rec_RecordToDelete)
+    - inp_ for input variables (e.g., inp_RecordId)
+    - out_ for output variables (e.g., out_WasDeleted)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    ASSIGNMENTS (Alphabetical order required)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <assignments>
+        <name>Handle_Delete_Error</name>
+        <label>Handle Delete Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_WasDeleted</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <assignments>
+        <name>Set_Delete_Success</name>
+        <label>Set Delete Success</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>out_WasDeleted</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <description>Template demonstrating recordDeletes patterns: filter-based, reference-based, and bulk delete with fault handling.</description>
+    <label>Record_Delete_Patterns</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 1: DELETE SINGLE RECORD BY REFERENCE
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Delete a specific record you've already queried.
+    Use after Get Records when you have the record variable.
+    -->
+    <recordDeletes>
+        <name>Delete_Single_Record</name>
+        <label>Delete Single Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Delete_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Delete_Error</targetReference>
+        </faultConnector>
+        <!-- Reference to a single record variable -->
+        <inputReference>rec_RecordToDelete</inputReference>
+    </recordDeletes>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 2: DELETE COLLECTION (BULK DELETE)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Delete multiple records at once using a collection variable.
+    Most efficient for bulk operations - single DML statement.
+    -->
+    <recordDeletes>
+        <name>Delete_Record_Collection</name>
+        <label>Delete Record Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Delete_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Delete_Error</targetReference>
+        </faultConnector>
+        <!-- Reference to collection variable -->
+        <inputReference>col_RecordsToDelete</inputReference>
+    </recordDeletes>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 3: DELETE BY FILTER (Direct Query + Delete)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Delete records matching filter criteria without pre-querying.
+    Flow internally queries and deletes in one step.
+
+    Equivalent to: DELETE [SELECT Id FROM Task WHERE Status = 'Completed' AND WhatId = :inp_AccountId]
+    -->
+    <recordDeletes>
+        <name>Delete_By_Filter</name>
+        <label>Delete Completed Tasks</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Delete_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Delete_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>WhatId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <!-- Object specified for filter-based delete -->
+        <object>Task</object>
+    </recordDeletes>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 4: DELETE WITH COMPLEX FILTER LOGIC
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Delete using OR conditions or custom filter logic.
+
+    Example: Delete tasks that are either Completed OR Cancelled
+    -->
+    <recordDeletes>
+        <name>Delete_With_Or_Logic</name>
+        <label>Delete Closed Tasks</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Delete_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Delete_Error</targetReference>
+        </faultConnector>
+        <!-- Custom filter logic with OR -->
+        <filterLogic>(1 OR 2) AND 3</filterLogic>
+        <filters>
+            <!-- Filter 1 -->
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <!-- Filter 2 -->
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Cancelled</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <!-- Filter 3: Scoped to specific account -->
+            <field>WhatId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <object>Task</object>
+    </recordDeletes>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    PATTERN 5: SAFE DELETE WITH PRE-QUERY
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Recommended pattern: Query first, then delete.
+    Allows validation/logging before delete.
+    -->
+    <recordLookups>
+        <name>Get_Records_To_Delete</name>
+        <label>Get Records To Delete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Has_Records</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>inp_AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Contact</object>
+        <outputReference>col_InactiveContacts</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+    </recordLookups>
+
+    <decisions>
+        <name>Decision_Has_Records</name>
+        <label>Has Records to Delete?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No Records</defaultConnectorLabel>
+        <rules>
+            <name>Has_Records</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>col_InactiveContacts</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Delete_Inactive_Contacts</targetReference>
+            </connector>
+            <label>Has Records</label>
+        </rules>
+    </decisions>
+
+    <recordDeletes>
+        <name>Delete_Inactive_Contacts</name>
+        <label>Delete Inactive Contacts</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Delete_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_Delete_Error</targetReference>
+        </faultConnector>
+        <inputReference>col_InactiveContacts</inputReference>
+    </recordDeletes>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Records_To_Delete</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLES
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <!-- Input Variables -->
+    <variables>
+        <name>inp_AccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>inp_RecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Output Variables -->
+    <variables>
+        <name>out_WasDeleted</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!-- Record Variables -->
+    <variables>
+        <name>rec_RecordToDelete</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <!-- Collection Variables -->
+    <variables>
+        <name>col_RecordsToDelete</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+
+    <variables>
+        <name>col_InactiveContacts</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+
+    <!-- Error Handling -->
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICES FOR RECORDDELETES
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    1. ALWAYS ADD FAULT CONNECTOR
+       - Delete operations can fail (locked records, triggers, etc.)
+       - Capture $Flow.FaultMessage for debugging
+       - Decide: Continue or abort flow?
+
+    2. PREFER REFERENCE-BASED DELETE
+       - Query first → Validate → Delete
+       - More control and visibility
+       - Easier debugging and logging
+
+    3. USE COLLECTION FOR BULK DELETE
+       - Single DML statement for multiple records
+       - More efficient than individual deletes
+       - Respects governor limits better
+
+    4. CONFIRM BEFORE DELETE IN SCREEN FLOWS
+       - Add confirmation screen before delete
+       - Show record name/details being deleted
+       - Prevent accidental data loss
+
+    5. CONSIDER SOFT DELETE ALTERNATIVE
+       - Add IsDeleted__c or Status field
+       - Set to 'Inactive' instead of delete
+       - Maintains audit trail
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    COMMON ERRORS AND SOLUTIONS
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ┌─────────────────────────────────┬────────────────────────────────────────────┐
+    │ Error                           │ Solution                                   │
+    ├─────────────────────────────────┼────────────────────────────────────────────┤
+    │ ENTITY_IS_LOCKED                │ Record locked by approval/other process    │
+    │                                 │ → Wait and retry, or skip locked records   │
+    ├─────────────────────────────────┼────────────────────────────────────────────┤
+    │ DELETE_REQUIRED_ON_CASCADE      │ Child records exist (Master-Detail)        │
+    │                                 │ → Delete children first                    │
+    ├─────────────────────────────────┼────────────────────────────────────────────┤
+    │ INSUFFICIENT_ACCESS             │ User lacks delete permission               │
+    │                                 │ → Check profile/permission set             │
+    ├─────────────────────────────────┼────────────────────────────────────────────┤
+    │ DELETE_FAILED                   │ Trigger/validation blocked delete          │
+    │                                 │ → Check object triggers and validations    │
+    └─────────────────────────────────┴────────────────────────────────────────────┘
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    WHEN TO USE EACH PATTERN
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    REFERENCE-BASED (inputReference):
+    ✓ You've already queried the record(s)
+    ✓ You need to validate before delete
+    ✓ You want to log which records were deleted
+    ✓ You need the record data for post-delete processing
+
+    FILTER-BASED (object + filters):
+    ✓ Simple criteria-based cleanup
+    ✓ You don't need the record data
+    ✓ One-time bulk cleanup operations
+    ✗ No visibility into what's being deleted
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+</Flow>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Custom Object Template
+
+    Usage: Copy and customize for new custom objects
+
+    Placeholders:
+    - {{OBJECT_LABEL}} - User-friendly name (e.g., "Invoice")
+    - {{OBJECT_PLURAL_LABEL}} - Plural form (e.g., "Invoices")
+    - {{OBJECT_DESCRIPTION}} - Purpose of the object
+    - {{NAME_FIELD_LABEL}} - Label for Name field (e.g., "Invoice Number")
+    - {{NAME_FIELD_TYPE}} - Text or AutoNumber
+    - {{AUTO_NUMBER_FORMAT}} - Format if AutoNumber (e.g., "INV-{0000}")
+    - {{SHARING_MODEL}} - Private, ReadWrite, Read, ControlledByParent
+-->
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!-- Object Identity -->
+    <label>{{OBJECT_LABEL}}</label>
+    <pluralLabel>{{OBJECT_PLURAL_LABEL}}</pluralLabel>
+    <description>{{OBJECT_DESCRIPTION}}</description>
+
+    <!-- Name Field Configuration -->
+    <nameField>
+        <label>{{NAME_FIELD_LABEL}}</label>
+        <type>{{NAME_FIELD_TYPE}}</type>
+        <!-- Include displayFormat only for AutoNumber type -->
+        <displayFormat>{{AUTO_NUMBER_FORMAT}}</displayFormat>
+        <trackHistory>false</trackHistory>
+    </nameField>
+
+    <!-- Deployment Configuration -->
+    <deploymentStatus>Deployed</deploymentStatus>
+
+    <!-- Sharing & Security -->
+    <sharingModel>{{SHARING_MODEL}}</sharingModel>
+    <!--
+        Sharing Model Options:
+        - Private: Only owner and users above in role hierarchy
+        - ReadWrite: All users can read and edit
+        - Read: All users can read, owner can edit
+        - ControlledByParent: For Master-Detail relationships
+    -->
+
+    <!-- Feature Toggles -->
+    <enableHistory>true</enableHistory>
+    <enableActivities>true</enableActivities>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableFeeds>false</enableFeeds>
+    <enableBulkApi>true</enableBulkApi>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+
+    <!-- Search Configuration -->
+    <searchLayouts>
+        <customTabListAdditionalFields>Name</customTabListAdditionalFields>
+        <lookupDialogsAdditionalFields>Name</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Name</lookupPhoneDialogsAdditionalFields>
+        <searchResultsAdditionalFields>Name</searchResultsAdditionalFields>
+    </searchLayouts>
+
+    <!-- Compact Layout -->
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+</CustomObject>

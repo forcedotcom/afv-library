@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Bad PermSet</label>
+    <userPermissions>
+        <name>ViewAllData</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ModifyAllData</name>
+        <enabled>true</enabled>
+    </userPermissions>
+</PermissionSet>

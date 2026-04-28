@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Record-Triggered Flow (Before-Delete) v2.0.0
+    API Version: 66.0+
+
+    IMPORTANT: This template follows strict alphabetical element ordering required by Salesforce Metadata API
+
+    Note: bulkSupport element is DEPRECATED in API 60.0+ - removed from this template
+    Modern flows are automatically bulkified by Salesforce
+
+    AUTO-LAYOUT: All locationX and locationY are set to 0 for Auto-Layout
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICE: Using $Record in Before-Delete Flows (v2.0.0)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    The $Record global variable gives you direct access to all fields on the record being deleted.
+    USE $Record INSTEAD OF querying the same object!
+
+    CORRECT - Use $Record directly:
+        {!$Record.Name}
+        {!$Record.Status__c}
+        {!$Record.Id}
+
+    INCORRECT - Querying the trigger object (wastes SOQL):
+        <recordLookups>
+            <object>Account</object>  <- Same as trigger object!
+        </recordLookups>
+
+    WHEN TO QUERY IN DELETE FLOWS:
+    - Archiving data to another object: Query related records first
+    - Validation against related records: Query parent/child records
+    - Cascade operations: Query children that need updates
+
+    PREVENTING DELETION:
+    Use addErrorMessage to block deletion with a user-friendly message:
+        <recordUpdates>
+            <inputReference>$Record</inputReference>
+            <addErrorMessage>
+                <stringValue>Cannot delete this record because...</stringValue>
+            </addErrorMessage>
+        </recordUpdates>
+
+    WARNING: $Record__Prior is NOT available in Delete triggers!
+    Only $Record (current values at time of deletion) is available.
+
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_DeletionAllowed)
+    - col_ for collections (e.g., col_ChildRecordIds)
+    - rec_ for record variables (e.g., rec_ArchiveRecord)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!-- Assignment: Allow Deletion (Log or Archive First) -->
+    <assignments>
+        <name>Allow_Deletion</name>
+        <label>Allow Deletion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_DeletionAllowed</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Archive_Record_Data</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- Error Handler for Archive Failure -->
+    <assignments>
+        <name>Handle_Archive_Error</name>
+        <label>Handle Archive Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Assignment: Set Deletion Not Allowed -->
+    <assignments>
+        <name>Prevent_Deletion</name>
+        <label>Prevent Deletion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_DeletionAllowed</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_DeletionReason</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Cannot delete records with {{PROTECTED_FIELD}} = {{PROTECTED_VALUE}}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_Error_To_Record</targetReference>
+        </connector>
+    </assignments>
+
+    <description>{{FLOW_DESCRIPTION}}</description>
+
+    <!-- Decision: Check if Record Can Be Deleted -->
+    <decisions>
+        <name>Decision_Check_If_Deletable</name>
+        <label>Check if Deletable</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Allow_Deletion</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Allow Deletion</defaultConnectorLabel>
+        <rules>
+            <name>Block_Deletion</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <!-- BEST PRACTICE: Use $Record fields directly - no query needed! -->
+                <leftValueReference>$Record.{{PROTECTED_FIELD}}</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>{{PROTECTED_VALUE}}</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Prevent_Deletion</targetReference>
+            </connector>
+            <label>Block Deletion</label>
+        </rules>
+    </decisions>
+
+    <label>{{FLOW_LABEL}}</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!-- Create Archive Record Before Deletion -->
+    <recordCreates>
+        <name>Archive_Record_Data</name>
+        <label>Archive Record Data</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Handle_Archive_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Original_Record_Id__c</field>
+            <value>
+                <!-- Use $Record.Id directly - no query needed -->
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Deleted_Date__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Record_Name__c</field>
+            <value>
+                <!-- Use $Record.Name directly - no query needed -->
+                <elementReference>$Record.Name</elementReference>
+            </value>
+        </inputAssignments>
+        <object>{{ARCHIVE_OBJECT}}</object>
+    </recordCreates>
+
+    <!-- Add Error to Record (Prevents Deletion) -->
+    <recordUpdates>
+        <name>Add_Error_To_Record</name>
+        <label>Add Error to Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>$Record</inputReference>
+        <addErrorMessage>
+            <elementReference>var_DeletionReason</elementReference>
+        </addErrorMessage>
+    </recordUpdates>
+
+    <!-- Before-Delete Trigger Configuration -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>{{OBJECT_NAME}}</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+        <!-- Note: bulkSupport removed - automatic in API 60.0+ -->
+        <connector>
+            <targetReference>Decision_Check_If_Deletable</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!-- Variables for Deletion Check (v2.0.0 naming) -->
+    <variables>
+        <name>var_DeletionAllowed</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>true</booleanValue>
+        </value>
+    </variables>
+
+    <variables>
+        <name>var_DeletionReason</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

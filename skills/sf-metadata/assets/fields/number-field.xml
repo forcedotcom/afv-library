@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Number Field Template
+
+    Usage: Numeric values (integers or decimals)
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Quantity__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Quantity")
+    - {{PRECISION}} - Total digits (1-18)
+    - {{SCALE}} - Decimal places (0-17, must be less than precision)
+    - {{REQUIRED}} - true or false
+    - {{UNIQUE}} - true or false
+    - {{EXTERNAL_ID}} - true or false
+    - {{DEFAULT_VALUE}} - Optional default (e.g., "0")
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Examples:
+    - Integer: precision=18, scale=0
+    - Decimal (2 places): precision=18, scale=2
+    - Percentage: precision=5, scale=2 (stores as decimal, displays as %)
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Number</type>
+    <precision>{{PRECISION}}</precision>
+    <scale>{{SCALE}}</scale>
+    <required>{{REQUIRED}}</required>
+    <unique>{{UNIQUE}}</unique>
+    <externalId>{{EXTERNAL_ID}}</externalId>
+    <defaultValue>{{DEFAULT_VALUE}}</defaultValue>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

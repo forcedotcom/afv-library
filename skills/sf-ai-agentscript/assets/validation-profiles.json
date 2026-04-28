@@ -1,0 +1,90 @@
+{
+  "profiles": [
+    {
+      "name": "standalone_examples",
+      "description": "Complete standalone agents/templates. No blocking validator findings are allowed. Warning IDs listed here are intentional teaching/template reminders.",
+      "files": [
+        "skills/sf-ai-agentscript/assets/agents/hello-world-employee.agent",
+        "skills/sf-ai-agentscript/assets/agents/hello-world.agent",
+        "skills/sf-ai-agentscript/assets/agents/multi-topic.agent",
+        "skills/sf-ai-agentscript/assets/agents/production-faq.agent",
+        "skills/sf-ai-agentscript/assets/agents/simple-qa.agent",
+        "skills/sf-ai-agentscript/assets/components/escalation-setup.agent",
+        "skills/sf-ai-agentscript/assets/deterministic-routing.agent",
+        "skills/sf-ai-agentscript/assets/flow-action-lookup.agent",
+        "skills/sf-ai-agentscript/assets/hub-and-spoke.agent",
+        "skills/sf-ai-agentscript/assets/minimal-starter.agent",
+        "skills/sf-ai-agentscript/assets/patterns/critical-input-collection.agent",
+        "skills/sf-ai-agentscript/assets/patterns/multi-step-workflow.agent",
+        "skills/sf-ai-agentscript/assets/patterns/procedural-instructions.agent",
+        "skills/sf-ai-agentscript/assets/patterns/prompt-template-action.agent",
+        "skills/sf-ai-agentscript/assets/patterns/system-instruction-overrides.agent",
+        "skills/sf-ai-agentscript/assets/prompt-rag-search.agent",
+        "skills/sf-ai-agentscript/assets/verification-gate.agent"
+      ],
+      "allowBlockingIds": [],
+      "allowWarningIds": [
+        "ASV-CFG-007",
+        "ASV-QLT-004",
+        "ASV-QLT-005",
+        "ASV-RUN-007",
+        "ASV-RUN-010",
+        "ASV-RUN-012",
+        "ASV-RUN-018"
+      ]
+    },
+    {
+      "name": "org_fixtures",
+      "description": "Structurally valid examples that are expected to block only on org-specific resources in the currently resolved target org.",
+      "files": [
+        "skills/sf-ai-agentscript/assets/escalation-pattern.agent"
+      ],
+      "allowBlockingIds": [
+        "ASV-ORG-007"
+      ],
+      "allowWarningIds": [
+        "ASV-CFG-004",
+        "ASV-CFG-007",
+        "ASV-QLT-001",
+        "ASV-RUN-018"
+      ]
+    },
+    {
+      "name": "partial_snippets",
+      "description": "Reusable fragments/patterns that are intentionally not standalone publishable agents. Completeness-style blockers are tolerated here; warning IDs listed here are expected pedagogical/style notes inside snippets.",
+      "files": [
+        "skills/sf-ai-agentscript/assets/components/apex-action.agent",
+        "skills/sf-ai-agentscript/assets/components/error-handling.agent",
+        "skills/sf-ai-agentscript/assets/components/flow-action.agent",
+        "skills/sf-ai-agentscript/assets/components/n-ary-conditions.agent",
+        "skills/sf-ai-agentscript/assets/components/topic-with-actions.agent",
+        "skills/sf-ai-agentscript/assets/patterns/action-callbacks.agent",
+        "skills/sf-ai-agentscript/assets/patterns/advanced-input-bindings.agent",
+        "skills/sf-ai-agentscript/assets/patterns/bidirectional-routing.agent",
+        "skills/sf-ai-agentscript/assets/patterns/delegation-routing.agent",
+        "skills/sf-ai-agentscript/assets/patterns/lifecycle-events.agent",
+        "skills/sf-ai-agentscript/assets/patterns/llm-controlled-actions.agent",
+        "skills/sf-ai-agentscript/assets/patterns/open-gate-routing.agent"
+      ],
+      "allowBlockingIds": [
+        "ASV-CFG-001",
+        "ASV-CFG-002",
+        "ASV-ORG-006",
+        "ASV-RUN-011",
+        "ASV-STR-003",
+        "ASV-STR-004",
+        "ASV-STR-010",
+        "ASV-STR-011",
+        "ASV-STR-016",
+        "ASV-STR-020"
+      ],
+      "allowWarningIds": [
+        "ASV-QLT-001",
+        "ASV-QLT-004",
+        "ASV-RUN-010",
+        "ASV-RUN-012",
+        "ASV-RUN-013"
+      ]
+    }
+  ]
+}

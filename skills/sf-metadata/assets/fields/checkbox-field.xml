@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Checkbox Field Template
+
+    Usage: Boolean true/false values
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Is_Active__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Is Active")
+    - {{DEFAULT_VALUE}} - true or false (required for checkboxes)
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Checkboxes are never required (always have a value)
+    - Default value is mandatory
+    - Good for flags, toggles, opt-ins
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Checkbox</type>
+    <defaultValue>{{DEFAULT_VALUE}}</defaultValue>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

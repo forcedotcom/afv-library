@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Sub_RollbackRecords - DML Rollback Subflow (v2.0.0)
+
+    Purpose: Reusable subflow for rolling back records created during multi-step DML operations.
+    Use this in fault paths when a later DML operation fails and you need to clean up
+    records created earlier in the transaction.
+
+    Usage:
+    - Pass the record IDs to delete via inp_RecordIds (Text Collection)
+    - Flow will attempt to delete all records
+    - Check out_RollbackSuccess to verify rollback completed
+    - Check out_RollbackMessage for details
+
+    Note: This template uses a generic approach. For production use, you may want to
+    create object-specific versions for better type safety.
+-->
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <assignments>
+        <name>Set_Success_Message</name>
+        <label>Set Success Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>out_RollbackSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_RollbackMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Rollback completed successfully</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Failure_Message</name>
+        <label>Set Failure Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>out_RollbackSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>out_RollbackMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Capture_Fault_Message</name>
+        <label>Capture Fault Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_FaultMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Set_Failure_Message</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_Records_To_Delete</name>
+        <label>Check Records To Delete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Set_Success_Message</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Records</defaultConnectorLabel>
+        <rules>
+            <name>Has_Records</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>inp_RecordIds</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Through_Records</targetReference>
+            </connector>
+            <label>Has Records</label>
+        </rules>
+    </decisions>
+    <description>Reusable rollback subflow for multi-step DML operations. Pass record IDs to delete when a later DML operation fails. Returns success status and message. Part of the Three-Tier Error Handling pattern (v2.0.0).</description>
+    <label>Sub_RollbackRecords</label>
+    <loops>
+        <name>Loop_Through_Records</name>
+        <label>Loop Through Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>inp_RecordIds</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Add_To_Delete_Collection</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Delete_Collected_Records</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <assignments>
+        <name>Add_To_Delete_Collection</name>
+        <label>Add To Delete Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>col_RecordsToDelete</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Through_Records</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Records</targetReference>
+        </connector>
+    </assignments>
+    <processType>AutoLaunchedFlow</processType>
+    <recordDeletes>
+        <name>Delete_Collected_Records</name>
+        <label>Delete Collected Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Success_Message</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Capture_Fault_Message</targetReference>
+        </faultConnector>
+        <inputReference>col_RecordsToDelete</inputReference>
+    </recordDeletes>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_Records_To_Delete</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>col_RecordsToDelete</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>inp_RecordIds</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>out_RollbackMessage</name>
+        <dataType>String</dataType>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>out_RollbackSuccess</name>
+        <dataType>Boolean</dataType>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>var_FaultMessage</name>
+        <dataType>String</dataType>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

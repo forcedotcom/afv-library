@@ -1,0 +1,24 @@
+{
+  "agent_structure": {
+    "prompts": {
+      "basic": 1,
+      "standard": 2,
+      "advanced": 0
+    },
+    "actions": {
+      "standard": 3,
+      "voice": 0,
+      "sandbox": 0
+    },
+    "token_overages": {
+      "prompts": 0,
+      "actions": 0
+    }
+  },
+  "assumptions": [
+    "Agentforce only",
+    "No Data Cloud usage",
+    "No token overages",
+    "Single-org rollout"
+  ]
+}

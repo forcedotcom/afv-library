@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sf-skills Custom PMD Ruleset for Apex
+  =====================================
+  Complements the 150-point custom scoring system with additional PMD rules
+  aligned to sf-skills categories: Bulkification, Security, Testing,
+  Architecture, Clean Code, Error Handling, Performance, Documentation.
+
+  PMD Documentation: https://pmd.github.io/pmd/pmd_rules_apex.html
+-->
+<ruleset name="sf-skills Apex Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        Custom PMD ruleset for sf-skills Claude Code plugin.
+        Focuses on Salesforce best practices and 2025 patterns including
+        Trigger Actions Framework (TAF), User Mode queries, and Assert class.
+    </description>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BULKIFICATION RULES (Category: 25 points)                           -->
+    <!-- Critical violations that cause governor limit failures              -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/performance.xml/AvoidSoqlInLoops">
+        <priority>1</priority>
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="//UserClass[@SimpleName[ends-with(., 'Test')]]"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/performance.xml/AvoidDmlStatementsInLoops">
+        <priority>1</priority>
+    </rule>
+
+    <rule ref="category/apex/performance.xml/OperationWithLimitsInLoop">
+        <priority>1</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SECURITY RULES (Category: 25 points)                                -->
+    <!-- CRUD, FLS, Sharing, Injection vulnerabilities                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/security.xml/ApexCRUDViolation">
+        <priority>2</priority>
+        <properties>
+            <!-- Recommend User Mode instead of manual CRUD checks in 2025 -->
+            <property name="createAuthMethodPattern" value=""/>
+            <property name="readAuthMethodPattern" value=""/>
+            <property name="updateAuthMethodPattern" value=""/>
+            <property name="deleteAuthMethodPattern" value=""/>
+            <property name="undeleteAuthMethodPattern" value=""/>
+            <property name="mergeAuthMethodPattern" value=""/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexSharingViolations">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexSOQLInjection">
+        <priority>1</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexOpenRedirect">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexCSRF">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexXSSFromURLParam">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexXSSFromEscapeFalse">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexBadCrypto">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexInsecureEndpoint">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/security.xml/ApexSuggestUsingNamedCred">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TESTING RULES (Category: 25 points)                                 -->
+    <!-- Test quality and coverage patterns                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestClassShouldHaveAsserts">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestShouldNotUseSeeAllDataTrue">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/ApexAssertionsShouldIncludeMessage">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/ApexUnitTestMethodShouldHaveIsTestAnnotation">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ARCHITECTURE RULES (Category: 20 points)                            -->
+    <!-- Trigger patterns, separation of concerns                            -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/bestpractices.xml/AvoidLogicInTrigger">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/AvoidGlobalModifier">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- CLEAN CODE RULES (Category: 20 points)                              -->
+    <!-- Complexity, naming, maintainability                                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/design.xml/CyclomaticComplexity">
+        <priority>3</priority>
+        <properties>
+            <property name="classReportLevel" value="80"/>
+            <property name="methodReportLevel" value="10"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/CognitiveComplexity">
+        <priority>3</priority>
+        <properties>
+            <property name="classReportLevel" value="50"/>
+            <property name="methodReportLevel" value="15"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/ExcessiveParameterList">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="5"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/ExcessiveClassLength">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="1000"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/ExcessivePublicCount">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="25"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/TooManyFields">
+        <priority>3</priority>
+        <properties>
+            <property name="maxfields" value="20"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/NcssMethodCount">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="60"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/NcssTypeCount">
+        <priority>3</priority>
+        <properties>
+            <property name="minimum" value="700"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/AvoidHardcodingId">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/FieldNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/FormalParameterNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/LocalVariableNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/MethodNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/ClassNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ERROR HANDLING RULES (Category: 15 points)                          -->
+    <!-- Exception handling patterns                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/errorprone.xml/EmptyCatchBlock">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/EmptyTryOrFinallyBlock">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/EmptyStatementBlock">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/EmptyIfStmt">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/EmptyWhileStmt">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PERFORMANCE RULES (Category: 10 points)                             -->
+    <!-- Governor limits, efficiency                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/performance.xml/EagerlyLoadedDescribeSObjectResult">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- DOCUMENTATION RULES (Category: 10 points)                           -->
+    <!-- ApexDoc comments                                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/documentation.xml/ApexDoc">
+        <priority>4</priority>
+        <properties>
+            <property name="reportMissingDescription" value="true"/>
+            <property name="reportPrivate" value="false"/>
+            <property name="reportProtected" value="true"/>
+        </properties>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ERROR-PRONE RULES                                                   -->
+    <!-- Common mistakes and anti-patterns                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/errorprone.xml/MethodWithSameNameAsEnclosingClass">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/InaccessibleAuraEnabledGetter">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/DebugsShouldUseLoggingLevel">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/UnusedLocalVariable">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- BEST PRACTICES - User Requested (Strict Async Patterns)             -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/bestpractices.xml/AvoidFutureAnnotation">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/bestpractices.xml/QueueableWithoutFinalizer">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- CODE STYLE - User Requested (Strict Formatting Mode)                -->
+    <!-- Enforces consistent brace usage and declaration patterns            -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/codestyle.xml/AnnotationsNamingConventions">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/ForLoopsMustUseBraces">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/IfStmtsMustUseBraces">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/IfElseStmtsMustUseBraces">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/WhileLoopsMustUseBraces">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/OneDeclarationPerLine">
+        <priority>4</priority>
+    </rule>
+
+    <rule ref="category/apex/codestyle.xml/FieldDeclarationsShouldBeAtStart">
+        <priority>4</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- DESIGN - User Requested (Stricter Method Signatures)                -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/design.xml/AvoidDeeplyNestedIfStmts">
+        <priority>3</priority>
+        <properties>
+            <property name="problemDepth" value="4"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/apex/design.xml/AvoidBooleanMethodParameters">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ERROR PRONE - User Requested (Comprehensive Bug Detection)          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/errorprone.xml/AvoidDirectAccessTriggerMap">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/AvoidNonExistentAnnotations">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/AvoidStatefulDatabaseResult">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/OverrideBothEqualsAndHashcode">
+        <priority>3</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/TestMethodsMustBeInTestClasses">
+        <priority>2</priority>
+    </rule>
+
+    <rule ref="category/apex/errorprone.xml/TypeShadowsBuiltInNamespace">
+        <priority>3</priority>
+    </rule>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PERFORMANCE - Recommended (Query Safety)                            -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <rule ref="category/apex/performance.xml/AvoidNonRestrictiveQueries">
+        <priority>2</priority>
+    </rule>
+
+</ruleset>

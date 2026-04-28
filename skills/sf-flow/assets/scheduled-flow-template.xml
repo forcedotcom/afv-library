@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <label>{{FLOW_LABEL}}</label>
+    <description>{{FLOW_DESCRIPTION}}</description>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Draft</status>
+
+    <!-- Collection Variable for Records -->
+    <variables>
+        <name>colRecords</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>{{OBJECT_NAME}}</objectType>
+    </variables>
+
+    <!-- Current Record in Loop -->
+    <variables>
+        <name>varCurrentRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>{{OBJECT_NAME}}</objectType>
+    </variables>
+
+    <!-- Collection for Records to Update -->
+    <variables>
+        <name>colRecordsToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>{{OBJECT_NAME}}</objectType>
+    </variables>
+
+    <!-- Counter for Processing -->
+    <variables>
+        <name>varProcessedCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+
+    <!-- Start Element with Schedule -->
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <bulkSupport>true</bulkSupport>
+        <connector>
+            <targetReference>Get_Records_To_Process</targetReference>
+        </connector>
+        <schedule>
+            <frequency>Daily</frequency>
+            <startDate>{{START_DATE}}</startDate>
+            <startTime>{{START_TIME}}</startTime>
+        </schedule>
+    </start>
+
+    <!-- Get Records -->
+    <recordLookups>
+        <name>Get_Records_To_Process</name>
+        <label>Get Records To Process</label>
+        <locationX>50</locationX>
+        <locationY>150</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Records_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>{{FIELD_NAME}}</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>{{FIELD_VALUE}}</stringValue>
+            </value>
+        </filters>
+        <object>{{OBJECT_NAME}}</object>
+        <outputReference>colRecords</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+    </recordLookups>
+
+    <!-- Decision: Check if Records Found -->
+    <decisions>
+        <name>Decision_Records_Found</name>
+        <label>Records Found?</label>
+        <locationX>50</locationX>
+        <locationY>250</locationY>
+        <defaultConnectorLabel>No Records</defaultConnectorLabel>
+        <rules>
+            <name>Has_Records</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>colRecords</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Through_Records</targetReference>
+            </connector>
+            <label>Has Records</label>
+        </rules>
+    </decisions>
+
+    <!-- Loop Through Records -->
+    <loops>
+        <name>Loop_Through_Records</name>
+        <label>Loop Through Records</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <collectionReference>colRecords</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Process_Single_Record</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_Records_Bulk</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+
+    <!-- Assignment: Process Single Record (No DML!) -->
+    <assignments>
+        <name>Process_Single_Record</name>
+        <label>Process Single Record</label>
+        <locationX>50</locationX>
+        <locationY>450</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentRecord</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Through_Records</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentRecord.{{TARGET_FIELD}}</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>{{NEW_VALUE}}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_To_Update_Collection</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- Assignment: Add to Collection for Bulk Update -->
+    <assignments>
+        <name>Add_To_Update_Collection</name>
+        <label>Add To Update Collection</label>
+        <locationX>50</locationX>
+        <locationY>550</locationY>
+        <assignmentItems>
+            <assignToReference>colRecordsToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varCurrentRecord</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varProcessedCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Records</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- Bulk Update (AFTER Loop - Best Practice) -->
+    <recordUpdates>
+        <name>Update_Records_Bulk</name>
+        <label>Update Records (Bulk)</label>
+        <locationX>50</locationX>
+        <locationY>650</locationY>
+        <faultConnector>
+            <targetReference>Handle_Update_Error</targetReference>
+        </faultConnector>
+        <inputReference>colRecordsToUpdate</inputReference>
+    </recordUpdates>
+
+    <!-- Error Handler -->
+    <assignments>
+        <name>Handle_Update_Error</name>
+        <label>Handle Update Error</label>
+        <locationX>200</locationX>
+        <locationY>650</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+
+    <!-- Error Message Variable -->
+    <variables>
+        <name>varErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

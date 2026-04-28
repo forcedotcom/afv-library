@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Email Field Template
+
+    Usage: Email addresses with format validation
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Work_Email__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Work Email")
+    - {{REQUIRED}} - true or false
+    - {{UNIQUE}} - true or false
+    - {{EXTERNAL_ID}} - true or false
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Automatically validates email format
+    - Max 80 characters
+    - Clickable in Lightning (opens email client)
+    - Use for any email address field beyond standard Email
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Email</type>
+    <required>{{REQUIRED}}</required>
+    <unique>{{UNIQUE}}</unique>
+    <externalId>{{EXTERNAL_ID}}</externalId>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Permission Set Template
+
+    Usage: Granular permissions assigned to users on top of their profile
+
+    BEST PRACTICE: Use Permission Sets for feature-based access control.
+    Organize by feature or function, not by user role.
+
+    Placeholders:
+    - {{PERMISSION_SET_NAME}} - API name (e.g., "Invoice_Manager")
+    - {{LABEL}} - User-friendly name (e.g., "Invoice Manager")
+    - {{DESCRIPTION}} - Purpose of this permission set
+    - {{LICENSE}} - Optional: specific license required
+    - {{REQUIRES_ACTIVATION}} - true for session-based permissions
+
+    Naming Convention:
+    - Feature-based: "Invoice_Manager", "Report_Builder"
+    - Integration: "Integration_API_Access"
+    - Admin: "Admin_User_Management"
+-->
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>{{LABEL}}</label>
+    <description>{{DESCRIPTION}}</description>
+    <hasActivationRequired>{{REQUIRES_ACTIVATION}}</hasActivationRequired>
+    <!-- Optional: Restrict to specific license -->
+    <!-- <license>{{LICENSE}}</license> -->
+
+    <!--
+    ═══════════════════════════════════════════
+    OBJECT PERMISSIONS
+    ═══════════════════════════════════════════
+    Grant CRUD access for objects
+    -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Custom_Object__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+
+    <!--
+    ═══════════════════════════════════════════
+    FIELD PERMISSIONS (FLS)
+    ═══════════════════════════════════════════
+    Grant read/edit access for specific fields
+    -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Custom_Object__c.Sensitive_Field__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Custom_Object__c.Read_Only_Field__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!--
+    ═══════════════════════════════════════════
+    TAB SETTINGS
+    ═══════════════════════════════════════════
+    Available, None, or Visible
+    -->
+    <tabSettings>
+        <tab>Custom_Object__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+
+    <!--
+    ═══════════════════════════════════════════
+    RECORD TYPE ASSIGNMENTS
+    ═══════════════════════════════════════════
+    Make record types visible to users with this permission set
+    -->
+    <!--
+    <recordTypeVisibilities>
+        <recordType>Custom_Object__c.Record_Type_Name</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    USER PERMISSIONS (SYSTEM PERMISSIONS)
+    ═══════════════════════════════════════════
+    Enable specific system-level permissions
+    -->
+    <!--
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ApiEnabled</name>
+    </userPermissions>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    APEX CLASS ACCESS
+    ═══════════════════════════════════════════
+    Grant access to Apex classes (for Visualforce, Lightning)
+    -->
+    <!--
+    <classAccesses>
+        <apexClass>MyApexController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    -->
+
+    <!--
+    ═══════════════════════════════════════════
+    CUSTOM PERMISSIONS
+    ═══════════════════════════════════════════
+    Enable custom permissions (for feature flags)
+    -->
+    <!--
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Feature_Flag_Name</name>
+    </customPermissions>
+    -->
+</PermissionSet>
+
+<!--
+    PERMISSION SET ORGANIZATION PATTERNS
+    ════════════════════════════════════════════
+
+    1. Feature-Based (RECOMMENDED):
+       - "Sales_Forecasting_Access"
+       - "Marketing_Campaign_Manager"
+       - "Customer_Support_Tools"
+
+    2. Integration-Based:
+       - "ERP_Integration_API"
+       - "Marketing_Automation_Sync"
+
+    3. Object-Based:
+       - "Invoice_Full_Access"
+       - "Contact_Read_Only"
+
+    4. Environment/Session-Based:
+       - "Elevated_Admin_Session" (requires activation)
+       - "After_Hours_Access"
+
+    PERMISSION SET GROUPS:
+    Combine multiple permission sets into a single assignable group:
+    - "Sales_Rep_Standard" = Sales_Forecasting + Account_Access + Report_Viewer
+-->

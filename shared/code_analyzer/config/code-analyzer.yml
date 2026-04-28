@@ -1,0 +1,50 @@
+# =============================================================================
+# Salesforce Code Analyzer V5 Configuration for sf-skills
+# =============================================================================
+# This configuration augments the 150-point custom scoring with OOTB engines.
+# All engines enabled by default with graceful degradation when deps missing.
+#
+# Documentation: https://developer.salesforce.com/docs/platform/salesforce-code-analyzer
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Engine Configuration
+# -----------------------------------------------------------------------------
+# Note: Using default PMD rules (80+ Apex rules) which cover:
+# - Bulkification (OperationWithLimitsInLoop, AvoidSoqlInLoops)
+# - Security (ApexCRUDViolation, ApexSharingViolations, ApexSOQLInjection)
+# - Testing (ApexUnitTestClassShouldHaveAsserts, ApexUnitTestShouldNotUseSeeAllDataTrue)
+# - Clean Code (CognitiveComplexity, EmptyCatchBlock, AvoidDeeplyNestedIfStmts)
+# - Documentation (ApexDoc)
+# -----------------------------------------------------------------------------
+engines:
+  # PMD - Static analysis for Apex, Visualforce, XML (requires JDK 11+)
+  pmd:
+    disable_engine: false
+
+  # CPD - Copy-Paste Detection (requires JDK 11+)
+  # Note: cpd configuration requires special format, using defaults
+  cpd:
+    disable_engine: false
+
+  # Salesforce Graph Engine - Data flow analysis (requires JDK 11+)
+  sfge:
+    disable_engine: false
+
+  # ESLint - JavaScript/LWC linting (requires Node.js)
+  eslint:
+    disable_engine: false
+
+  # RetireJS - JavaScript dependency vulnerability scanning (requires Node.js)
+  retire-js:
+    disable_engine: false
+
+  # Flow Scanner - Salesforce Flow validation (requires Python 3.10+)
+  flow:
+    disable_engine: false
+    # Explicit Python path for environments where sf CLI can't find it
+    python_command: /opt/homebrew/opt/python@3.14/bin/python3
+
+  # Regex - Pattern-based rules (no external dependencies)
+  regex:
+    disable_engine: false

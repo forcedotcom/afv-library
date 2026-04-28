@@ -1,0 +1,191 @@
+# Deep Conversation History Test Template
+#
+# Tests specific protocol stages using 4-8 turn conversationHistory.
+# Covers 5 patterns: activation, mid-protocol, action invocation, opt-out, session persistence.
+#
+# WHY: Deep history eliminates stochastic routing. The `topic` field on agent turns
+# anchors the planner to the correct topic context, making ambiguous utterances
+# (like "thanks" or "I'm done") route deterministically.
+#
+# KEY RULES:
+#   - `expectedActions: []` is a DELIBERATE negative assertion (documents "no action should fire")
+#   - `expectedActions:` omitted means "not testing actions" (passes regardless)
+#   - `expectedOutcome` judges TEXT only — describe what the agent SAYS, not sObject writes
+#   - `topic` in conversationHistory resolves LOCAL developer names (no hash suffix needed)
+#
+# Compatible with: sf agent test create --spec <file> --api-name <name>
+#
+# Replace all [bracketed] placeholders with your agent's actual values.
+# Use the discovery workflow to find runtime topic/action names:
+#   sf agent test run --api-name Discovery --wait 10 --verbose --result-format json --json --target-org [alias]
+#   jq '.result.testCases[].generatedData | {topic, actionsSequence}'
+
+# Description: Deep conversation history patterns — protocol activation, mid-stage,
+#              action invocation, opt-out, and session persistence tests.
+
+name: "[Agent_Name] Deep History Tests"
+subjectType: AGENT
+subjectName: [Agent_Name]
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════
+  # PATTERN A: Protocol Activation
+  # Trigger a secondary protocol after a completed business interaction.
+  # History establishes completed business context → ambiguous utterance
+  # now routes deterministically to the follow-up protocol.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "Thanks for the help"
+    expectedTopic: [feedback_topic]       # e.g., feedback_collection
+    expectedActions:
+      - [feedback_action]                 # e.g., collect_feedback
+    expectedOutcome: "Agent initiates feedback collection, such as asking for a rating"
+    conversationHistory:
+      - role: user
+        message: "I need to check my account status"
+      - role: agent
+        topic: [business_topic]           # e.g., account_support — local name, no hash
+        message: "I found your account. Everything looks good — your balance is current."
+      - role: user
+        message: "Great, that answers my question"
+      - role: agent
+        topic: [business_topic]
+        message: "Glad I could help! Is there anything else you need?"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PATTERN B: Mid-Protocol Stage
+  # Position agent mid-protocol and test behavior at a specific step.
+  # History includes the protocol prompt → test utterance provides the response.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "I'd give it a 4 out of 5"
+    expectedTopic: [feedback_topic]
+    expectedActions:
+      - [store_feedback_action]           # e.g., store_feedback, record_rating
+    expectedOutcome: "Agent acknowledges the rating and asks a follow-up question"
+    conversationHistory:
+      - role: user
+        message: "I need help checking my order"
+      - role: agent
+        topic: [order_topic]              # e.g., order_lookup
+        message: "Your order #12345 is scheduled for delivery tomorrow."
+      - role: user
+        message: "Thanks, that's helpful"
+      - role: agent
+        topic: [feedback_topic]
+        message: "Glad I could help! On a scale of 1-5, how would you rate your experience today?"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PATTERN C: Action Invocation via Deep History
+  # Position agent at the exact point where it fires a specific action.
+  # All prerequisite steps (auth, data collection) are in history.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "Yes, please process the payment"
+    expectedTopic: [payment_topic]        # e.g., make_payment
+    expectedActions:
+      - [process_payment_action]          # e.g., process_payment, generate_payment_link
+    expectedOutcome: "Agent confirms the payment is being processed"
+    contextVariables:
+      - name: "$Context.RoutableId"
+        value: "[MessagingSession_Id]"
+      - name: "$Context.CaseId"
+        value: "[Case_Id]"
+    conversationHistory:
+      - role: user
+        message: "I'd like to make a payment"
+      - role: agent
+        topic: [auth_topic]              # e.g., user_authentication
+        message: "I can help with that. For security, can you verify your name on the account?"
+      - role: user
+        message: "John Smith"
+      - role: agent
+        topic: [payment_topic]
+        message: "Thanks, John. I found your account. Your current balance is $150. Would you like to pay the full amount?"
+      - role: user
+        message: "Yes, full amount"
+      - role: agent
+        topic: [payment_topic]
+        message: "I'll process a payment of $150. Should I proceed?"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PATTERN D: Opt-Out / Negative Assertion
+  # Verify NO action fires when user declines.
+  # `expectedActions: []` is a DELIBERATE assertion (not "not testing").
+  # Combine with expectedOutcome to verify graceful handling.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "No thanks, I'm all set"
+    expectedTopic: [feedback_topic]
+    expectedActions: []                   # DELIBERATE: asserts NO action fires
+    expectedOutcome: "Agent gracefully accepts the opt-out without pushing for feedback"
+    conversationHistory:
+      - role: user
+        message: "I need to check my account"
+      - role: agent
+        topic: [account_topic]           # e.g., account_support
+        message: "Your account looks good. Balance is current."
+      - role: user
+        message: "Great, thanks"
+      - role: agent
+        topic: [feedback_topic]
+        message: "Glad I could help! Would you like to share feedback about your experience?"
+
+  # ═══════════════════════════════════════════════════════════════
+  # PATTERN E: Session Persistence
+  # After completing a full protocol, verify session is still alive
+  # by starting a new business interaction.
+  # If the session died, this would produce a generic greeting or error.
+  # ═══════════════════════════════════════════════════════════════
+
+  - utterance: "Actually, can you also check on my recent order?"
+    expectedTopic: [order_topic]          # e.g., order_lookup
+    expectedActions:
+      - [order_lookup_action]             # e.g., get_order_status
+    expectedOutcome: "Agent acknowledges the new request and begins order lookup"
+    conversationHistory:
+      - role: user
+        message: "I need help with my account"
+      - role: agent
+        topic: [account_topic]
+        message: "I found your account. Everything looks good."
+      - role: user
+        message: "Thanks!"
+      - role: agent
+        topic: [feedback_topic]
+        message: "Glad to help! Would you rate your experience 1-5?"
+      - role: user
+        message: "4 out of 5"
+      - role: agent
+        topic: [feedback_topic]
+        message: "Thanks for the feedback! Is there anything else I can help with?"
+      - role: user
+        message: "No, that's all for feedback"
+      - role: agent
+        topic: [feedback_topic]
+        message: "Got it! Let me know if you need anything else."
+
+# ═══════════════════════════════════════════════════════════════════════
+# NOTES
+#
+# History Length Guide:
+#   Protocol activation:         4 turns  (Pattern A)
+#   Mid-protocol stage:          4-6 turns (Pattern B)
+#   Action invocation:           6 turns  (Pattern C)
+#   Opt-out / negative assertion: 4-6 turns (Pattern D)
+#   Session persistence:         8 turns  (Pattern E)
+#
+# Topic field in conversationHistory:
+#   Uses LOCAL developer names (e.g., account_support, feedback_collection)
+#   Does NOT need hash-suffixed runtime names
+#   Only expectedTopic needs full runtime name for promoted topics
+#
+# expectedOutcome judges TEXT only:
+#   ❌ "Agent should create a Survey_Result__c record"  (internal behavior)
+#   ✅ "Agent acknowledges the rating and thanks the user" (text behavior)
+#
+# Action discovery for GenAiPlannerBundle agents:
+#   Short name prefix matching works — "Store_Feedback" matches
+#   "Store_Feedback_179a9701f17c194". Use --verbose to find full names:
+#   jq '.result.testCases[].generatedData.invokedActions | fromjson | .[0][0].function.name'
+# ═══════════════════════════════════════════════════════════════════════

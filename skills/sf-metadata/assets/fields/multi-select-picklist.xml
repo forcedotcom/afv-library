@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Multi-Select Picklist Field Template
+
+    Usage: Multiple-select dropdown with predefined values
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Categories__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Categories")
+    - {{VISIBLE_LINES}} - Number of visible lines (3-10)
+    - {{REQUIRED}} - true or false
+    - {{RESTRICTED}} - true (only defined values) or false
+    - {{SORTED}} - true (alphabetical) or false (maintain order)
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Values stored as semicolon-separated string
+    - Use INCLUDES() function in formulas to check values
+    - Cannot be used in roll-up summaries or unique constraints
+    - Maximum 500 values
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>MultiselectPicklist</type>
+    <visibleLines>{{VISIBLE_LINES}}</visibleLines>
+    <required>{{REQUIRED}}</required>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <valueSet>
+        <restricted>{{RESTRICTED}}</restricted>
+        <valueSetDefinition>
+            <sorted>{{SORTED}}</sorted>
+            <!-- Example values - replace with actual values -->
+            <value>
+                <fullName>Category_A</fullName>
+                <default>false</default>
+                <label>Category A</label>
+            </value>
+            <value>
+                <fullName>Category_B</fullName>
+                <default>false</default>
+                <label>Category B</label>
+            </value>
+            <value>
+                <fullName>Category_C</fullName>
+                <default>false</default>
+                <label>Category C</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

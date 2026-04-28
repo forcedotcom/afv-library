@@ -1,0 +1,4 @@
+interface:
+  display_name: "SF AI Agentforce Grid"
+  short_description: "Build and debug Agentforce Grid workflows"
+  default_prompt: "Use $sf-ai-agentforce-grid to build or debug an Agentforce Grid workbook with the Grid MCP and a Salesforce org."

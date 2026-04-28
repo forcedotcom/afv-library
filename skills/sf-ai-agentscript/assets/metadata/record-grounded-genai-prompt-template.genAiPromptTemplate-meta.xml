@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    GenAI Prompt Template: Record-Grounded Template
+
+    Use Case: Prompt Builder templates that summarize or transform
+    information from a Salesforce record plus optional extra context.
+
+    Setup Steps:
+    1. Replace all {{placeholder}} values
+    2. Confirm the target object exists in the org
+    3. Keep the template within the current input limit
+    4. Deploy and publish the template before wiring agent actions
+
+    File Location:
+    force-app/main/default/genAiPromptTemplates/{{TemplateName}}.genAiPromptTemplate-meta.xml
+-->
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <developerName>{{TemplateName}}</developerName>
+    <masterLabel>{{TemplateLabel}}</masterLabel>
+    <type>einstein_gpt__recordSummary</type>
+
+    <templateVersions>
+        <content>
+You are summarizing a {{ObjectLabel}} record.
+
+Record Information:
+- Name: {!$Input:TargetRecord.Name}
+- Owner: {!$Input:TargetRecord.Owner.Name}
+- Status: {!$Input:TargetRecord.Status__c}
+
+Additional Context:
+{!$Input:AdditionalNotes}
+
+Related Information:
+{!$Input:RelatedContext}
+
+Provide a concise summary that highlights:
+1. Current status and recent activity
+2. Important values or signals
+3. Recommended next steps
+4. Risks or concerns
+        </content>
+
+        <inputs>
+            <apiName>TargetRecord</apiName>
+            <definition>SOBJECT://{{ObjectApiName}}</definition>
+            <masterLabel>Target Record</masterLabel>
+            <referenceName>Input:TargetRecord</referenceName>
+            <required>true</required>
+        </inputs>
+
+        <inputs>
+            <apiName>AdditionalNotes</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Additional Notes</masterLabel>
+            <referenceName>Input:AdditionalNotes</referenceName>
+            <required>false</required>
+        </inputs>
+
+        <inputs>
+            <apiName>RelatedContext</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>Related Context</masterLabel>
+            <referenceName>Input:RelatedContext</referenceName>
+            <required>false</required>
+        </inputs>
+
+        <primaryModel>sfdc_ai__DefaultAnthropic</primaryModel>
+        <status>Published</status>
+    </templateVersions>
+</GenAiPromptTemplate>

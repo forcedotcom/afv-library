@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    AI Decision Element Template
+    ============================
+    Use "Define with AI (Advanced)" in Flow Builder to let AI evaluate
+    conditions at runtime instead of manually defined criteria.
+
+    Key structure:
+    - <attributes><type>LlmPrompt</type> on the <decisions> element = Decision Instructions
+    - <attributes><type>LlmPrompt</type> on each <rules> element    = Outcome Instructions
+    - No <conditions> block needed on AI-evaluated rules
+    - The default outcome path needs no AI instructions
+
+    Requirements:
+    - API version 62.0+
+    - Einstein AI credits (consumed per evaluation)
+    - Include merge field references in prompts so AI has data context
+
+    Usage:
+    Replace {{PLACEHOLDERS}} with your values.
+-->
+<decisions>
+    <name>{{DECISION_API_NAME}}</name>
+    <label>{{Decision Label}}</label>
+    <locationX>182</locationX>
+    <locationY>242</locationY>
+
+    <!-- Decision Instructions: describes what the AI is deciding -->
+    <attributes>
+        <type>LlmPrompt</type>
+        <value>{{Describe the decision. Include merge field references like {!Get_Record.FieldName} so AI has the data it needs to evaluate. Example: Detect the sentiment on the case based on subject "{!Get_Case.Subject}" and description "{!Get_Case.Description}" as Negative, Positive, Neutral, or Undetermined.}}</value>
+    </attributes>
+
+    <!-- Default outcome: catches everything that doesn't match a named rule -->
+    <defaultConnector>
+        <targetReference>{{DEFAULT_PATH_TARGET}}</targetReference>
+    </defaultConnector>
+    <defaultConnectorLabel>{{Default Outcome Label}}</defaultConnectorLabel>
+
+    <!-- Named outcome: AI routes here when its instructions match -->
+    <rules>
+        <name>{{OUTCOME_API_NAME}}</name>
+
+        <!-- Outcome Instructions: describes when AI should choose this path -->
+        <attributes>
+            <type>LlmPrompt</type>
+            <value>{{Describe when this outcome applies. Example: The customer sentiment is Negative. The subject or description contains language indicating frustration, anger, dissatisfaction, complaint, or urgency.}}</value>
+        </attributes>
+
+        <conditionLogic>and</conditionLogic>
+        <connector>
+            <targetReference>{{OUTCOME_PATH_TARGET}}</targetReference>
+        </connector>
+        <label>{{Outcome Label}}</label>
+    </rules>
+
+    <!-- Add more <rules> blocks for additional AI-evaluated outcomes -->
+</decisions>

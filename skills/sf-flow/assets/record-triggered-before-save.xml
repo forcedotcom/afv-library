@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Record-Triggered Flow (Before-Save) v2.0.0
+    API Version: 66.0+
+
+    IMPORTANT: This template follows strict alphabetical element ordering required by Salesforce Metadata API
+
+    Note: bulkSupport element is DEPRECATED in API 60.0+ - removed from this template
+    Modern flows are automatically bulkified by Salesforce
+
+    AUTO-LAYOUT: All locationX and locationY are set to 0 for Auto-Layout
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    BEST PRACTICE: Using $Record in Before-Save Flows (v2.0.0)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    BEFORE-SAVE ADVANTAGE: No DML needed!
+    Assign directly to $Record fields and changes save automatically with the record.
+
+    CORRECT - Assign to $Record (no DML):
+        <assignmentItems>
+            <assignToReference>$Record.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>Processed</stringValue></value>
+        </assignmentItems>
+
+    INCORRECT - Using recordUpdates (wasteful in before-save):
+        <recordUpdates>...</recordUpdates>  <- Unnecessary! Assign to $Record instead.
+
+    The $Record global variable gives you direct access to all fields on the triggering record.
+    USE $Record INSTEAD OF querying the same object that triggered this flow!
+
+    CORRECT - Use $Record directly:
+        {!$Record.Name}
+        {!$Record.AccountId}
+
+    INCORRECT - Querying the trigger object (wastes SOQL):
+        <recordLookups>
+            <object>Account</object>  <- Same as trigger object!
+        </recordLookups>
+
+    For UPDATE triggers only, $Record__Prior gives previous field values:
+        {!$Record__Prior.Status} - Value BEFORE the update
+        {!$Record.Status} - Value AFTER the update
+
+    WARNING: $Record__Prior is ONLY available when recordTriggerType is Update or CreateAndUpdate.
+    NEVER use $Record__Prior in Create-only triggers!
+
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_CalculatedValue)
+    - col_ for collections (e.g., col_ItemIds)
+    - rec_ for record variables (e.g., rec_ParentAccount)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!-- Assignment: Update Record Fields (Before Save - No DML needed!) -->
+    <assignments>
+        <name>Update_Record_Fields</name>
+        <label>Update Record Fields</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <!-- Directly modify $Record - changes save automatically -->
+            <assignToReference>$Record.{{TARGET_FIELD}}</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>{{NEW_VALUE}}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Last_Modified_By_Flow__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <!-- No connector = flow ends. Changes saved with record automatically. -->
+    </assignments>
+
+    <description>{{FLOW_DESCRIPTION}}</description>
+
+    <!-- Decision: Check Entry Criteria -->
+    <decisions>
+        <name>Decision_Check_Criteria</name>
+        <label>Check Entry Criteria</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Criteria_Met</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <!-- BEST PRACTICE: Use $Record fields directly - no query needed! -->
+                <leftValueReference>$Record.{{FIELD_NAME}}</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>{{FIELD_VALUE}}</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Record_Fields</targetReference>
+            </connector>
+            <label>Criteria Met</label>
+        </rules>
+    </decisions>
+
+    <label>{{FLOW_LABEL}}</label>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!-- Before-Save Trigger Configuration -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>{{OBJECT_NAME}}</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <!-- Note: bulkSupport removed - automatic in API 60.0+ -->
+        <connector>
+            <targetReference>Decision_Check_Criteria</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!-- Variables for Calculations (v2.0.0 naming) -->
+    <variables>
+        <name>var_CalculatedValue</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ErrorFlag</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+</Flow>

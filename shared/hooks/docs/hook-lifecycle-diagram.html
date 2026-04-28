@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF-Skills Hook Architecture Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #a5f3fc;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+        .legend {
+            max-width: 1000px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #252542;
+            border-radius: 6px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+    </style>
+</head>
+<body>
+    <h1>SF-Skills Hook Architecture Diagram</h1>
+    <p class="subtitle">Claude Code Hook Lifecycle with SF-Skills Hooks</p>
+
+    <div class="mermaid">
+%%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 70}} }%%
+flowchart TB
+    subgraph init["🚀 INITIALIZATION"]
+        S1["1️⃣ SESSION START"]
+        S2["2️⃣ SETUP"]
+        S3["3️⃣ USER PROMPT SUBMIT"]
+    end
+
+    subgraph hooks_session["📌 SessionStart Hooks"]
+        H_INIT["🏗️ session-init.py"]
+    end
+
+    subgraph agentic["⚙️ AGENTIC LOOP"]
+        LLM(["CLAUDE CODE LLM"])
+        S4["4️⃣ PRE TOOL USE"]
+        S5["5️⃣ PERMISSION REQUEST"]
+        EXEC(["TOOL EXECUTES"])
+        S6["6️⃣ POST TOOL USE&lt;br/&gt;SUCCESS"]
+        S7["7️⃣ POST TOOL USE&lt;br/&gt;FAILURE"]
+    end
+
+    subgraph hooks_pre["📌 PreToolUse Hooks"]
+        H_GUARD["🛡️ guardrails (prompt hook)"]
+    end
+
+    subgraph hooks_post["📌 PostToolUse Hooks"]
+        H_VALID["🔍 validator-dispatcher.py"]
+    end
+
+    subgraph subagent["🤖 SUBAGENT FLOW"]
+        SUB_Q{{"SUBAGENT?"}}
+        S8["8️⃣ SUBAGENT START"]
+        SUB_RUN(["SUBAGENT RUNS"])
+        S9["9️⃣ SUBAGENT STOP"]
+        MORE_Q{{"MORE WORK?"}}
+    end
+
+    subgraph finish["🏁 COMPLETION"]
+        S10["🔟 STOP"]
+        S11["1️⃣1️⃣ PRE COMPACT"]
+        S12["1️⃣2️⃣ NOTIFICATION"]
+        S13["1️⃣3️⃣ SESSION END"]
+    end
+
+    %% Main Flow - Initialization
+    S1 --> S2 --> S3 --> LLM
+
+    %% SessionStart hooks
+    S1 -.-> H_INIT
+
+    %% Agentic Loop
+    LLM --> S4 --> S5 --> EXEC
+    EXEC --> S6
+    EXEC --> S7
+
+    %% PreToolUse hooks
+    S4 -.-> H_GUARD
+
+    %% PostToolUse hooks
+    S6 -.-> H_VALID
+
+    %% Subagent flow
+    S6 --> SUB_Q
+    S7 --> SUB_Q
+    SUB_Q -->|Yes| S8
+    SUB_Q -->|No| MORE_Q
+    S8 --> SUB_RUN --> S9
+    S9 --> MORE_Q
+
+    %% Loop back or finish
+    MORE_Q -->|Yes| LLM
+    MORE_Q -->|No| S10
+
+    %% Finish flow
+    S10 --> S11 --> S12 --> S13
+
+    %% Node Styling - Event nodes (Cyan-200 Foundation)
+    style S1 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S2 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S3 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S4 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S5 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S6 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S7 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S8 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S9 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S10 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S11 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S12 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+    style S13 fill:#a5f3fc,stroke:#0e7490,color:#1f2937
+
+    %% Node Styling - Execution nodes (Indigo-200)
+    style LLM fill:#c7d2fe,stroke:#4338ca,color:#1f2937
+    style EXEC fill:#c7d2fe,stroke:#4338ca,color:#1f2937
+    style SUB_RUN fill:#c7d2fe,stroke:#4338ca,color:#1f2937
+
+    %% Node Styling - Decision nodes (Amber-200)
+    style SUB_Q fill:#fde68a,stroke:#b45309,color:#1f2937
+    style MORE_Q fill:#fde68a,stroke:#b45309,color:#1f2937
+
+    %% Node Styling - SessionStart hooks (Teal-200)
+    style H_INIT fill:#99f6e4,stroke:#0f766e,color:#1f2937
+
+    %% Node Styling - PreToolUse hooks (Orange-200)
+    style H_GUARD fill:#fed7aa,stroke:#c2410c,color:#1f2937
+
+    %% Node Styling - PostToolUse hooks (Violet-200)
+    style H_VALID fill:#ddd6fe,stroke:#6d28d9,color:#1f2937
+
+    %% Subgraph Styling - 50-level fills with dark dashed borders
+    style init fill:#ecfeff,stroke:#0e7490,stroke-dasharray:5
+    style agentic fill:#eef2ff,stroke:#4338ca,stroke-dasharray:5
+    style subagent fill:#fdf2f8,stroke:#be185d,stroke-dasharray:5
+    style finish fill:#f8fafc,stroke:#334155,stroke-dasharray:5
+
+    %% Hook subgraph styling
+    style hooks_session fill:#f0fdfa,stroke:#0f766e,stroke-dasharray:5
+    style hooks_pre fill:#fff7ed,stroke:#c2410c,stroke-dasharray:5
+    style hooks_post fill:#f5f3ff,stroke:#6d28d9,stroke-dasharray:5
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="color-box" style="background:#a5f3fc;border-color:#0e7490"></div>
+            <span>Lifecycle Events (S1-S13)</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background:#99f6e4;border-color:#0f766e"></div>
+            <span>SessionStart Hooks</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background:#fed7aa;border-color:#c2410c"></div>
+            <span>PreToolUse Hooks</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background:#ddd6fe;border-color:#6d28d9"></div>
+            <span>PostToolUse Hooks</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background:#c7d2fe;border-color:#4338ca"></div>
+            <span>Execution Nodes</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box" style="background:#fde68a;border-color:#b45309"></div>
+            <span>Decision Points</span>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>

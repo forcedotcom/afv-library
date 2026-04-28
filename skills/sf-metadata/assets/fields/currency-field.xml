@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Currency Field Template
+
+    Usage: Monetary values (respects org currency settings)
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Total_Amount__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Total Amount")
+    - {{PRECISION}} - Total digits (1-18)
+    - {{SCALE}} - Decimal places (0-17, typically 2 for currency)
+    - {{REQUIRED}} - true or false
+    - {{DEFAULT_VALUE}} - Optional default (e.g., "0.00")
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Automatically displays with org's currency symbol
+    - In multi-currency orgs, stores in corporate currency
+    - Use precision=18, scale=2 for standard currency
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>Currency</type>
+    <precision>{{PRECISION}}</precision>
+    <scale>{{SCALE}}</scale>
+    <required>{{REQUIRED}}</required>
+    <defaultValue>{{DEFAULT_VALUE}}</defaultValue>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

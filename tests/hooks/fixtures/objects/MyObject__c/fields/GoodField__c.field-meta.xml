@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Quantity_On_Hand__c</fullName>
+    <label>Quantity On Hand</label>
+    <description>Current count of items physically present in the warehouse location.</description>
+    <inlineHelpText>Enter the actual count from the latest physical inventory audit.</inlineHelpText>
+    <type>Number</type>
+    <precision>18</precision>
+    <scale>0</scale>
+    <required>true</required>
+    <defaultValue>0</defaultValue>
+    <externalId>false</externalId>
+</CustomField>

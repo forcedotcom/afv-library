@@ -1,0 +1,17 @@
+{
+  "data_cloud_operations": {
+    "operations": {
+      "data_360_prep": 500.0,
+      "data_360_streaming_pipeline": 50.0,
+      "data_360_queries": 100.0,
+      "data_360_segmentation": 50.0,
+      "data_360_activation": 100.0
+    },
+    "private_connect": false
+  },
+  "assumptions": [
+    "Data Cloud only",
+    "Baseline meter volumes are scaled across standard scenarios",
+    "No Private Connect"
+  ]
+}

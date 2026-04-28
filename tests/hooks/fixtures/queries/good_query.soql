@@ -1,0 +1,6 @@
+SELECT Id, Name, CreatedDate, Industry
+FROM Account
+WHERE Name LIKE 'Acme%'
+AND CreatedDate = LAST_N_DAYS:30
+ORDER BY CreatedDate DESC
+LIMIT 100

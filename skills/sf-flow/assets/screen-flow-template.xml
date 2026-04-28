@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Screen Flow v2.0.0
+    API Version: 66.0+
+
+    IMPORTANT: This template follows strict alphabetical element ordering required by Salesforce Metadata API
+    AUTO-LAYOUT: All locationX and locationY are set to 0 for Auto-Layout
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    SCREEN FLOW UX BEST PRACTICES (v2.0.0)
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    NAVIGATION CONTROLS:
+    ┌─────────────────────────────────────────────────────────────────────────────┐
+    │ Screen Type │ allowBack │ allowFinish │ Button Shows                        │
+    ├─────────────┼───────────┼─────────────┼─────────────────────────────────────┤
+    │ First       │ false     │ true        │ "Next" only                         │
+    │ Middle      │ true      │ true        │ "Previous" + "Next"                 │
+    │ Last        │ true      │ true        │ "Previous" + "Finish"               │
+    └─────────────────────────────────────────────────────────────────────────────┘
+
+    RULE: allowFinish="true" required on ALL screens.
+    - Connector present → "Next" button displayed
+    - No connector → "Finish" button displayed
+
+    BUTTON NAMING PATTERN:
+    Use: Action_[Verb]_[Object]
+    Examples:
+    - Action_Save_Contact
+    - Action_Submit_Application
+    - Action_Cancel_Request
+
+    BUTTON ORDERING (left to right):
+    1. Primary action (Submit, Save, Confirm) - RIGHT side
+    2. Secondary actions (Save Draft, Back) - LEFT side
+    3. Cancel/Exit - LEFT side
+
+    WHEN TO DISABLE BACK BUTTON:
+    Set allowBack="false" when returning would:
+    - Cause duplicate record creation
+    - Lose complex unsaved data
+    - Break transaction integrity
+    - Confuse business process state
+
+    PROGRESS INDICATORS:
+    For multi-step flows (3+ screens), add progress indication:
+    - Option 1: Use screen headers showing "Step X of Y"
+    - Option 2: Add DisplayText with progress steps at top of each screen
+    - Option 3: Use progress indicator component (LWC)
+
+    SCREEN ORGANIZATION:
+    1. Group related fields in Sections
+    2. Order fields logically (Name → Contact Info → Address)
+    3. Use Column layouts for compact forms
+    4. Add help text for complex fields
+    5. Include format examples where helpful
+
+    PERFORMANCE TIPS:
+    - Lazy Loading: Don't load all data upfront; query as needed per screen
+    - Minimize Screens: Each screen = user wait time; combine where logical
+    - Avoid Complex Formulas: In screen components (impacts render time)
+    - Use LWCs: For rich/complex UI interactions
+
+    INPUT VALIDATION:
+    - Validate on screen exit (not just at flow end)
+    - Show inline validation messages immediately
+    - Use required field indicators (*)
+    - Add instruction text for complex forms
+
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_UserSelection)
+    - col_ for collections (e.g., col_SelectedIds)
+    - rec_ for record variables (e.g., rec_NewAccount)
+    - inp_ for input variables (e.g., inp_RecordId)
+    - out_ for output variables (e.g., out_CreatedRecordId)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!-- Error Handler Assignment -->
+    <assignments>
+        <name>Handle_DML_Error</name>
+        <label>Handle DML Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Screen_Error</targetReference>
+        </connector>
+    </assignments>
+
+    <description>{{FLOW_DESCRIPTION}}</description>
+    <label>{{FLOW_LABEL}}</label>
+    <processType>Flow</processType>
+
+    <!-- Create Record with Fault Path -->
+    <recordCreates>
+        <name>Create_Record</name>
+        <label>Create Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Complete</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Handle_DML_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>var_RecordName</elementReference>
+            </value>
+        </inputAssignments>
+        <object>{{OBJECT_NAME}}</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <!--
+    ══════════════════════════════════════════════════════════════════════
+    SCREEN 1: Welcome/Input (First Screen)
+    - allowBack: false (no previous screen)
+    - allowFinish: true (required)
+    - Has connector → Shows "Next" button
+    ══════════════════════════════════════════════════════════════════════
+    -->
+    <screens>
+        <name>Screen_Welcome</name>
+        <label>Welcome Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_Input</targetReference>
+        </connector>
+        <fields>
+            <name>Welcome_Header</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;&lt;b style="font-size: 18px;"&gt;{{FLOW_LABEL}}&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style="color: rgb(68, 68, 68);"&gt;Step 1 of 3&lt;/span&gt;&lt;/p&gt;</fieldText>
+        </fields>
+        <fields>
+            <name>Welcome_Instructions</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;{{FLOW_DESCRIPTION}}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to begin.&lt;/p&gt;</fieldText>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+
+    <!--
+    ══════════════════════════════════════════════════════════════════════
+    SCREEN 2: Data Input (Middle Screen)
+    - allowBack: true (can return to welcome)
+    - allowFinish: true (required)
+    - Has connector → Shows "Previous" + "Next" buttons
+    ══════════════════════════════════════════════════════════════════════
+    -->
+    <screens>
+        <name>Screen_Input</name>
+        <label>Input Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_Record</targetReference>
+        </connector>
+        <fields>
+            <name>Input_Header</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;&lt;b style="font-size: 18px;"&gt;Enter Details&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style="color: rgb(68, 68, 68);"&gt;Step 2 of 3&lt;/span&gt;&lt;/p&gt;</fieldText>
+        </fields>
+        <fields>
+            <name>Input_Instructions</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;Complete all required fields (*) before proceeding.&lt;/p&gt;</fieldText>
+        </fields>
+        <fields>
+            <name>Input_RecordName</name>
+            <fieldType>InputField</fieldType>
+            <fieldText>Record Name</fieldText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <dataType>String</dataType>
+        </fields>
+        <fields>
+            <name>Input_Description</name>
+            <fieldType>LargeTextArea</fieldType>
+            <fieldText>Description</fieldText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+
+    <!--
+    ══════════════════════════════════════════════════════════════════════
+    SCREEN 3: Completion (Last Screen - Success)
+    - allowBack: false (record already created, prevent duplicate)
+    - allowFinish: true (required)
+    - No connector → Shows "Finish" button
+    ══════════════════════════════════════════════════════════════════════
+    -->
+    <screens>
+        <name>Screen_Complete</name>
+        <label>Completion Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <!-- No connector = "Finish" button instead of "Next" -->
+        <fields>
+            <name>Complete_Header</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;&lt;b style="font-size: 18px;"&gt;Success!&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style="color: rgb(68, 68, 68);"&gt;Step 3 of 3&lt;/span&gt;&lt;/p&gt;</fieldText>
+        </fields>
+        <fields>
+            <name>Complete_Message</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;&lt;span style="color: rgb(46, 132, 74);"&gt;✓&lt;/span&gt; &lt;b&gt;Record created successfully!&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Finish&lt;/b&gt; to close this flow.&lt;/p&gt;</fieldText>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+
+    <!--
+    ══════════════════════════════════════════════════════════════════════
+    ERROR SCREEN: DML Failure
+    - Shows user-friendly error message
+    - allowBack: true (let user try again)
+    ══════════════════════════════════════════════════════════════════════
+    -->
+    <screens>
+        <name>Screen_Error</name>
+        <label>Error Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Error_Header</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;&lt;span style="color: rgb(194, 57, 52);"&gt;&lt;b style="font-size: 18px;"&gt;Error Occurred&lt;/b&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
+        </fields>
+        <fields>
+            <name>Error_Message</name>
+            <fieldType>DisplayText</fieldType>
+            <fieldText>&lt;p&gt;We encountered an issue while processing your request:&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;{!var_ErrorMessage}&lt;/i&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Previous&lt;/b&gt; to review your input and try again, or &lt;b&gt;Finish&lt;/b&gt; to exit.&lt;/p&gt;</fieldText>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+
+    <!-- Start Element -->
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Welcome</targetReference>
+        </connector>
+    </start>
+
+    <status>Draft</status>
+
+    <!-- Variables (v2.0.0 naming conventions) -->
+    <variables>
+        <name>var_Description</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_RecordName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

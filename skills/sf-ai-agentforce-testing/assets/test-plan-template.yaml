@@ -1,0 +1,89 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Agentforce Test Plan Template
+# ═══════════════════════════════════════════════════════════════════════════
+# Save interview results as a reusable test plan. Re-run tests without
+# repeating the interview by providing this file to the testing skill.
+#
+# Usage:
+#   1. The testing skill auto-generates this after the interview flow
+#   2. Re-run: provide this file to skip credential/scenario setup
+#   3. Edit scenarios.files to add/remove scenario YAMLs
+#
+# Author: Jag Valaiyapathy | License: MIT
+# ═══════════════════════════════════════════════════════════════════════════
+
+apiVersion: v1
+kind: AgentTestPlan
+
+metadata:
+  # Human-readable plan name (auto-generated from agent + timestamp)
+  name: "test-plan-{agent_name}-{timestamp}"
+  created: "2026-01-01T00:00:00Z"
+  description: "Multi-turn test plan for {agent_name}"
+  # Agent identification
+  agent_name: "Agent_Developer_Name"
+  agent_id: "0XxRM0000000000"
+  org_alias: "MyOrg-Dev"
+
+credentials:
+  # Path to credentials.env managed by credential_manager.py
+  # Convention: ~/.sfagent/{org_alias}/{eca_name}/credentials.env
+  path: "~/.sfagent/{org_alias}/{eca_name}/credentials.env"
+  # Set to true to use environment variables instead of file
+  use_env: false
+
+agent_metadata:
+  # Populated by agent_discovery.py during interview
+  type: "BotDefinition"
+  topics:
+    - name: "Topic_Name"
+      description: "Topic classification description"
+      actions: ["Action_One", "Action_Two"]
+  actions:
+    - name: "Action_Name"
+      type: "flow"
+      description: "Action description"
+
+scenarios:
+  # YAML scenario files to execute (relative to skill root or absolute)
+  files:
+    - "generated-scenarios.yaml"
+  # Optional: only run scenarios matching these patterns
+  patterns:
+    - "topic_routing"
+    - "context_preservation"
+    - "escalation_flows"
+    - "guardrail_testing"
+    - "action_chain"
+    - "error_recovery"
+    - "cross_topic_switch"
+
+partition:
+  # How to split scenarios across workers
+  # Options: by_category | by_count | sequential
+  strategy: "by_category"
+  # Number of Claude Code worker agents (1 = sequential, no team needed)
+  worker_count: 4
+
+session_variables:
+  # Context variables injected into every session
+  # Format matches Agent Runtime API variable schema
+  - name: "$Context.EndUserLanguage"
+    type: "Text"
+    value: "en_US"
+  # - name: "$Context.AccountId"
+  #   type: "Id"
+  #   value: "001XXXXXXXXXXXX"
+
+execution:
+  # Max seconds per scenario before timeout
+  timeout_per_scenario: 120
+  # Retries per turn on transient API failures
+  turn_retry: 1
+  # Print progress to stderr
+  verbose: true
+  # Rich colored output is ON by default when `rich` is installed.
+  # Set no_rich: true to disable.
+  no_rich: false
+  # Write JSON results file
+  output_dir: "./test-results"

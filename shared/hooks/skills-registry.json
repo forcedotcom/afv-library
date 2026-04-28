@@ -1,0 +1,1247 @@
+{
+  "version": "5.0.0",
+  "description": "Skills registry for skill discovery keywords, background operation rules, and advisory metadata. Validator routing is handled by validator-dispatcher.py.",
+  "background_operations": {
+    "sf-flow": {
+      "commands": [
+        "sf flow test run"
+      ],
+      "typical_duration": "1-5 minutes",
+      "always_background": true,
+      "reason": "Flow tests execute in the org and can take several minutes"
+    },
+    "sf-testing": {
+      "commands": [
+        "sf apex run test"
+      ],
+      "typical_duration": "2-15 minutes",
+      "always_background": true,
+      "reason": "Apex tests can run for extended periods depending on org size and test volume"
+    },
+    "sf-deploy": {
+      "commands": [
+        "sf project deploy start",
+        "sf org create scratch",
+        "sf org create sandbox"
+      ],
+      "typical_duration": "1-10 minutes",
+      "background_if_no_wait": true,
+      "exclude_patterns": [
+        "--dry-run",
+        "--validate-only",
+        "--check-only"
+      ],
+      "reason": "Full deployments and org creation are long-running operations"
+    },
+    "sf-vlocity-build-deploy": {
+      "commands": [
+        "vlocity packDeploy",
+        "vlocity packRetry",
+        "vlocity packExport"
+      ],
+      "typical_duration": "2-20 minutes",
+      "background_if_no_wait": true,
+      "exclude_patterns": [
+        "validateLocalData",
+        "packGetDiffs"
+      ],
+      "reason": "DataPack exports and deploys can run for extended periods depending on dependency depth"
+    },
+    "sf-data": {
+      "commands": [
+        "sf data import tree",
+        "sf data import bulk",
+        "sf data upsert bulk"
+      ],
+      "typical_duration": "5-30 minutes",
+      "background_if_large": true,
+      "large_threshold": "1000 records",
+      "reason": "Large data imports can take significant time"
+    },
+    "sf-datacloud-harmonize": {
+      "commands": [
+        "sf data360 identity-resolution run",
+        "sf data360 data-graph refresh"
+      ],
+      "typical_duration": "5-20 minutes",
+      "background_if_no_wait": true,
+      "reason": "Identity resolution and data-graph refreshes can take several minutes to materialize results"
+    },
+    "sf-datacloud-segment": {
+      "commands": [
+        "sf data360 segment publish",
+        "sf data360 calculated-insight run"
+      ],
+      "typical_duration": "3-15 minutes",
+      "background_if_no_wait": true,
+      "reason": "Segment publishes and calculated insight runs often execute asynchronously and can take several minutes"
+    },
+    "sf-datacloud-retrieve": {
+      "commands": [
+        "sf data360 query async-create"
+      ],
+      "typical_duration": "1-10 minutes",
+      "background_if_large": true,
+      "large_threshold": "10000+ rows",
+      "reason": "Large Data Cloud query jobs are better handled asynchronously"
+    }
+  },
+  "skills": {
+    "sf-apex": {
+      "keywords": [
+        "apex",
+        "trigger",
+        "class",
+        "test class",
+        "batch",
+        "queueable",
+        "schedulable",
+        "invocable",
+        "aura enabled",
+        "apex controller",
+        "selector",
+        "domain",
+        "service layer",
+        "trigger handler",
+        "fflib",
+        "apex test"
+      ],
+      "intentPatterns": [
+        "create.*apex",
+        "write.*trigger",
+        "implement.*batch",
+        "build.*class",
+        "create.*test.*class",
+        "add.*method",
+        "implement.*interface",
+        "fix.*apex",
+        "debug.*apex",
+        "refactor.*apex",
+        "optimize.*apex"
+      ],
+      "priority": "high",
+      "description": "Apex code development with validation and best practices",
+      "triggerWhen": "user writes, reviews, or fixes Apex classes, triggers, test classes, batch/queueable/schedulable jobs, or touches .cls/.trigger files",
+      "doNotTriggerWhen": "LWC JavaScript (use sf-lwc), Flow XML (use sf-flow), SOQL-only queries (use sf-soql), or non-Salesforce code"
+    },
+    "sf-flow": {
+      "keywords": [
+        "flow",
+        "screen flow",
+        "record-triggered",
+        "record triggered",
+        "autolaunched",
+        "auto-launched",
+        "subflow",
+        "scheduled flow",
+        "platform event flow",
+        "flow builder",
+        "flow element",
+        "assignment",
+        "decision",
+        "loop element",
+        "get records",
+        "create records",
+        "update records",
+        "delete records"
+      ],
+      "intentPatterns": [
+        "create.*flow",
+        "build.*automation",
+        "automate.*process",
+        "screen.*flow",
+        "record.*triggered",
+        "scheduled.*trigger",
+        "flow.*trigger",
+        "update.*flow",
+        "fix.*flow",
+        "debug.*flow"
+      ],
+      "priority": "high",
+      "description": "Flow Builder automation with validation",
+      "triggerWhen": "user builds or edits record-triggered, screen, autolaunched, or scheduled flows, or touches .flow-meta.xml files",
+      "doNotTriggerWhen": "Apex automation (use sf-apex), process builder migration questions only, or non-Flow declarative config (use sf-metadata)"
+    },
+    "sf-lwc": {
+      "keywords": [
+        "lwc",
+        "lightning web component",
+        "web component",
+        "wire",
+        "wire adapter",
+        "apex wire",
+        "lightning card",
+        "lightning button",
+        "slds",
+        "css",
+        "html template",
+        "js controller",
+        "lightning message service",
+        "lms",
+        "jest",
+        "lwc test"
+      ],
+      "intentPatterns": [
+        "create.*component",
+        "build.*lwc",
+        "lightning.*component",
+        "create.*web.*component",
+        "add.*wire",
+        "wire.*apex",
+        "test.*lwc",
+        "jest.*test",
+        "style.*component",
+        "fix.*lwc"
+      ],
+      "priority": "high",
+      "description": "Lightning Web Components with SLDS compliance",
+      "triggerWhen": "user creates/edits LWC components, touches lwc/**/*.js, .html, .css, .js-meta.xml files, or asks about wire service, SLDS, or Jest LWC tests",
+      "doNotTriggerWhen": "Apex classes (use sf-apex), Aura components, or Visualforce"
+    },
+    "sf-ai-agentforce-persona": {
+      "keywords": [
+        "persona",
+        "agent personality",
+        "agent identity",
+        "tone register",
+        "communication style",
+        "brand voice",
+        "persona document",
+        "persona encoding",
+        "persona framework",
+        "archetype preset",
+        "formality",
+        "warmth",
+        "personality intensity",
+        "agent script persona",
+        "brand input"
+      ],
+      "intentPatterns": [
+        "create.*persona",
+        "design.*persona",
+        "build.*persona",
+        "define.*personality",
+        "define.*agent.*identity",
+        "encode.*persona",
+        "agent.*tone",
+        "agent.*personality"
+      ],
+      "priority": "high",
+      "description": "Deep persona design for Agentforce -- 12-attribute framework, brand input, archetype presets, Agent Builder & Agent Script encoding",
+      "triggerWhen": "user designs agent personas, defines agent personality/identity, creates persona documents, encodes persona into Agent Builder fields or Agent Script, translates brand guidelines to agent voice, or asks about agent tone/voice/register",
+      "doNotTriggerWhen": "building agent metadata (use sf-ai-agentforce), testing agents (use sf-ai-agentforce-testing), or Agent Script DSL (use sf-ai-agentscript)"
+    },
+    "sf-ai-agentforce": {
+      "keywords": [
+        "agentforce",
+        "agent builder",
+        "agent-builder",
+        "prompt template",
+        "prompt-template",
+        "models api",
+        "models-api",
+        "genai function",
+        "genai plugin",
+        "lightning type"
+      ],
+      "intentPatterns": [
+        "create.*agent",
+        "build.*agent",
+        "setup.*agent",
+        "prompt.*template",
+        "models.*api",
+        "genai.*function"
+      ],
+      "priority": "medium",
+      "description": "Standard Agentforce platform skill for Setup UI agent building, PromptTemplate, Models API, and GenAi metadata",
+      "triggerWhen": "user configures agents in Agent Builder, creates topics/actions, writes PromptTemplates, or touches .genAiFunction/.genAiPlugin/.promptTemplate metadata XML",
+      "doNotTriggerWhen": "Agent Script DSL .agent files (use sf-ai-agentscript), agent testing (use sf-ai-agentforce-testing), or persona design (use sf-ai-agentforce-persona)"
+    },
+    "sf-metadata": {
+      "keywords": [
+        "custom object",
+        "custom field",
+        "metadata",
+        "permission set",
+        "profile",
+        "page layout",
+        "record type",
+        "validation rule",
+        "formula field",
+        "picklist",
+        "lookup",
+        "master-detail",
+        "field-level security",
+        "fls",
+        "object permissions"
+      ],
+      "intentPatterns": [
+        "create.*object",
+        "add.*field",
+        "configure.*permissions",
+        "new.*custom.*field",
+        "setup.*validation",
+        "create.*picklist",
+        "add.*lookup",
+        "create.*master.*detail",
+        "setup.*layout"
+      ],
+      "priority": "medium",
+      "description": "Salesforce metadata configuration",
+      "triggerWhen": "user creates custom objects, fields, validation rules, or touches .object-meta.xml, .field-meta.xml, .profile-meta.xml files",
+      "doNotTriggerWhen": "permission set analysis (use sf-permissions), deploying metadata (use sf-deploy), or Flow XML (use sf-flow)"
+    },
+    "sf-deploy": {
+      "keywords": [
+        "deploy",
+        "deployment",
+        "release",
+        "push",
+        "sandbox",
+        "production",
+        "source deploy",
+        "metadata deploy",
+        "package",
+        "changeset",
+        "scratch org",
+        "ci",
+        "cd",
+        "pipeline",
+        "devops"
+      ],
+      "intentPatterns": [
+        "deploy.*org",
+        "release.*production",
+        "push.*changes",
+        "deploy.*sandbox",
+        "create.*package",
+        "deploy.*metadata",
+        "run.*deployment",
+        "validate.*deployment",
+        "quick.*deploy"
+      ],
+      "priority": "medium",
+      "description": "CI/CD deployment automation",
+      "triggerWhen": "user deploys metadata, creates/manages scratch orgs or sandboxes, sets up CI/CD pipelines, or troubleshoots deployment errors with sf project deploy",
+      "doNotTriggerWhen": "writing Apex/LWC code (use sf-apex/sf-lwc), creating metadata XML (use sf-metadata), or querying org data (use sf-data)"
+    },
+    "sf-vlocity-build-deploy": {
+      "keywords": [
+        "vlocity",
+        "vlocity build",
+        "datapack",
+        "datapacks",
+        "datapack deploy",
+        "packdeploy",
+        "packretry",
+        "packexport",
+        "packcontinue",
+        "packgetdiffs",
+        "validateLocalData",
+        "idx workbench",
+        "vlocity migration",
+        "datapack migration"
+      ],
+      "intentPatterns": [
+        "deploy.*datapack",
+        "deploy.*vlocity",
+        "run.*packdeploy",
+        "retry.*datapack",
+        "export.*datapack",
+        "migrate.*vlocity",
+        "validate.*datapack",
+        "packgetdiffs",
+        "continue.*datapack.*job",
+        "vlocity.*ci.*cd"
+      ],
+      "priority": "high",
+      "description": "Vlocity Build DataPack deployment orchestration for export, deploy, retry, and migration workflows",
+      "triggerWhen": "user deploys or validates OmniStudio/Vlocity DataPacks with vlocity packDeploy/packRetry/packExport, manages DataPack migration workflows, or troubleshoots DataPack deployment failures",
+      "doNotTriggerWhen": "deploying Salesforce metadata with sf project deploy (use sf-deploy), authoring OmniStudio assets (use sf-industry-commoncore-*), or writing Apex/LWC business logic"
+    },
+    "sf-testing": {
+      "keywords": [
+        "test",
+        "coverage",
+        "assert",
+        "mock",
+        "unit test",
+        "integration test",
+        "apex test",
+        "test method",
+        "test setup",
+        "test factory",
+        "code coverage",
+        "run tests",
+        "test failure"
+      ],
+      "intentPatterns": [
+        "run.*tests",
+        "check.*coverage",
+        "write.*test",
+        "test.*class",
+        "increase.*coverage",
+        "fix.*test",
+        "mock.*data",
+        "create.*test.*method",
+        "test.*trigger"
+      ],
+      "priority": "medium",
+      "description": "Test execution and coverage analysis",
+      "triggerWhen": "user runs Apex tests, checks code coverage, fixes failing tests, or touches *Test.cls / *_Test.cls files",
+      "doNotTriggerWhen": "writing Apex production code (use sf-apex), Agentforce agent testing (use sf-ai-agentforce-testing), or Jest/LWC tests (use sf-lwc)"
+    },
+    "sf-soql": {
+      "keywords": [
+        "soql",
+        "query",
+        "select",
+        "where clause",
+        "relationship query",
+        "aggregate",
+        "group by",
+        "having",
+        "order by",
+        "limit",
+        "offset",
+        "parent-child",
+        "child-parent",
+        "subquery",
+        "sosl",
+        "search"
+      ],
+      "intentPatterns": [
+        "write.*query",
+        "optimize.*soql",
+        "build.*select",
+        "query.*records",
+        "search.*data",
+        "soql.*performance",
+        "fix.*query",
+        "debug.*soql",
+        "create.*subquery"
+      ],
+      "priority": "medium",
+      "description": "SOQL query optimization and analysis",
+      "triggerWhen": "user writes, optimizes, or debugs SOQL/SOSL queries, touches .soql files, or asks about relationship queries, aggregates, or query performance",
+      "doNotTriggerWhen": "bulk data operations (use sf-data), Apex DML logic (use sf-apex), or report/dashboard queries"
+    },
+    "sf-data": {
+      "keywords": [
+        "test data",
+        "data factory",
+        "sample data",
+        "bulk data",
+        "data load",
+        "record creation",
+        "test records",
+        "bulk insert",
+        "anonymous apex",
+        "data import",
+        "dataloader",
+        "251 records"
+      ],
+      "intentPatterns": [
+        "create.*test.*data",
+        "generate.*data",
+        "load.*records",
+        "bulk.*insert",
+        "sample.*records",
+        "factory.*method",
+        "setup.*test.*data",
+        "create.*251",
+        "bulk.*test"
+      ],
+      "priority": "medium",
+      "description": "Test data generation and management",
+      "triggerWhen": "user creates test data, performs bulk import/export, uses sf data CLI commands, or needs data factory patterns for Apex tests",
+      "doNotTriggerWhen": "SOQL query writing only (use sf-soql), Apex test execution (use sf-testing), or metadata deployment (use sf-deploy)"
+    },
+    "sf-flex-estimator": {
+      "keywords": [
+        "flex credit",
+        "flex credits",
+        "agentforce cost",
+        "agentforce pricing",
+        "data cloud pricing",
+        "data cloud cost",
+        "cost estimate",
+        "cost estimation",
+        "pricing estimate",
+        "pricing scenario",
+        "private connect",
+        "tiered pricing",
+        "tier multiplier",
+        "rate card"
+      ],
+      "intentPatterns": [
+        "estimate.*flex.*credit",
+        "estimate.*agentforce.*cost",
+        "estimate.*data.*cloud.*cost",
+        "calculate.*flex.*credit",
+        "calculate.*agentforce.*pricing",
+        "price.*agent",
+        "model.*usage.*scenario",
+        "compare.*pricing.*scenario",
+        "forecast.*flex.*credit",
+        "optimize.*flex.*credit"
+      ],
+      "priority": "medium",
+      "description": "Public list-price Flex Credit estimation for Agentforce and Data Cloud workloads",
+      "triggerWhen": "user needs cost projections, scenario planning, budget sizing, or architecture tradeoff analysis for Agentforce prompts/actions, Data Cloud meters, or monthly Flex Credit usage",
+      "doNotTriggerWhen": "the user is implementing Builder metadata or .agent files, provisioning live Data Cloud assets, or asking for exact contract-specific commercial pricing"
+    },
+    "sf-datacloud": {
+      "keywords": [
+        "data cloud pipeline",
+        "datacloud pipeline",
+        "customer 360 pipeline",
+        "data space",
+        "data kit",
+        "sf data360",
+        "data360 doctor",
+        "unified profile pipeline",
+        "identity resolution pipeline"
+      ],
+      "intentPatterns": [
+        "set.*up.*data.*cloud",
+        "troubleshoot.*data.*cloud",
+        "create.*data.*cloud.*pipeline",
+        "inspect.*data.*space",
+        "inspect.*data.*kit",
+        "data360.*doctor",
+        "debug.*data.*cloud.*pipeline"
+      ],
+      "priority": "high",
+      "description": "Cross-phase Salesforce Data Cloud orchestration using the external community sf data360 runtime",
+      "triggerWhen": "user needs a multi-phase Data Cloud workflow, manages data spaces or data kits, troubleshoots Data Cloud across phases, or explicitly references `sf data360` at a broad product level",
+      "doNotTriggerWhen": "the task is isolated to a single Data Cloud phase, standard CRM SOQL, Apex-only work, or STDM/session tracing/parquet telemetry (use sf-ai-agentforce-observability)"
+    },
+    "sf-datacloud-connect": {
+      "keywords": [
+        "data cloud connection",
+        "data cloud connector",
+        "connector metadata",
+        "connector type",
+        "salesforcedotcom connector",
+        "redshift connector",
+        "heroku postgres connector",
+        "herokupostgres connector",
+        "snowflake connector",
+        "sharepoint connector",
+        "sharepoint unstructured",
+        "ingestion api connector",
+        "schema upsert",
+        "bigquery connector"
+      ],
+      "intentPatterns": [
+        "create.*data.*cloud.*connection",
+        "test.*data.*cloud.*connection",
+        "list.*data.*cloud.*connections",
+        "inspect.*connector",
+        "browse.*connection.*objects",
+        "browse.*connection.*databases",
+        "create.*heroku.*connection",
+        "create.*redshift.*connection",
+        "create.*snowflake.*connection",
+        "create.*sharepoint.*connection",
+        "ingestion.*api.*connector",
+        "schema.*upsert"
+      ],
+      "priority": "medium",
+      "description": "Data Cloud connections, connectors, and source discovery",
+      "triggerWhen": "user manages Data Cloud connections, connectors, source metadata, uploaded connector schemas, or tests a connection",
+      "doNotTriggerWhen": "the task is about data streams, DLOs, DMOs, SQL/search, or STDM/session tracing"
+    },
+    "sf-datacloud-prepare": {
+      "keywords": [
+        "data stream",
+        "create-from-object",
+        "data lake object",
+        "dlo",
+        "udlo",
+        "unstructured dlo",
+        "data transform",
+        "document ai",
+        "docai",
+        "data cloud ingestion",
+        "data-stream run",
+        "run-existing",
+        "ingestion api"
+      ],
+      "intentPatterns": [
+        "create.*data.*stream",
+        "inspect.*dlo",
+        "ingest.*into.*data.*cloud",
+        "create.*transform",
+        "run.*transform",
+        "generate.*docai",
+        "run.*data.*stream",
+        "rerun.*data.*stream",
+        "refresh.*data.*stream",
+        "create.*udlo",
+        "unstructured.*dlo",
+        "send.*data.*cloud.*ingestion.*api"
+      ],
+      "priority": "medium",
+      "description": "Data Cloud ingestion, streams, DLOs, transforms, Document AI, and unstructured refresh workflows",
+      "triggerWhen": "user creates or manages Data Cloud streams, DLOs, transforms, DocAI workflows, unstructured rescans, or Ingestion API send-data flows after connector setup",
+      "doNotTriggerWhen": "the task is connector-only setup, harmonization, or pure query/search work"
+    },
+    "sf-datacloud-harmonize": {
+      "keywords": [
+        "dmo",
+        "data model object",
+        "map to canonical",
+        "identity resolution",
+        "unified profile",
+        "data graph",
+        "universal id",
+        "data cloud mapping"
+      ],
+      "intentPatterns": [
+        "create.*dmo",
+        "map.*to.*canonical",
+        "create.*identity.*resolution",
+        "run.*identity.*resolution",
+        "build.*data.*graph",
+        "inspect.*unified.*profile"
+      ],
+      "priority": "high",
+      "description": "Data Cloud DMOs, mappings, identity resolution, unified profiles, and data graphs",
+      "triggerWhen": "user works with Data Cloud DMOs, mappings, identity resolution, unified profiles, data graphs, or universal ID lookup",
+      "doNotTriggerWhen": "the task is only about streams/DLOs, segment design, SQL/search, or STDM/session tracing"
+    },
+    "sf-datacloud-segment": {
+      "keywords": [
+        "data cloud segment",
+        "segment publish",
+        "segment members",
+        "calculated insight",
+        "market segment",
+        "audience sql",
+        "segment count"
+      ],
+      "intentPatterns": [
+        "create.*segment",
+        "publish.*segment",
+        "count.*segment.*members",
+        "run.*calculated.*insight",
+        "troubleshoot.*segment",
+        "inspect.*calculated.*insight"
+      ],
+      "priority": "medium",
+      "description": "Data Cloud segments, calculated insights, and audience troubleshooting",
+      "triggerWhen": "user creates or publishes Data Cloud segments, manages calculated insights, or troubleshoots audience logic",
+      "doNotTriggerWhen": "the task is activation delivery, pure query/search work, or STDM/session tracing"
+    },
+    "sf-datacloud-act": {
+      "keywords": [
+        "activation target",
+        "data cloud activation",
+        "data action",
+        "data action target",
+        "activate segment",
+        "downstream audience delivery"
+      ],
+      "intentPatterns": [
+        "create.*activation",
+        "list.*activation.*targets",
+        "activate.*segment",
+        "create.*data.*action",
+        "inspect.*activation",
+        "update.*activation.*target"
+      ],
+      "priority": "medium",
+      "description": "Data Cloud activations, activation targets, and data actions",
+      "triggerWhen": "user manages Data Cloud activations, activation targets, data actions, or downstream delivery setup",
+      "doNotTriggerWhen": "the task is segment design, search/query work, or STDM/session tracing"
+    },
+    "sf-datacloud-retrieve": {
+      "keywords": [
+        "data cloud sql",
+        "ssot sql",
+        "vector search",
+        "hybrid search",
+        "query hybrid",
+        "prefilter",
+        "search index",
+        "async query",
+        "query describe",
+        "semantic search",
+        "data cloud query"
+      ],
+      "intentPatterns": [
+        "run.*data.*cloud.*query",
+        "describe.*data.*cloud.*table",
+        "create.*search.*index",
+        "troubleshoot.*vector.*search",
+        "troubleshoot.*hybrid.*search",
+        "run.*hybrid.*search",
+        "run.*async.*query",
+        "inspect.*search.*index"
+      ],
+      "priority": "high",
+      "description": "Data Cloud SQL, async query, search-index, vector-search, hybrid-search, and metadata introspection workflows",
+      "triggerWhen": "user runs Data Cloud SQL, describe, async queries, vector search, hybrid search, search-index workflows, or metadata introspection",
+      "doNotTriggerWhen": "the task is CRM SOQL-only, segment design, or STDM/session tracing/parquet analysis"
+    },
+    "sf-docs": {
+      "keywords": [
+        "salesforce documentation",
+        "official docs",
+        "developer docs",
+        "help salesforce",
+        "help.salesforce.com",
+        "developer.salesforce.com",
+        "atlas",
+        "pdf guide",
+        "apex reference",
+        "api reference",
+        "agentforce docs",
+        "lwc docs"
+      ],
+      "intentPatterns": [
+        "find.*documentation",
+        "look.*up.*docs",
+        "official.*salesforce.*docs",
+        "search.*salesforce.*docs",
+        "where.*documented",
+        "help.*salesforce",
+        "developer.*salesforce.*docs",
+        "find.*reference",
+        "look.*up.*agentforce",
+        "research.*official.*docs"
+      ],
+      "priority": "high",
+      "description": "Official Salesforce documentation retrieval guidance for hard-to-fetch online docs such as developer.salesforce.com and help.salesforce.com"
+    },
+    "sf-integration": {
+      "keywords": [
+        "callout",
+        "http",
+        "rest",
+        "soap",
+        "platform event",
+        "cdc",
+        "webhook",
+        "named credential",
+        "external credential",
+        "external service",
+        "api",
+        "endpoint",
+        "integration",
+        "callback",
+        "http request",
+        "http response"
+      ],
+      "intentPatterns": [
+        "call.*external",
+        "integrate.*api",
+        "send.*event",
+        "http.*callout",
+        "rest.*api",
+        "create.*named.*credential",
+        "platform.*event",
+        "change.*data.*capture",
+        "webhook"
+      ],
+      "priority": "medium",
+      "description": "External system integrations",
+      "triggerWhen": "user sets up Named Credentials, External Services, REST/SOAP callouts, Platform Events, CDC, or touches .namedCredential-meta.xml files",
+      "doNotTriggerWhen": "Connected App/OAuth config (use sf-connected-apps), Apex-only logic (use sf-apex), or data import/export (use sf-data)"
+    },
+    "sf-connected-apps": {
+      "keywords": [
+        "connected app",
+        "oauth",
+        "jwt",
+        "named credential",
+        "external credential",
+        "client credentials",
+        "authorization",
+        "token",
+        "consumer key",
+        "consumer secret",
+        "callback url",
+        "scopes",
+        "pkce",
+        "refresh token"
+      ],
+      "intentPatterns": [
+        "configure.*oauth",
+        "setup.*authentication",
+        "create.*connected",
+        "jwt.*bearer",
+        "client.*credentials",
+        "oauth.*flow",
+        "named.*credential",
+        "external.*credential"
+      ],
+      "priority": "low",
+      "description": "OAuth and authentication configuration",
+      "triggerWhen": "user configures OAuth flows, JWT bearer auth, Connected Apps, or touches .connectedApp-meta.xml / .eca-meta.xml files",
+      "doNotTriggerWhen": "Named Credentials for callouts (use sf-integration), permission policies (use sf-permissions), or API endpoint code (use sf-apex)"
+    },
+    "sf-debug": {
+      "keywords": [
+        "debug",
+        "log",
+        "trace",
+        "troubleshoot",
+        "error",
+        "exception",
+        "stack trace",
+        "apex log",
+        "debug log",
+        "log level",
+        "fine",
+        "finest",
+        "callout",
+        "workflow",
+        "validation",
+        "system debug"
+      ],
+      "intentPatterns": [
+        "debug.*issue",
+        "analyze.*log",
+        "trace.*execution",
+        "fix.*error",
+        "troubleshoot.*issue",
+        "read.*debug.*log",
+        "enable.*debug",
+        "check.*exception",
+        "find.*error"
+      ],
+      "priority": "low",
+      "description": "Debug log analysis and troubleshooting",
+      "triggerWhen": "user analyzes debug logs, hits governor limits, reads stack traces, or touches .log files from Salesforce orgs",
+      "doNotTriggerWhen": "running Apex tests (use sf-testing), fixing Apex code (use sf-apex), or Agentforce session tracing (use sf-ai-agentforce-observability)"
+    },
+    "sf-diagram-mermaid": {
+      "keywords": [
+        "diagram",
+        "erd",
+        "mermaid",
+        "architecture",
+        "visualization",
+        "data model",
+        "entity relationship",
+        "sequence diagram",
+        "flowchart",
+        "class diagram",
+        "object diagram",
+        "schema",
+        "hook lifecycle",
+        "flowchart tb",
+        "flowchart lr",
+        "stateDiagram",
+        "gantt",
+        "pie chart"
+      ],
+      "auto_invoke_keywords": [
+        "mermaid",
+        "flowchart",
+        "sequence diagram",
+        "erDiagram",
+        "class diagram",
+        "stateDiagram",
+        "gantt",
+        "hook lifecycle",
+        "architecture diagram"
+      ],
+      "intentPatterns": [
+        "create.*diagram",
+        "visualize.*schema",
+        "draw.*architecture",
+        "generate.*erd",
+        "show.*relationships",
+        "data.*model.*diagram",
+        "sequence.*diagram",
+        "architecture.*diagram",
+        "mermaid.*diagram",
+        "flowchart.*diagram",
+        "create.*flowchart",
+        "create.*erd"
+      ],
+      "priority": "low",
+      "description": "Mermaid diagram generation",
+      "triggerWhen": "user says 'diagram', 'visualize', 'ERD', or asks for sequence diagrams, flowcharts, class diagrams, or architecture visualizations in Mermaid",
+      "doNotTriggerWhen": "user wants PNG/SVG image output (use sf-diagram-nanobananapro), or non-Salesforce systems"
+    },
+    "sf-diagram-nanobananapro": {
+      "keywords": [
+        "mockup",
+        "visual",
+        "image",
+        "erd image",
+        "wireframe",
+        "ui design",
+        "visual erd",
+        "png",
+        "svg",
+        "screenshot",
+        "preview",
+        "nano banana",
+        "nanobananapro",
+        "generate image"
+      ],
+      "auto_invoke_keywords": [
+        "image",
+        "png",
+        "svg",
+        "mockup",
+        "wireframe",
+        "visual erd",
+        "nano banana",
+        "nanobananapro",
+        "visual image",
+        "generate image"
+      ],
+      "intentPatterns": [
+        "create.*mockup",
+        "generate.*visual",
+        "design.*ui",
+        "visual.*erd",
+        "image.*diagram",
+        "wireframe.*component",
+        "preview.*design",
+        "generate.*image",
+        "create.*image",
+        "export.*png",
+        "export.*svg"
+      ],
+      "priority": "low",
+      "description": "Visual mockups and image generation",
+      "triggerWhen": "user asks for PNG/SVG output, UI mockups, wireframes, visual ERDs, or says 'generate image' / 'create mockup'",
+      "doNotTriggerWhen": "text-based Mermaid diagrams (use sf-diagram-mermaid), or non-visual documentation tasks"
+    },
+    "sf-ai-agentforce-testing": {
+      "keywords": [
+        "agent test",
+        "test spec",
+        "agent validation",
+        "agentic testing",
+        "test case",
+        "utterance",
+        "expectation",
+        "topic routing",
+        "action sequence",
+        "test definition",
+        "agent test run"
+      ],
+      "intentPatterns": [
+        "test.*agent",
+        "validate.*agentforce",
+        "create.*test.*spec",
+        "agent.*test.*case",
+        "test.*topic.*routing",
+        "verify.*agent",
+        "run.*agent.*test"
+      ],
+      "priority": "low",
+      "description": "Agentforce agent test automation",
+      "triggerWhen": "user tests Agentforce agents, runs sf agent test commands, creates test specs, validates topic routing, or analyzes agent test coverage",
+      "doNotTriggerWhen": "Apex unit tests (use sf-testing), building agents (use sf-ai-agentforce), or Agent Script DSL (use sf-ai-agentscript)"
+    },
+    "sf-ai-agentscript": {
+      "keywords": [
+        "agent script",
+        "agentscript",
+        "agentforce",
+        "agent",
+        "topic",
+        "action",
+        "fsm",
+        "state machine",
+        "deterministic agent",
+        "hybrid reasoning",
+        "slot filling",
+        "instruction resolution"
+      ],
+      "intentPatterns": [
+        "create.*agent",
+        "build.*agentforce",
+        "new.*agent",
+        "write.*agent.*script",
+        "agent.*topic",
+        "agent.*action",
+        "deterministic.*agent",
+        "fsm.*agent"
+      ],
+      "priority": "high",
+      "description": "Agent Script DSL for deterministic Agentforce agents",
+      "triggerWhen": "user writes or edits .agent files, builds FSM-based agents, uses Agent Script CLI (sf agent generate/publish), or asks about deterministic agent patterns",
+      "doNotTriggerWhen": "Setup UI agent building (use sf-ai-agentforce), agent testing (use sf-ai-agentforce-testing), or persona design (use sf-ai-agentforce-persona)"
+    },
+    "sf-permissions": {
+      "keywords": [
+        "permission set",
+        "permission set group",
+        "psg",
+        "fls",
+        "field level security",
+        "object permissions",
+        "who has access",
+        "permission analyzer",
+        "access audit",
+        "hierarchy"
+      ],
+      "intentPatterns": [
+        "who.*has.*access",
+        "permission.*set",
+        "analyze.*permissions",
+        "field.*level.*security",
+        "audit.*access",
+        "permission.*hierarchy",
+        "visualize.*permissions",
+        "export.*permissions"
+      ],
+      "priority": "medium",
+      "description": "Permission Set analysis and hierarchy visualization",
+      "triggerWhen": "user asks 'who has access to X?', analyzes permission sets/groups, or touches .permissionset-meta.xml / .permissionsetgroup-meta.xml files",
+      "doNotTriggerWhen": "creating new metadata (use sf-metadata), deploying permission sets (use sf-deploy), or Apex sharing logic (use sf-apex)"
+    },
+    "sf-ai-agentforce-observability": {
+      "keywords": [
+        "session tracing",
+        "stdm",
+        "observability",
+        "agent session",
+        "agentforce analytics",
+        "agent debugging",
+        "data cloud",
+        "parquet",
+        "polars",
+        "session extraction",
+        "agent telemetry"
+      ],
+      "intentPatterns": [
+        "extract.*session",
+        "debug.*agent.*session",
+        "analyze.*agentforce",
+        "session.*tracing",
+        "agent.*observability",
+        "agent.*analytics",
+        "extract.*stdm",
+        "session.*data",
+        "agent.*telemetry"
+      ],
+      "priority": "medium",
+      "description": "Extract and analyze Agentforce session tracing data from Data Cloud",
+      "triggerWhen": "user extracts STDM data from Data Cloud, analyzes agent session traces, debugs agent conversations via telemetry, or works with .parquet files from Agentforce",
+      "doNotTriggerWhen": "testing agents (use sf-ai-agentforce-testing), Apex debug logs (use sf-debug), or building agents (use sf-ai-agentforce)"
+    },
+    "sf-industry-commoncore-omnistudio-analyze": {
+      "keywords": [
+        "omnistudio",
+        "omnistudio analyze",
+        "namespace detection",
+        "dependency graph",
+        "impact analysis",
+        "omnistudio inventory",
+        "vlocity",
+        "vlocity_cmt",
+        "vlocity_ins",
+        "omniprocess",
+        "component dependencies",
+        "omnistudio migration"
+      ],
+      "intentPatterns": [
+        "analyze.*omnistudio",
+        "detect.*namespace",
+        "omnistudio.*dependencies",
+        "impact.*analysis.*omnistudio",
+        "inventory.*omnistudio",
+        "omnistudio.*diagram",
+        "omnistudio.*migration",
+        "vlocity.*core"
+      ],
+      "priority": "high",
+      "description": "Cross-cutting OmniStudio analysis for namespace detection, dependency mapping, and impact analysis",
+      "triggerWhen": "user asks about OmniStudio dependencies, wants namespace detection (Core vs vlocity_cmt vs vlocity_ins), needs impact analysis across OmniStudio components, or requests dependency diagrams",
+      "doNotTriggerWhen": "authoring OmniScripts (use sf-industry-commoncore-omniscript), building FlexCards (use sf-industry-commoncore-flexcard), creating Integration Procedures (use sf-industry-commoncore-integration-procedure), or configuring Data Mappers (use sf-industry-commoncore-datamapper)"
+    },
+    "sf-industry-commoncore-datamapper": {
+      "keywords": [
+        "datamapper",
+        "data mapper",
+        "dataraptor",
+        "data raptor",
+        "omnidatatransform",
+        "extract",
+        "turbo extract",
+        "transform",
+        "load",
+        "field mapping",
+        "data mapping"
+      ],
+      "intentPatterns": [
+        "create.*data.*mapper",
+        "create.*dataraptor",
+        "build.*extract",
+        "build.*turbo.*extract",
+        "configure.*field.*mapping",
+        "create.*load",
+        "create.*transform",
+        "review.*data.*mapper",
+        "fix.*dataraptor"
+      ],
+      "priority": "medium",
+      "description": "OmniStudio Data Mapper (formerly DataRaptor) creation and validation with 100-point scoring",
+      "triggerWhen": "user creates Data Mappers, configures field mappings, works with OmniDataTransform metadata, or asks about DataRaptor/Data Mapper patterns",
+      "doNotTriggerWhen": "building Integration Procedures (use sf-industry-commoncore-integration-procedure), authoring OmniScripts (use sf-industry-commoncore-omniscript), or analyzing cross-component dependencies (use sf-industry-commoncore-omnistudio-analyze)"
+    },
+    "sf-industry-commoncore-integration-procedure": {
+      "keywords": [
+        "integration procedure",
+        "ip",
+        "server-side orchestration",
+        "dataraptor action",
+        "remote action",
+        "http action",
+        "ip action",
+        "omniprocess",
+        "integration procedure action",
+        "procedure chaining"
+      ],
+      "intentPatterns": [
+        "create.*integration.*procedure",
+        "build.*ip",
+        "create.*ip",
+        "orchestrate.*server.*side",
+        "chain.*integration.*procedure",
+        "add.*dataraptor.*action",
+        "add.*remote.*action",
+        "review.*integration.*procedure",
+        "fix.*ip"
+      ],
+      "priority": "medium",
+      "description": "OmniStudio Integration Procedure creation and validation with 110-point scoring",
+      "triggerWhen": "user creates Integration Procedures, adds DataRaptor steps, configures Remote Actions, or reviews existing IP configurations",
+      "doNotTriggerWhen": "building OmniScripts (use sf-industry-commoncore-omniscript), creating Data Mappers directly (use sf-industry-commoncore-datamapper), or analyzing cross-component dependencies (use sf-industry-commoncore-omnistudio-analyze)"
+    },
+    "sf-industry-commoncore-callable-apex": {
+      "keywords": [
+        "industries callable",
+        "omnistudio callable",
+        "vlocityopeninterface",
+        "vlocityopeninterface2",
+        "invokemethod",
+        "callable implementation",
+        "remote class",
+        "industries apex extension",
+        "omniscript callable",
+        "integration procedure callable"
+      ],
+      "intentPatterns": [
+        "create.*industries.*callable",
+        "build.*industries.*callable",
+        "review.*industries.*callable",
+        "fix.*industries.*callable",
+        "implement.*omnistudio.*callable",
+        "system.*callable.*omnistudio",
+        "migrate.*vlocityopeninterface",
+        "convert.*vlocityopeninterface",
+        "callable.*integration procedure",
+        "callable.*omniscript"
+      ],
+      "priority": "medium",
+      "description": "Salesforce Industries Common Core callable Apex generation and review for System.Callable and legacy Open Interface migrations",
+      "triggerWhen": "user creates or reviews System.Callable classes, migrates VlocityOpenInterface / VlocityOpenInterface2, or builds Industries callable extensions used by OmniStudio, Integration Procedures, or DataRaptors",
+      "doNotTriggerWhen": "generic Apex classes/triggers (use sf-apex), building Integration Procedures (use sf-industry-commoncore-integration-procedure), authoring OmniScripts (use sf-industry-commoncore-omniscript), configuring Data Mappers (use sf-industry-commoncore-datamapper), or analyzing namespace/dependency issues (use sf-industry-commoncore-omnistudio-analyze)"
+    },
+    "sf-industry-commoncore-omniscript": {
+      "keywords": [
+        "omniscript",
+        "guided process",
+        "digital experience",
+        "step flow",
+        "omniscript element",
+        "propertysetconfig",
+        "type subtype language",
+        "omniscript step",
+        "omniscript action",
+        "save for later"
+      ],
+      "intentPatterns": [
+        "create.*omniscript",
+        "build.*omniscript",
+        "design.*guided.*process",
+        "create.*digital.*experience",
+        "add.*omniscript.*step",
+        "configure.*omniscript.*element",
+        "review.*omniscript",
+        "fix.*omniscript"
+      ],
+      "priority": "medium",
+      "description": "OmniStudio OmniScript creation and validation with 120-point scoring",
+      "triggerWhen": "user creates OmniScripts, designs step flows, configures element types, or reviews existing OmniScript configurations",
+      "doNotTriggerWhen": "building FlexCards (use sf-industry-commoncore-flexcard), creating Integration Procedures directly (use sf-industry-commoncore-integration-procedure), or analyzing dependencies (use sf-industry-commoncore-omnistudio-analyze)"
+    },
+    "sf-industry-commoncore-flexcard": {
+      "keywords": [
+        "flexcard",
+        "flex card",
+        "omniuicard",
+        "ui card",
+        "data source binding",
+        "card layout",
+        "card list",
+        "flyout card",
+        "tabbed card",
+        "child card"
+      ],
+      "intentPatterns": [
+        "create.*flexcard",
+        "build.*flexcard",
+        "create.*flex.*card",
+        "configure.*data.*source",
+        "design.*card.*layout",
+        "add.*action.*button",
+        "review.*flexcard",
+        "fix.*flexcard"
+      ],
+      "priority": "medium",
+      "description": "OmniStudio FlexCard creation and validation with 130-point scoring",
+      "triggerWhen": "user creates FlexCards, configures data sources, designs card layouts, or asks about OmniUiCard metadata",
+      "doNotTriggerWhen": "building OmniScripts (use sf-industry-commoncore-omniscript), creating Integration Procedures (use sf-industry-commoncore-integration-procedure), or analyzing dependencies (use sf-industry-commoncore-omnistudio-analyze)"
+    },
+    "sf-industry-cme-epc-model": {
+      "keywords": [
+        "epc",
+        "enterprise product catalog",
+        "cme epc",
+        "industries product catalog",
+        "product2 catalog",
+        "product2 offer",
+        "epc offer bundle",
+        "product child item",
+        "attribute assignment",
+        "attribute metadata",
+        "attribute default values",
+        "vlocity product2",
+        "specification type",
+        "specification subtype",
+        "price list entry",
+        "pricebook entry"
+      ],
+      "intentPatterns": [
+        "create.*epc.*product",
+        "create.*product2.*offer",
+        "build.*offer.*bundle",
+        "create.*product2.*catalog",
+        "add.*attribute.*assignment",
+        "model.*epc.*offer",
+        "review.*epc.*datapack",
+        "create.*epc.*bundle",
+        "configure.*productchilditem",
+        "update.*epc.*catalog"
+      ],
+      "priority": "high",
+      "description": "Salesforce Industries CME EPC product modeling for Product2 catalog items, attributes, and offer bundles",
+      "triggerWhen": "user creates or updates EPC Product2 records, configures attributes and defaults, builds offer bundles via ProductChildItem relationships, or edits EPC DataPack JSON in vlocity/Product2",
+      "doNotTriggerWhen": "building OmniScripts/FlexCards/Integration Procedures (use sf-industry-commoncore-*), implementing Apex business logic (use sf-apex), or deployment troubleshooting (use sf-deploy)"
+    }
+  }
+}

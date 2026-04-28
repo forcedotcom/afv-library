@@ -1,0 +1,201 @@
+# Agent Script Test Specification Template
+# Compatible with: sf agent test create --spec <file> --api-name <name>
+#
+# PURPOSE: Testing agents built with Agent Script (.agent files / AiAuthoringBundle).
+#
+# Agent Script agents use a TWO-LEVEL ACTION SYSTEM:
+#   Level 1 (Definition):  topic.actions block — defines actions with target: "apex://ClassName"
+#   Level 2 (Invocation):  reasoning.actions block — invokes via @actions.<name>
+#
+# KEY TESTING CHALLENGE:
+#   Multi-topic Agent Script agents with start_agent routing burn the first
+#   reasoning cycle on the topic transition (go_<topic>). The actual Apex/Flow
+#   action fires in a SECOND cycle, which single-utterance CLI tests don't reach.
+#
+# SOLUTION: Use conversationHistory to pre-position the agent in the target topic,
+#   then test the action directly — bypassing the start_agent routing step.
+#
+# Usage:
+#   1. Replace <placeholders> with actual values
+#   2. Create: sf agent test create --spec this-file.yaml --api-name <Test_Name> --target-org <alias>
+#   3. Run:    sf agent test run --api-name <Test_Name> --wait 10 --result-format json --target-org <alias>
+#
+# See also: references/agentscript-testing-patterns.md for 5 detailed test patterns.
+
+# Required: Display name for the test (MasterLabel)
+name: "<Agent_Name> Agent Script Tests"
+
+# Required: Must be AGENT
+subjectType: AGENT
+
+# Required: Agent BotDefinition DeveloperName (same name as config.developer_name in .agent file)
+subjectName: <Agent_Name>
+
+testCases:
+  # ═══════════════════════════════════════════════════════════════════
+  # PATTERN 1: ROUTING TESTS
+  # Verify start_agent routes to the correct topic.
+  # Single-utterance tests capture the TRANSITION action (go_<topic>),
+  # NOT the business action (check_status, get_order, etc.).
+  # ═══════════════════════════════════════════════════════════════════
+
+  - utterance: "<user message that should route to topic_1>"
+    expectedTopic: <topic_1_name>
+    # NOTE: For Agent Script, the expectedActions here is the TRANSITION action
+    # from start_agent's reasoning.actions block, e.g., go_<topic_name>.
+    # The Apex/Flow business action is NOT captured in single-utterance tests.
+    expectedActions:
+      - go_<topic_1_name>
+
+  - utterance: "<alternative phrasing for topic 1>"
+    expectedTopic: <topic_1_name>
+
+  - utterance: "<user message that should route to topic_2>"
+    expectedTopic: <topic_2_name>
+    expectedActions:
+      - go_<topic_2_name>
+
+  # ═══════════════════════════════════════════════════════════════════
+  # PATTERN 2: ACTION TESTS (with conversationHistory)
+  # Use conversationHistory to skip start_agent routing and test the
+  # actual business action (apex://, flow://) directly.
+  #
+  # The conversationHistory pre-positions the agent in the target topic
+  # so the test utterance triggers the action instead of a transition.
+  # ═══════════════════════════════════════════════════════════════════
+
+  - utterance: "<user provides input needed by the action, e.g., 'Order ID is 12345'>"
+    conversationHistory:
+      - role: "user"
+        message: "<initial message that triggered the topic routing>"
+      - role: "agent"
+        topic: "<topic_name>"
+        message: "<agent greeting/prompt asking for the action input>"
+    expectedTopic: <topic_name>
+    expectedActions:
+      - <action_definition_name>    # Level 1 name from topic.actions block
+    expectedOutcome: "<expected result, e.g., 'Agent retrieves and displays order details'>"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # PATTERN 3: ERROR HANDLING TESTS
+  # Test how the agent handles invalid input or missing data.
+  # ═══════════════════════════════════════════════════════════════════
+
+  - utterance: "<invalid input, e.g., 'Check order INVALID_ID'>"
+    conversationHistory:
+      - role: "user"
+        message: "<initial message for topic>"
+      - role: "agent"
+        topic: "<topic_name>"
+        message: "<agent prompt asking for input>"
+    expectedTopic: <topic_name>
+    expectedOutcome: "Agent should handle the error gracefully and inform the user"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # PATTERN 4: ESCALATION TESTS
+  # Verify escalation from start_agent or within a topic.
+  # ═══════════════════════════════════════════════════════════════════
+
+  - utterance: "I want to speak to a real person"
+    expectedTopic: Escalation
+
+  - utterance: "Transfer me to a human agent now"
+    expectedTopic: Escalation
+
+  # ═══════════════════════════════════════════════════════════════════
+  # PATTERN 5: EDGE CASE / OFF-TOPIC TESTS
+  # Verify the agent handles out-of-scope requests.
+  # ═══════════════════════════════════════════════════════════════════
+
+  - utterance: "What's the weather today?"
+    expectedTopic: <start_agent_topic_name>
+    expectedOutcome: "Agent should politely redirect to supported capabilities"
+
+# ═══════════════════════════════════════════════════════════════════════
+# WORKED EXAMPLE: Order Status Agent
+#
+# Agent Script structure:
+#   config.developer_name: Order_Status_Agent
+#   start_agent entry:
+#     reasoning.actions:
+#       go_order_status: @utils.transition to @topic.order_status
+#       escalate_entry: @utils.escalate
+#   topic order_status:
+#     actions:
+#       get_order_status:
+#         target: "apex://OrderStatusService"
+#     reasoning.actions:
+#       check_status: @actions.get_order_status
+#
+# Test spec:
+#
+# name: "Order_Status_Agent Tests"
+# subjectType: AGENT
+# subjectName: Order_Status_Agent
+#
+# testCases:
+#   # Routing test — captures transition action only
+#   - utterance: "I want to check my order status"
+#     expectedTopic: order_status
+#     expectedActions:
+#       - go_order_status
+#
+#   # Action test — uses conversationHistory to bypass routing
+#   - utterance: "The order ID is 801ak00001g59JlAAI"
+#     conversationHistory:
+#       - role: "user"
+#         message: "I want to check my order status"
+#       - role: "agent"
+#         topic: "order_status"
+#         message: "I'd be happy to help you check your order status. Could you please provide the Order ID?"
+#     expectedTopic: order_status
+#     expectedActions:
+#       - get_order_status
+#     expectedOutcome: "Agent retrieves and displays order details including status, amount, and account"
+#
+#   # Error handling — invalid order ID
+#   - utterance: "My order ID is INVALID123"
+#     conversationHistory:
+#       - role: "user"
+#         message: "I want to check my order status"
+#       - role: "agent"
+#         topic: "order_status"
+#         message: "Could you please provide the Order ID?"
+#     expectedTopic: order_status
+#     expectedOutcome: "Agent should inform the user that the order was not found"
+#
+#   # Escalation
+#   - utterance: "Let me talk to a human"
+#     expectedTopic: Escalation
+# ═══════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════
+# NOTES — AGENT SCRIPT ACTION TYPES
+#
+# Agent Script agents have TWO types of actions that appear in test results:
+#
+# 1. TRANSITION ACTIONS (from start_agent reasoning.actions):
+#    - Named: go_<topic_name>
+#    - Target: @utils.transition to @topic.<name>
+#    - Captured by single-utterance tests
+#    - Example: go_order_status
+#
+# 2. BUSINESS ACTIONS (from topic.actions + reasoning.actions):
+#    - Named: <action_definition_name> (Level 1 from topic.actions block)
+#    - Target: apex://ClassName or flow://FlowName
+#    - Require conversationHistory to test via CLI
+#    - Example: get_order_status (target: apex://OrderStatusService)
+#
+# The expectedActions in CLI test results uses the DEFINITION name (Level 1),
+# not the invocation name (Level 2). So use get_order_status, not check_status.
+#
+# TOPIC NAME DISCOVERY:
+#   Agent Script topic names in CLI test results may differ from the .agent file.
+#   Run one test, check generatedData.topic in results, and update expectedTopic.
+#   See references/topic-name-resolution.md for details.
+#
+# PERMISSION REQUIREMENTS:
+#   If the agent action uses WITH USER_MODE in Apex, the Einstein Agent User
+#   must have read access to queried objects. Create a Permission Set and assign
+#   it to the default_agent_user specified in the .agent config block.
+# ═══════════════════════════════════════════════════════════════════════

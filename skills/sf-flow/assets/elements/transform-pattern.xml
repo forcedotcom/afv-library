@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+    Template: Transform Element Pattern v1.0.0
+    API Version: 66.0+
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    ⚠️  IMPORTANT: CREATE TRANSFORM ELEMENTS IN FLOW BUILDER UI
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    This template is for REFERENCE ONLY. Transform elements have complex XML
+    structure with strict ordering requirements. Always create Transform
+    elements in Flow Builder, then deploy.
+
+    This file documents the XML structure for:
+    - Understanding deployed Transform elements
+    - Debugging Transform XML issues
+    - Educational purposes
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    WHEN TO USE TRANSFORM vs LOOP
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    USE TRANSFORM (30-50% faster):
+    ┌─────────────────────────────────────────────────────────────────────────────┐
+    │ • Mapping one collection to another (Contact[] → OpportunityContactRole[]) │
+    │ • Bulk field assignments (same value to all records)                       │
+    │ • Simple formula calculations during mapping                               │
+    │ • Preparing records for Create/Update operations                           │
+    │ • No per-record conditional logic needed                                   │
+    └─────────────────────────────────────────────────────────────────────────────┘
+
+    USE LOOP INSTEAD:
+    ┌─────────────────────────────────────────────────────────────────────────────┐
+    │ • IF/ELSE logic required per record                                        │
+    │ • Different records need different processing paths                        │
+    │ • Counters, flags, or state tracking needed                               │
+    │ • Business rules vary from record to record                               │
+    └─────────────────────────────────────────────────────────────────────────────┘
+
+    See: references/transform-vs-loop-guide.md for detailed decision criteria
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    TRANSFORM ELEMENT STRUCTURE
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Key Components:
+    ┌─────────────────────────┬────────────────────────────────────────────────────┐
+    │ Element                 │ Purpose                                            │
+    ├─────────────────────────┼────────────────────────────────────────────────────┤
+    │ transforms              │ Container for Transform element definition         │
+    │ name                    │ API name (used in connectors)                     │
+    │ label                   │ Display name in Flow Builder                      │
+    │ dataType                │ Output type (SObject)                             │
+    │ isCollection            │ true for collection output                        │
+    │ objectType              │ Target SObject API name                           │
+    │ scale                   │ Decimal scale (usually 0)                         │
+    │ transformValueActions   │ Individual field mappings                         │
+    └─────────────────────────┴────────────────────────────────────────────────────┘
+
+    Transform Value Action Types:
+    ┌─────────────────────────┬────────────────────────────────────────────────────┐
+    │ Type                    │ Use Case                                          │
+    ├─────────────────────────┼────────────────────────────────────────────────────┤
+    │ MapValue                │ Direct field mapping (source → target)            │
+    │ Formula                 │ Calculated value using formula expression         │
+    │ CurrentItem             │ Reference to current item in source collection    │
+    └─────────────────────────┴────────────────────────────────────────────────────┘
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    VARIABLE NAMING (v2.0.0):
+    - var_ for regular variables (e.g., var_OpportunityId)
+    - col_ for collections (e.g., col_Contacts, col_OpportunityContactRoles)
+    - rec_ for record variables (e.g., rec_Contact)
+    - inp_ for input variables (e.g., inp_AccountId)
+    - out_ for output variables (e.g., out_CreatedRecords)
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <apiVersion>66.0</apiVersion>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    EXAMPLE 1: Contact Collection → OpportunityContactRole Collection
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Scenario: Map all Contacts related to an Account to OpportunityContactRoles
+    for a specific Opportunity.
+
+    Input: col_Contacts (Contact[])
+    Output: col_OpportunityContactRoles (OpportunityContactRole[])
+    Static Value: var_OpportunityId (Opportunity Id)
+    -->
+
+    <transforms>
+        <name>Transform_Contacts_To_OCR</name>
+        <label>Transform Contacts to Opportunity Contact Roles</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <!-- Connector to next element after transformation -->
+        <connector>
+            <targetReference>Create_OCR_Records</targetReference>
+        </connector>
+        <!-- Output configuration -->
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <objectType>OpportunityContactRole</objectType>
+        <scale>0</scale>
+
+        <!-- Field Mappings -->
+
+        <!-- 1. Map ContactId from source Contact -->
+        <transformValueActions>
+            <outputFieldApiName>ContactId</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>col_Contacts.Id</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- 2. Map OpportunityId from variable (same for all records) -->
+        <transformValueActions>
+            <outputFieldApiName>OpportunityId</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>var_OpportunityId</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- 3. Set Role using formula (static text value) -->
+        <transformValueActions>
+            <outputFieldApiName>Role</outputFieldApiName>
+            <transformValueActionType>Formula</transformValueActionType>
+            <formula>"Business User"</formula>
+        </transformValueActions>
+
+        <!-- 4. Set IsPrimary using formula (boolean) -->
+        <transformValueActions>
+            <outputFieldApiName>IsPrimary</outputFieldApiName>
+            <transformValueActionType>Formula</transformValueActionType>
+            <formula>false</formula>
+        </transformValueActions>
+    </transforms>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    EXAMPLE 2: Transform with Formula Calculations
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Scenario: Transform Opportunity Products to Quote Line Items with
+    calculated discount.
+
+    Input: col_OpportunityLineItems (OpportunityLineItem[])
+    Output: col_QuoteLineItems (QuoteLineItem[])
+    Static Values: var_QuoteId (Quote Id), var_DiscountPercent (Number)
+    -->
+
+    <transforms>
+        <name>Transform_OLI_To_QLI</name>
+        <label>Transform Opportunity Line Items to Quote Line Items</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Create_Quote_Lines</targetReference>
+        </connector>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <objectType>QuoteLineItem</objectType>
+        <scale>2</scale>
+
+        <!-- Map QuoteId -->
+        <transformValueActions>
+            <outputFieldApiName>QuoteId</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>var_QuoteId</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- Map Product2Id from source -->
+        <transformValueActions>
+            <outputFieldApiName>Product2Id</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>col_OpportunityLineItems.Product2Id</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- Map PricebookEntryId -->
+        <transformValueActions>
+            <outputFieldApiName>PricebookEntryId</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>col_OpportunityLineItems.PricebookEntryId</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- Map Quantity -->
+        <transformValueActions>
+            <outputFieldApiName>Quantity</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>col_OpportunityLineItems.Quantity</elementReference>
+            </valueToMap>
+        </transformValueActions>
+
+        <!-- Calculate discounted UnitPrice using formula -->
+        <transformValueActions>
+            <outputFieldApiName>UnitPrice</outputFieldApiName>
+            <transformValueActionType>Formula</transformValueActionType>
+            <formula>{!col_OpportunityLineItems.UnitPrice} * (1 - {!var_DiscountPercent} / 100)</formula>
+        </transformValueActions>
+
+        <!-- Copy Description -->
+        <transformValueActions>
+            <outputFieldApiName>Description</outputFieldApiName>
+            <transformValueActionType>MapValue</transformValueActionType>
+            <valueToMap>
+                <elementReference>col_OpportunityLineItems.Description</elementReference>
+            </valueToMap>
+        </transformValueActions>
+    </transforms>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    SUPPORTING ELEMENTS
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+    <!-- Input variable: Source collection -->
+    <variables>
+        <name>col_Contacts</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+
+    <!-- Input variable: Target Opportunity -->
+    <variables>
+        <name>var_OpportunityId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- Output variable: Transformed collection (auto-created by Transform) -->
+    <variables>
+        <name>col_OpportunityContactRoles</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>OpportunityContactRole</objectType>
+    </variables>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    CREATE RECORDS AFTER TRANSFORM
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    Transform prepares the collection; Create Records inserts them.
+    Always include fault connector for error handling.
+    -->
+
+    <recordCreates>
+        <name>Create_OCR_Records</name>
+        <label>Create Opportunity Contact Roles</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Success_End</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Error_Handler</targetReference>
+        </faultConnector>
+        <inputReference>col_OpportunityContactRoles</inputReference>
+    </recordCreates>
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════════════════
+    ANTI-PATTERNS TO AVOID
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    ❌ Using Transform when you need conditional logic per record
+       → Use Loop + Decision instead
+
+    ❌ Hand-writing Transform XML without Flow Builder
+       → Complex structure with strict ordering; use UI
+
+    ❌ Transform without subsequent DML
+       → Transform creates in-memory collection; must Create/Update to persist
+
+    ❌ Ignoring Transform output variable
+       → Must reference the transformed collection in subsequent elements
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    PERFORMANCE NOTES
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    • Transform processes entire collection server-side (bulk operation)
+    • 30-50% faster than equivalent Loop + Assignment pattern
+    • No impact on DML/SOQL limits (Transform doesn't query/modify database)
+    • CPU time reduction most noticeable with 100+ records
+
+    ═══════════════════════════════════════════════════════════════════════════════
+    RELATED TEMPLATES
+    ═══════════════════════════════════════════════════════════════════════════════
+
+    • loop-pattern.xml - When you need per-record conditional logic
+    • get-records-pattern.xml - Query source data before Transform
+    • record-delete-pattern.xml - Delete records with proper error handling
+
+    See references/transform-vs-loop-guide.md for detailed decision criteria.
+    ═══════════════════════════════════════════════════════════════════════════════
+    -->
+
+</Flow>

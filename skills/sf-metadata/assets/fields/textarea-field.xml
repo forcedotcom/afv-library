@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Long Text Area Field Template
+
+    Usage: Multi-line text fields for descriptions, notes, etc.
+
+    Placeholders:
+    - {{FIELD_API_NAME}} - API name ending in __c (e.g., "Description__c")
+    - {{FIELD_LABEL}} - User-friendly label (e.g., "Description")
+    - {{LENGTH}} - Maximum characters (up to 131,072)
+    - {{VISIBLE_LINES}} - Display lines in UI (2-50)
+    - {{DESCRIPTION}} - Field purpose
+    - {{HELP_TEXT}} - Inline help for users
+
+    Notes:
+    - Cannot be unique or external ID
+    - Cannot be used in filters, roll-ups, or formulas
+    - For rich text with formatting, use Rich Text Area instead
+    - Consider character limits for API and report constraints
+-->
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{FIELD_API_NAME}}</fullName>
+    <label>{{FIELD_LABEL}}</label>
+    <type>LongTextArea</type>
+    <length>{{LENGTH}}</length>
+    <visibleLines>{{VISIBLE_LINES}}</visibleLines>
+    <description>{{DESCRIPTION}}</description>
+    <inlineHelpText>{{HELP_TEXT}}</inlineHelpText>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+</CustomField>

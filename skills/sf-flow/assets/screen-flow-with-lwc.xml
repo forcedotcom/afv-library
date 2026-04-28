@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║ SCREEN FLOW WITH LWC COMPONENT                                                ║
+║ Template: screen-flow-with-lwc.xml                                            ║
+║ API Version: 66.0+                                                            ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║ PURPOSE:                                                                       ║
+║ Demonstrates embedding a custom LWC in a Screen Flow                          ║
+║                                                                               ║
+║ KEY PATTERNS:                                                                 ║
+║ - screens element with fields containing componentInstance                    ║
+║ - inputParameters binding Flow vars → LWC @api (role="inputOnly")            ║
+║ - outputParameters binding LWC @api (role="outputOnly") → Flow vars          ║
+║ - Flow validation via Decision element after screen                           ║
+║ - Conditional navigation based on LWC output                                  ║
+║                                                                               ║
+║ LWC REQUIREMENTS:                                                             ║
+║ 1. Component must have target="lightning__FlowScreen" in meta.xml             ║
+║ 2. isExposed must be true                                                     ║
+║ 3. Input properties use role="inputOnly"                                      ║
+║ 4. Output properties use role="outputOnly"                                    ║
+║ 5. LWC dispatches FlowAttributeChangeEvent to update outputs                  ║
+║                                                                               ║
+║ USAGE:                                                                        ║
+║ Replace {{PLACEHOLDERS}} with actual values                                   ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+-->
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>{{FLOW_DESCRIPTION}} - Screen Flow demonstrating LWC integration</description>
+    <label>{{FLOW_LABEL}}</label>
+    <processType>Flow</processType>
+    <status>Draft</status>
+    <interviewLabel>{{FLOW_LABEL}} {!$Flow.CurrentDateTime}</interviewLabel>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         START ELEMENT
+         Entry point - connects to first screen
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>LWC_Selection_Screen</targetReference>
+        </connector>
+    </start>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SCREEN 1: LWC SELECTION COMPONENT
+         Embeds a custom LWC that allows user to select a record
+
+         KEY STRUCTURE:
+         - screens > fields > componentInstance
+         - componentName = namespace:componentName (c for default namespace)
+         - inputParameters: Flow → LWC (one-way binding)
+         - outputParameters: LWC → Flow (via FlowAttributeChangeEvent)
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <screens>
+        <name>LWC_Selection_Screen</name>
+        <label>Select a Record</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Validate_Selection</targetReference>
+        </connector>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+
+        <fields>
+            <name>lwcRecordSelector</name>
+            <extensionName>c:{{ComponentName}}</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+
+            <!-- INPUT PARAMETERS (Flow → LWC)
+                 Maps Flow variables to @api properties marked role="inputOnly"
+                 Use stringValue for literals, elementReference for variables -->
+            <inputParameters>
+                <name>recordId</name>
+                <value>
+                    <elementReference>var_ParentRecordId</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>{{ObjectApiName}}</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>inputLabel</name>
+                <value>
+                    <stringValue>Select a Record</stringValue>
+                </value>
+            </inputParameters>
+
+            <!-- OUTPUT PARAMETERS (LWC → Flow)
+                 Maps @api properties marked role="outputOnly" to Flow variables
+                 LWC must dispatch FlowAttributeChangeEvent for these to update -->
+            <outputParameters>
+                <assignToReference>var_SelectedRecordId</assignToReference>
+                <name>selectedRecordId</name>
+            </outputParameters>
+            <outputParameters>
+                <assignToReference>var_SelectedRecordName</assignToReference>
+                <name>selectedRecordName</name>
+            </outputParameters>
+            <outputParameters>
+                <assignToReference>var_IsComplete</assignToReference>
+                <name>isComplete</name>
+            </outputParameters>
+            <outputParameters>
+                <assignToReference>var_ErrorMessage</assignToReference>
+                <name>errorMessage</name>
+            </outputParameters>
+        </fields>
+    </screens>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         DECISION: Validate LWC Output
+         Check if user made a valid selection before proceeding
+
+         PATTERN: Use Decision to handle different LWC outcomes
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <decisions>
+        <name>Validate_Selection</name>
+        <label>Validate Selection</label>
+        <locationX>374</locationX>
+        <locationY>158</locationY>
+        <defaultConnector>
+            <targetReference>No_Selection_Screen</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Selection Made</defaultConnectorLabel>
+        <rules>
+            <name>Has_Valid_Selection</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_IsComplete</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>var_SelectedRecordId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Confirmation_Screen</targetReference>
+            </connector>
+            <label>Valid Selection</label>
+        </rules>
+        <rules>
+            <name>Has_Error</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ErrorMessage</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Error_Screen</targetReference>
+            </connector>
+            <label>Has Error</label>
+        </rules>
+    </decisions>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SCREEN 2: CONFIRMATION SCREEN
+         Shows standard Flow components confirming the LWC selection
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <screens>
+        <name>Confirmation_Screen</name>
+        <label>Confirm Selection</label>
+        <locationX>242</locationX>
+        <locationY>350</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+
+        <fields>
+            <name>confirmationHeader</name>
+            <fieldText>&lt;p&gt;&lt;b&gt;You have selected:&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>confirmationDetails</name>
+            <fieldText>&lt;p&gt;Record: {!var_SelectedRecordName}&lt;/p&gt;&lt;p&gt;ID: {!var_SelectedRecordId}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>confirmCheckbox</name>
+            <dataType>Boolean</dataType>
+            <fieldText>I confirm this selection</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+    </screens>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SCREEN: No Selection Warning
+         Displayed when user didn't complete selection in LWC
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <screens>
+        <name>No_Selection_Screen</name>
+        <label>Selection Required</label>
+        <locationX>506</locationX>
+        <locationY>350</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>false</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>LWC_Selection_Screen</targetReference>
+        </connector>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+
+        <fields>
+            <name>warningMessage</name>
+            <fieldText>&lt;p&gt;&lt;span style="color: rgb(194, 57, 52);"&gt;⚠️ Please go back and select a record to continue.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SCREEN: Error Display
+         Displayed when LWC reports an error via errorMessage output
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <screens>
+        <name>Error_Screen</name>
+        <label>Error Occurred</label>
+        <locationX>638</locationX>
+        <locationY>350</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>false</allowFinish>
+        <allowPause>true</allowPause>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+
+        <fields>
+            <name>errorDisplay</name>
+            <fieldText>&lt;p&gt;&lt;span style="color: rgb(194, 57, 52);"&gt;❌ An error occurred:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;{!var_ErrorMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         INPUT VARIABLES
+         These can be set when the Flow is launched
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>var_ParentRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         INTERNAL VARIABLES
+         Used to capture LWC outputs and manage flow state
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>var_SelectedRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_SelectedRecordName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_IsComplete</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+
+    <variables>
+        <name>var_ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         OUTPUT VARIABLES
+         These return the LWC selection to the calling process
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <variables>
+        <name>out_SelectedRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <variables>
+        <name>out_SelectedRecordName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

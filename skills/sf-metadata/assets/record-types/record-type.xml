@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Record Type Template
+
+    Usage: Create record types to segment data and customize processes
+
+    Placeholders:
+    - {{RECORD_TYPE_API_NAME}} - API name (e.g., "Business_Account")
+    - {{LABEL}} - User-friendly name (e.g., "Business Account")
+    - {{ACTIVE}} - true or false
+    - {{DESCRIPTION}} - Purpose of this record type
+    - {{BUSINESS_PROCESS}} - Associated process (for Opportunity, Lead, Case)
+
+    Notes:
+    - Record types control picklist values, page layouts, and business processes
+    - Each record type can have different page layouts per profile
+    - Use sparingly - too many record types increases complexity
+-->
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>{{RECORD_TYPE_API_NAME}}</fullName>
+    <active>{{ACTIVE}}</active>
+    <label>{{LABEL}}</label>
+    <description>{{DESCRIPTION}}</description>
+    <!-- Optional: Business Process (for Lead, Opportunity, Case) -->
+    <!-- <businessProcess>{{BUSINESS_PROCESS}}</businessProcess> -->
+
+    <!--
+    ═══════════════════════════════════════════
+    PICKLIST VALUES
+    ═══════════════════════════════════════════
+    Define which picklist values are available for this record type
+    -->
+    <!--
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>New</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>In_Progress</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Completed</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    -->
+</RecordType>
+
+<!--
+    RECORD TYPE USE CASES
+    ════════════════════════════════════════════
+
+    1. Account Record Types:
+       - Business Account (B2B)
+       - Person Account (B2C)
+       - Partner Account
+
+    2. Opportunity Record Types:
+       - New Business
+       - Renewal
+       - Upsell/Cross-sell
+
+    3. Case Record Types:
+       - Support Case
+       - Billing Inquiry
+       - Feature Request
+
+    4. Contact Record Types:
+       - Customer Contact
+       - Partner Contact
+       - Internal Contact
+
+
+    RECORD TYPE BEST PRACTICES
+    ════════════════════════════════════════════
+
+    ✓ Use record types when you need:
+      - Different page layouts
+      - Different picklist values
+      - Different sales/support processes
+      - Different validation rules (via formula)
+
+    ✓ Keep record type count manageable (3-5 per object max)
+
+    ✓ Assign default record type per profile
+
+    ✓ Consider using formula field for reporting instead of
+      multiple record types for simple categorization
+
+    ✗ Don't create record types just for reporting
+    ✗ Don't create record types for temporary states
+    ✗ Don't create record types that users can't distinguish
+
+
+    CREATING RECORD TYPE VIA METADATA
+    ════════════════════════════════════════════
+
+    File location:
+    force-app/main/default/objects/[ObjectName]/recordTypes/[RecordTypeName].recordType-meta.xml
+
+    Example:
+    force-app/main/default/objects/Account/recordTypes/Business_Account.recordType-meta.xml
+
+    Also create/update:
+    - Page Layout assignments (layoutAssignments in Profile)
+    - Picklist value assignments
+    - Business Process (for Lead, Opportunity, Case)
+-->

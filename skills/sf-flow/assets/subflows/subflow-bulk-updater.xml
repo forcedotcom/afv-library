@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Reusable bulk update subflow pattern. Accepts a collection of records and updates a specific field. Use as a template for bulk operations to maintain bulkification best practices.</description>
+    <label>Sub_UpdateRelatedRecords</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Records</name>
+        <label>Update Records</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Handle_Update_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Industry</field>
+            <value>
+                <elementReference>varNewValue</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>colRecordsToUpdate</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Records</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <subflows>
+        <name>Handle_Update_Error</name>
+        <label>Handle Update Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Sub_LogError</flowName>
+        <inputAssignments>
+            <name>varErrorMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varFlowName</name>
+            <value>
+                <stringValue>Sub_UpdateRelatedRecords</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRecordId</name>
+            <value>
+                <stringValue>Bulk Operation</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <variables>
+        <name>colRecordsToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <name>varNewValue</name>
+        <dataType>String</dataType>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,115 @@
+# Multi-Turn Escalation Flow Test Suite
+# Tests escalation triggers, cascade behavior, and human handoff
+#
+# Usage: Claude reads this template, adapts scenarios to the target agent's
+#        escalation configuration, and executes via Agent Runtime API.
+#
+# Customize: Adjust frustration phrases and escalation expectations to match
+#            your agent's escalation rules.
+
+apiVersion: v1
+kind: AgentAPITestSuite
+metadata:
+  name: "Multi_Turn_Escalation_Flows"
+  testMode: "agent-api"
+  description: "Validates escalation triggers and human handoff behavior across multi-turn conversations"
+  category: "escalation"
+
+prerequisites:
+  eca_required: true
+  agent_published: true
+  agent_activated: true
+  agent_variables: []
+  agent_requirements:
+    - "At least one escalation action configured"
+    - "Escalation trigger instructions in system prompt or topic instructions"
+
+scenarios:
+  # Scenario 1: Gradual frustration build-up
+  - name: "escalation_frustration_buildup"
+    description: >
+      User becomes increasingly frustrated over 3 turns. Agent should attempt
+      resolution first, then escalate when frustration signals are clear.
+    priority: high
+    turns:
+      - user: "I can't log in to my account"
+        expect:
+          response_not_empty: true
+          escalation_triggered: false
+          response_offers_help: true
+      - user: "I already tried that and it didn't work"
+        expect:
+          response_not_empty: true
+          escalation_triggered: false
+          response_offers_alternative: true
+      - user: "Nothing is working! I need to speak to a real person NOW"
+        expect:
+          escalation_triggered: true
+          response_contains_any: ["connect", "transfer", "agent", "specialist", "someone"]
+
+  # Scenario 2: Immediate escalation request
+  - name: "escalation_immediate_request"
+    description: >
+      User immediately requests human assistance. Agent should comply
+      without forcing the user through troubleshooting steps.
+    priority: high
+    turns:
+      - user: "I want to speak to a human agent right now"
+        expect:
+          escalation_triggered: true
+          response_not_empty: true
+
+  # Scenario 3: Escalation after action failure
+  - name: "escalation_after_action_failure"
+    description: >
+      An action fails during conversation, then the user requests escalation.
+      Agent should acknowledge the failure and escalate gracefully.
+    priority: medium
+    turns:
+      - user: "Cancel my order #12345"
+        expect:
+          response_not_empty: true
+      - user: "It says there's an error. What's going on?"
+        expect:
+          response_not_empty: true
+          response_acknowledges_error: true
+      - user: "This is unacceptable. Get me a manager"
+        expect:
+          escalation_triggered: true
+
+  # Scenario 4: Should NOT escalate (false positive test)
+  - name: "escalation_resistance"
+    description: >
+      User expresses mild confusion but NOT frustration. Agent should
+      continue helping without unnecessary escalation.
+    priority: medium
+    turns:
+      - user: "This is kind of confusing"
+        expect:
+          response_not_empty: true
+          escalation_triggered: false
+          response_offers_help: true
+      - user: "OK can you explain that again more simply?"
+        expect:
+          response_not_empty: true
+          escalation_triggered: false
+      - user: "Ah I see, that makes more sense now. Thanks!"
+        expect:
+          response_not_empty: true
+          escalation_triggered: false
+
+# Evaluation criteria for escalation scenarios
+evaluation:
+  pass_criteria:
+    - "Agent attempts resolution before escalating (unless user explicitly demands human)"
+    - "Explicit human requests are immediately honored"
+    - "Escalation message is professional and reassuring"
+    - "Mild confusion does NOT trigger escalation"
+    - "Agent doesn't trap users in loops without escalation option"
+  fail_categories:
+    - MULTI_TURN_ESCALATION_FAILURE
+    - ESCALATION_NOT_TRIGGERED
+    - UNNECESSARY_ESCALATION
+  scoring:
+    weight: 15  # Part of Edge Case & Guardrail Coverage (15 pts total)
+    per_scenario: true
