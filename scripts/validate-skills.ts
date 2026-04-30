@@ -306,16 +306,15 @@ Ensure the description is wrapped in double quotes. If the value itself contains
     },
   },
   {
-    description: 'Metadata version (if present) must match X.Y pattern',
+    description: 'Metadata must include a "version" field',
     run({ dirName, rawFrontmatter }) {
       if (rawFrontmatter === null) return { errors: [] }
       const meta = parseMetadataBlock(rawFrontmatter)
       if (meta === null || typeof meta === "string") return { errors: [] }
-      if (!meta.version) return { errors: [] }
-      if (!/^\d+\.\d+$/.test(meta.version)) {
+      if (!meta.version) {
         return {
           errors: [
-            `skills/${dirName}/SKILL.md: metadata.version "${meta.version}" does not match expected pattern (expected X.Y, e.g. "1.0")`,
+            `skills/${dirName}/SKILL.md: metadata is missing required "version" field (e.g. version: "1.0")`,
           ],
         }
       }
