@@ -1,0 +1,71 @@
+{
+  "name": "TestMultiTransform",
+  "label": "Test Multi Transform",
+  "description": "Wraps two BDTs in the Connect API multi-definitions shape",
+  "type": "BATCH",
+  "dataSpaceName": "default",
+  "definitions": [
+    {
+      "version": "66.0",
+      "type": "STL",
+      "nodes": {
+        "LOAD_A": {
+          "action": "load",
+          "sources": [],
+          "parameters": {
+            "dataset": {"name": "ssot__A__dlm", "type": "dataModelObject"},
+            "fields": ["ssot__Id__c"],
+            "sampleDetails": {"type": "TopN", "sortBy": []}
+          }
+        },
+        "OUTPUT_A": {
+          "action": "outputD360",
+          "sources": ["LOAD_A"],
+          "parameters": {
+            "name": "A_Out__dlm",
+            "type": "dataModelObject",
+            "writeMode": "OVERWRITE",
+            "fieldsMappings": [{"sourceField": "ssot__Id__c", "targetField": "ssot__Id__c"}]
+          }
+        }
+      },
+      "ui": {
+        "nodes": {
+          "LOAD_A":   {"label": "Load A", "type": "LOAD_DATASET", "top": 100, "left": 100},
+          "OUTPUT_A": {"label": "Output A", "type": "OUTPUT", "top": 100, "left": 260}
+        }
+      }
+    },
+    {
+      "version": "66.0",
+      "type": "STL",
+      "nodes": {
+        "LOAD_B": {
+          "action": "load",
+          "sources": [],
+          "parameters": {
+            "dataset": {"name": "ssot__B__dlm", "type": "dataModelObject"},
+            "fields": ["ssot__Id__c"],
+            "sampleDetails": {"type": "TopN", "sortBy": []}
+          }
+        },
+        "OUTPUT_B": {
+          "action": "outputD360",
+          "sources": ["LOAD_B"],
+          "parameters": {
+            "name": "B_Out__dlm",
+            "type": "dataModelObject",
+            "writeMode": "OVERWRITE",
+            "fieldsMappings": [{"sourceField": "ssot__Id__c", "targetField": "ssot__Id__c"}]
+          }
+        }
+      },
+      "ui": {
+        "nodes": {
+          "LOAD_B":   {"label": "Load B", "type": "LOAD_DATASET", "top": 100, "left": 100},
+          "OUTPUT_B": {"label": "Output B", "type": "OUTPUT", "top": 100, "left": 260}
+        }
+      }
+    }
+  ]
+}

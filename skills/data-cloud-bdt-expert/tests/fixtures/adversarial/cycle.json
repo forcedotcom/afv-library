@@ -1,0 +1,8 @@
+{
+  "version": "66.0",
+  "nodes": {
+    "A": {"action": "formula", "sources": ["C"], "parameters": {}},
+    "B": {"action": "formula", "sources": ["A"], "parameters": {}},
+    "C": {"action": "formula", "sources": ["B"], "parameters": {}}
+  }
+}

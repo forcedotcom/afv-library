@@ -1,0 +1,7 @@
+{
+  "version": "99.0",
+  "nodes": {
+    "LOAD0": {"action": "load", "sources": [], "parameters": {}},
+    "MYSTERY0": {"action": "someFutureAction", "sources": ["LOAD0"], "parameters": {"foo": "bar"}}
+  }
+}

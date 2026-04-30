@@ -1,0 +1,61 @@
+{
+  "version": "66.0",
+  "nodes": {
+    "LOAD_ORDERS": {
+      "action": "load",
+      "sources": [],
+      "parameters": {
+        "dataset": {"name": "ssot__SalesOrder__dlm", "type": "dataModelObject"},
+        "fields": ["ssot__Id__c", "ssot__AccountId__c", "ssot__CreatedDate__c", "ssot__GrandTotalAmount__c"],
+        "sampleDetails": {"type": "TopN", "sortBy": []}
+      }
+    },
+    "RANK_ORDERS": {
+      "action": "computeRelative",
+      "sources": ["LOAD_ORDERS"],
+      "parameters": {
+        "partitionBy": ["ssot__AccountId__c"],
+        "orderBy": [{"fieldName": "ssot__CreatedDate__c", "direction": "ASC"}],
+        "expressionType": "SQL",
+        "fields": [
+          {
+            "name": "OrderRank__c",
+            "label": "Order Rank",
+            "formulaExpression": "row_number()",
+            "type": "NUMBER",
+            "businessType": "Number",
+            "precision": 18,
+            "scale": 0,
+            "defaultValue": ""
+          }
+        ]
+      }
+    },
+    "AGG_BY_ACCOUNT": {
+      "action": "aggregate",
+      "sources": ["RANK_ORDERS"],
+      "parameters": {
+        "groupings": ["ssot__AccountId__c"],
+        "aggregations": [
+          {"action": "SUM", "name": "TotalAmount__c", "source": "ssot__GrandTotalAmount__c"},
+          {"action": "COUNT", "name": "OrderCount__c", "source": "ssot__Id__c"}
+        ],
+        "nodeType": "STANDARD"
+      }
+    },
+    "OUTPUT_SUMMARY": {
+      "action": "outputD360",
+      "sources": ["AGG_BY_ACCOUNT"],
+      "parameters": {
+        "name": "Account_Summary__dlm",
+        "type": "dataModelObject",
+        "writeMode": "OVERWRITE",
+        "fieldsMappings": [
+          {"sourceField": "ssot__AccountId__c", "targetField": "AccountId__c"},
+          {"sourceField": "TotalAmount__c", "targetField": "TotalAmount__c"},
+          {"sourceField": "OrderCount__c", "targetField": "OrderCount__c"}
+        ]
+      }
+    }
+  }
+}
