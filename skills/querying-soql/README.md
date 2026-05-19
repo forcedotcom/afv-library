@@ -2,6 +2,8 @@
 
 Salesforce SOQL query generation, optimization, and analysis skill with 100-point scoring. Convert natural language into performant SOQL and validate queries for security, selectivity, and governor-limit awareness.
 
+> Use this skill to author, optimize, and debug SOQL/SOSL queries directly from natural language.
+
 ## Features
 
 - **Natural Language to SOQL**: Convert requests into executable queries
