@@ -1,305 +1,164 @@
-# Widget Generation Guide
+# Widget Rendition Reference
 
-## 📋 Overview
-Widgets are reusable pieces of UI similar to templates, with placeholders for actual data values. The purpose of this file is to assist developers in creating mosaic renditions for CLTs.
+How to author a UEM widget tree that renders a Custom Lightning Type's grounding schema as a `tile/mosaic` widget across surfaces.
 
-## 🎯 Purpose
-Widgets render data in a structured and unified way across various Salesforce experiences like Slack, Mobile, LEX etc.
+## When to read this file
 
-## Schema Grounding
-Widget generation is **always schema-grounded** using a CLT's schema. The schema describes the data shape the widget should render. Extract property names, types, required vs optional, and nesting from the schema; then follow the full **Workflow** below, using this extracted structure to guide every step. Do not add or remove properties relative to the schema.
+Read this file when the parent skill routes to widget rendition (user requested a "widget", "mosaic", or "fragment"). Do not use these patterns for custom-LWC renderers.
 
-## ⚙️ Composition
-A widget is a UEM (Unified Experience Model) tree of blocks and regions. The widget you return must follow the Typescript interfaces below:
+## Scope
+
+- **In scope**: building the UEM tree under `renderer.componentOverrides["$"].children`, including composition, attribute binding, layout, and writing the final `renderer.json`.
+- **Out of scope**: runtime meta directives (`forEach`, `forItem`, `if`) — read `references/widget-meta-directives.md`.
+
+---
+
+## Composition
+
+A widget is a UEM(Unified Experience Model) tree of blocks. Every block follows this shape:
 
 ```ts
-interface BlockType {
-  type: 'block'
+interface Block {
   definition: string  // {namespace}/{blockName}
   attributes?: Record<string, any>
   meta?: {
-    forEach?: string   // expression resolving to an array, e.g. "{!$attrs.items}"
-    forItem?: string   // loop variable (must start with $), e.g. "$item"
-    if?: string        // boolean expression; block is omitted when falsy
+    forEach?: string   // see widget-meta-directives.md
+    forItem?: string   // see widget-meta-directives.md
+    if?: string        // see widget-meta-directives.md
   }
-  children?: (BlockType | RegionType)[]
-}
-
-interface RegionType {
-  type: 'region'
-  name: string
-  children: BlockType[]
+  children?: Block[]
 }
 ```
----
-
-## 🔧 Available Metadata Actions
-
-### When to Use Each Action
-
-#### discoverUiComponents
-
-**Purpose:** Discover the palette of available blocks that can be used in widget composition.
-
-**Use for:** Finding available blocks before building your widget structure.
-
-**Input Parameters:**
-- `actionName` (**required***): "discoverUiComponents"
-- `metadataType` (**required**): "FRAGMENT"
-- `parameters` (**required**): JSON object with the below fields
-  - `pageType` (**required**): "FRAGMENT"
-  - `pageContext` (optional): JSON object - not required for FRAGMENT type
-  - `searchQuery` (optional): String to filter components by name or description
-
-**Returns:** List of components with:
-- `definition`: Fully qualified name (e.g., "namespace/definiton")
-- `description`: Component description
-- `label`: Human-readable label
-- `attributes`: Optional attribute metadata
-
-#### getUiComponentSchemas
-
-**Purpose:** Get detailed JSON schemas for component configuration, including property types, required vs optional fields, and validation rules.
-
-**Use for:** You know which components you want but need to understand their properties before adding them to your widget.
-
-**Input Parameters:**
-- `actionName` (**required***): "getUiComponentSchemas"
-- `metadataType` (**required**): "FRAGMENT"
-- `parameters` (**required**): JSON object with the below fields
-  - `pageType` (**required**): "FRAGMENT"
-  - `componentDefinitions` (**required**): List of fully qualified names (e.g., ["namespace/definition"])
-    - **CRITICAL**: NEVER include "tile/mosaic" in this list. "tile/mosaic" is a container component used in renderer.json structure and **should not** be passed to getUiComponentSchemas
-  - `pageContext` (optional): JSON object - not required for FRAGMENT type
-  - `includeKnowledge` (optional): Boolean, defaults to true - includes additional component-specific guidance
-
-**Returns:**
-- `componentSchemas`: List of results (supports partial failures)
-- **Success entries**: Contains JSON schema with property definitions, types, constraints
-- **Failure entries**: Contains error message explaining why schema couldn't be retrieved
-- `$defs`: Schema definitions and references (if schema transformation applied)
-
-**Key Feature:** Supports partial failures - if some components can't be found, you still get schemas for the successful ones.
 
 ---
 
-## Attribute binding using placeholder syntax
+## Available metadata actions
 
-- **Where to use:** When block properties must display or pass runtime data from the grounding schema, use the **Placeholder Syntax** below so that the runtime binds values into the widget. Check each block's schema (from `getUiComponentSchemas`) for the correct property name (e.g. `value`, `text`, `label`).
-- **Placeholder Syntax:** Use `{!$attrs.<attrName>}` as the placeholder for each block property that should receive data.
-  `<attrName>` **must** match the property name from the grounding schema so that the runtime can resolve its value.
-  Example: for a schema property `title`, set the block property to `{!$attrs.title}`.
-- **List / iterative data:** Only the children (list items) hold bound values; the parent list block does not. For each item inside a list (e.g. `tile/listItem`), use `{!$attrs.<listAttrName>.item}` so the runtime binds the current item. `<listAttrName>` MUST match the schema property name of the list. Example: for `icons`, use `"{!$attrs.icons.item}"` on the list item.
+### discoverUiComponents
+
+**Purpose**: Discover the palette of blocks available for composition.
+
+**Required parameters**: `actionName: "discoverUiComponents"`, `metadataType: "FRAGMENT"`, `parameters.pageType: "FRAGMENT"`. Optional: `searchQuery` to filter by name/description.
+
+**Returns**: list of `{ definition, description, label, attributes? }`.
+
+### getUiComponentSchemas
+
+**Purpose**: Fetch JSON schemas (property types, required vs optional, validation) for selected blocks.
+
+**Required parameters**: `actionName: "getUiComponentSchemas"`, `metadataType: "FRAGMENT"`, `parameters.pageType: "FRAGMENT"`, `parameters.componentDefinitions: ["namespace/definition", …]`. Optional: `includeKnowledge` (default `true`).
+
+**Returns**: `componentSchemas[]` (success entries carry the JSON schema, failure entries carry an error message — partial failures are supported).
 
 ---
 
-## 🔁 Iteration with forEach / forItem
+## Attribute binding
 
-Use `forEach`/`forItem` when a block repeats over an array. Whether that applies at the root level depends on the schema shape — see step 5 of the Workflow for the decision.
+- Bind a block property to schema data with `{!$attrs.<attrName>}`. `<attrName>` MUST match the property name in the grounding schema. Example: `"text": "{!$attrs.title}"`.
+- When the block is inside a `forEach`, reference the loop variable instead — e.g. `"text": "{!$item.name}"`. See `references/widget-meta-directives.md`.
 
-### Rules
-- Place `forEach` on the `meta` object of the **repeating** block (a row, card, list item, etc.), **not** on the container block. When a container holds repeating children (e.g. a list wrapper and its item rows), `forEach`/`forItem` goes on the child, not the container — otherwise a new container is created per item instead of one container with all items inside it.
-- The value must be an expression resolving to an array: `"{!$attrs.<arrayAttrName>}"`, e.g. `"{!$attrs.items}"`.
-- `forItem` (required with `forEach`) names the loop variable for the current item. **Must start with `$`**, e.g. `"$item"`.
-- All children of the `forEach` block reference the loop variable (e.g. `{!$item.id}`, **not** `{!$attrs.items.id}`).
-- For **nested lists** (inner arrays on each item), add another `forEach` block inside the repeating block's children, using a distinct `forItem` name (e.g. `"$subItem"`).
+---
 
-### Example — top-level list
+## Layout best practices
+
+These conventions cover widget *structure* — how blocks are grouped and stacked. For visual style choices, see *Styling best practices* below.
+
+The first child inside `tile/mosaic.children` should be a single `tile/column`. All widget content goes inside that column for predictable vertical structure across surfaces.
+
+| Primitive | Purpose | When to use |
+|-----------|---------|-------------|
+| `tile/column` | Vertical stack of children | The root wrapper, and any group of blocks that should stack |
+| `tile/row` | Horizontal stack of children | Two or more blocks that belong on the same line |
+| `tile/card` | Visually-boxed group | A bounded section that should read as one unit |
+| `tile/divider` | Visual rule between sections | Separating major content groups (header / body / footer) |
+| `tile/spacer` | Whitespace without a visible line | When extra space is needed but a divider would be too heavy; set `flex: true` to fill remaining space in a row |
+
+Use the five primitives above for structure; all other (content) blocks come from `discoverUiComponents`.
+
+- **Sectioning**: Place a `tile/divider` *or* a fresh `tile/card`-bounded section between major content groups (header → body, body → footer). Pick the divider for lightweight rules between sections of the same widget; pick a card when the section is its own logical unit. Do not use either inside a single section.
+- **Nesting**: Prefer flat layouts. Only nest a `tile/column` inside a `tile/row` (or vice versa) when the visual orientation actually changes for that subgroup.
+
+---
+
+## Styling best practices
+
+Widgets express *intent*, not pixels. Each surface (Slack, ChatGPT, ACC, Mobile, etc.) provides a default native look and feel, and brand/theme overrides apply automatically. Principles the widget author owns:
+
+- **Style semantically.** Use `variant`, `size`, and other enum-typed attributes (e.g. `primary`, `destructive`, `success`, `warning`) to express intent. Do not pin literal colors, fonts, or pixel values — that fights the surface's rendering and breaks brand/theme application.
+- **One primary action per visible group.** At most one `tile/button` with `variant: primary` per visible action group. Use `secondary`, `outline`, or `ghost` for additional actions. Reserve `destructive` for genuinely destructive operations (delete, cancel a paid order, etc.).
+- **One `h1` per widget.** The `h1` is the widget title. Use `h2`/`h3` for sub-section headings (skipping levels is fine if the hierarchy is shallow), `body` for prose, and `caption` for helper text.
+- **Use semantic state variants on state-bearing blocks.** For `tile/alert`, `tile/badge`, `tile/callout`, and `tile/chip`, set `variant` to the semantic state (`success`, `warning`, `error`, `info`, etc.). Do not express state by overriding `text.color` on a generic block — the dedicated blocks render the correct iconography and accessibility cues for free.
+- **Accept schema defaults for `gap`, `padding`, and `size`** unless there's a specific reason to override. When you do override, always pass the enum-defined token (the schema rejects pixel values and freeform strings).
+- **Don't pin `width`, `height`, or `maxWidth`** unless a content constraint genuinely requires it — the surface owns layout sizing. For long text, use `truncate: true` rather than capping `maxWidth`.
+- **Use the Lucide icon set.** Every `icon` attribute resolves to a name in the Lucide icon set. Pass the Lucide name (e.g. `"check"`, `"alert-circle"`); other icon libraries are not supported.
+
+---
+
+## Workflow
+
+1. **Parse the schema** — extract property names, types, required vs optional, and nested structure from the CLT's grounding schema. This is the **widget spec**.
+2. **Discover blocks** — call `discoverUiComponents`. Use property types from the widget spec to inform `searchQuery` (e.g. text → `"text"`, number → `"number"`).
+3. **Select blocks** — choose one block per widget-spec property, plus structural primitives from *Layout best practices*.
+4. **Get block schemas** — call `getUiComponentSchemas` for the selected blocks and review their property metadata.
+5. **Read every matching example** — before authoring, identify which patterns the widget spec needs and read **all** matching renderer examples in `examples/widgets/`. A complex widget combines multiple patterns; read all that apply.
+
+   | Pattern in the widget spec | Example to read |
+   |---|---|
+   | Single object (no root iteration) | `examples/widgets/single-object-profile.renderer.json` |
+   | Collection (root-level array iterated with `forEach`), including a nested `forEach` over an array on each item | `examples/widgets/list-of-products.renderer.json` |
+   | Conditional rendering (`if` bound to a boolean), including `if` + `forEach` on the same `meta` | `examples/widgets/conditional-rendering.renderer.json` |
+
+   Use these as structural starting points, not literal templates. Compose the patterns the widget actually needs.
+6. **Build the UEM tree** —
+   - Map each widget-spec property to a block property; preserve widget-spec order.
+   - **Decide root iteration**: if the schema is a single object, render its properties directly under the root `tile/column`. If the schema is a collection (top-level array), wrap the repeating block in `forEach` / `forItem`. For placement rules and example shapes, read `references/widget-meta-directives.md`.
+   - Bind values with placeholder syntax (see *Attribute binding* above).
+   - For any block that should render conditionally, add `"if"` on its `meta` — read `references/widget-meta-directives.md`.
+7. **Write to the CLT bundle** — output to `lightningTypes/<TypeName>/lightningDesktopGenAi/renderer.json` (or the surface-specific subfolder: `experienceBuilder/`, `lightningMobileGenAi/`, `enhancedWebChat/`). The renderer's root override is:
 
 ```json
 {
-  "type": "block",
-  "definition": "namespace/arrayBlockDefiniton",
-  "meta": {
-    "forEach": "{!$attrs.items}",
-    "forItem": "$item"
-  },
-  "children": [
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition1",
-      "attributes": { "content": "{!$item.id}" }
-    },
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition2",
-      "attributes": { "content": "{!$item.total}" }
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "type": "mosaic",
+        "definition": "tile/mosaic",
+        "children": [ /* the UEM tree built in step 5 — root is tile/column */ ]
+      }
     }
-  ]
-}
-```
-
-### Example — container block with repeating child
-
-When a container block holds repeating items (e.g. a list wrapper and its item rows), place `forEach`/`forItem` on the **child** (the repeating element), not on the container.
-
-```json
-{
-  "type": "block",
-  "definition": "namespace/containerBlockDefinition",
-  "attributes": { "variant": "default" },
-  "children": [
-    {
-      "type": "block",
-      "definition": "namespace/itemBlockDefinition",
-      "meta": {
-        "forEach": "{!$attrs.items}",
-        "forItem": "$item"
-      },
-      "attributes": { "title": "{!$item.name}" }
-    }
-  ]
-}
-```
-
-### Example — nested list (inner items)
-
-```json
-{
-  "type": "block",
-  "definition": "namespace/arrayBlockDefiniton",
-  "meta": { "forEach": "{!$attrs.items}", "forItem": "$item" },
-  "children": [
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition1",
-      "attributes": { "content": "{!$item.id}" }
-    },
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition1",
-      "meta": { "forEach": "{!$item.lineItems}", "forItem": "$lineItem" },
-      "children": [
-        {
-          "type": "block",
-          "definition": "namespace/blockDefinition2",
-          "attributes": { "content": "{!$lineItem.name}" }
-        },
-        {
-          "type": "block",
-          "definition": "namespace/blockDefinition2",
-          "attributes": { "content": "{!$lineItem.count}" }
-        }
-      ]
-    }
-  ]
+  }
 }
 ```
 
 ---
 
-## 🔀 Conditional rendering with if
+## Rules / constraints
 
-- Place `"if"` on the `meta` object of a block to conditionally include it.
-- The expression must resolve to a truthy/falsy value. When falsy, the block **and all its children** are excluded from the rendered output.
-- `if` can be combined with `forEach` on the same `meta` object.
-
-### Example
-
-```json
-{
-  "type": "block",
-  "definition": "namespace/blockDefinition",
-  "meta": { "if": "{!$attrs.isTrue}" },
-  "attributes": { "label": "Label"}
-}
-```
-
-### Example — if inside a forEach loop
-
-```json
-{
-  "type": "block",
-  "definition": "namespace/blockDefinition1",
-  "meta": { "forEach": "{!$attrs.items}", "forItem": "$item" },
-  "children": [
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition2",
-      "attributes": { "content": "{!$item.id}" }
-    },
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition3",
-      "meta": { "if": "{!$item.isTrue}" },
-      "attributes": { "label": "Label"}
-    }
-  ]
-}
-```
-
-### Example — forEach and if on the same block
-
-`forEach` and `if` can be placed together on the same `meta` object. The block is first evaluated against `if` — if falsy, the entire loop is skipped. If truthy, the block repeats for every item in the array.
-
-```json
-{
-  "type": "block",
-  "definition": "namespace/arrayBlockDefinition",
-  "meta": {
-    "forEach": "{!$attrs.items}",
-    "forItem": "$item",
-    "if": "{!$attrs.showItems}"
-  },
-  "children": [
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition2",
-      "attributes": { "content": "{!$item.id}" }
-    },
-    {
-      "type": "block",
-      "definition": "namespace/blockDefinition3",
-      "attributes": { "content": "{!$item.total}" }
-    }
-  ]
-}
-```
+| Constraint | Rationale |
+|-----------|-----------|
+| Block definitions follow `{namespace}/{blockName}` and must match the form returned by `discoverUiComponents` | The runtime resolves blocks by exact definition string |
+| Never pass `tile/mosaic` to `getUiComponentSchemas` | It is a fixed wrapper, not a queryable component |
+| Always supply `parameters` (with required keys) when calling `execute_metadata_action` | Missing parameters cause a hard failure, not a partial result |
+| The first child of `tile/mosaic.children` is a single `tile/column` | Predictable widget structure across surfaces |
 
 ---
 
-## 💡Workflow
+## Gotchas
 
-1. **Schema Parsing**
-- Parse the schema and extract: property names, types, required vs optional, and nested structure. Use this as the **widget spec**.
-
-2. **Discover Available Blocks** (**REQUIRED** - do NOT skip)
-- Use **discoverUiComponents metadata action** above to explore what blocks are available.
-- Use property types from the **widget spec** to inform `searchQuery` (e.g. text → "text", number → "number").
-
-3. **Select Components**
-- Choose blocks that can represent each property in the **widget spec** from the results of step 2.
-
-4. **Get Component Schemas** (**REQUIRED** - do NOT skip)
-- Use **getUiComponentSchemas metadata action** with the selected block definitions from step 3 and review block properties' metadata.
-
-5. **Build Widget**
-- Construct the UEM tree. Map each property in the **widget spec** to block properties and preserve order of the **widget spec**.
-- **Decide whether to iterate at the root level:**
-  - If the schema represents a **single object** (e.g. one item — root `type: object` with scalar/list properties) — do NOT add `forEach` on the top-level block. Render its properties directly. Use `forEach`/`forItem` only on blocks that repeat over an array property within it (e.g. the list of cart items).
-  - If the schema represents a **collection** (e.g. a list of items) — wrap the repeating block in a `forEach` / `forItem` meta directive so the widget renders one row/card per item. See **Iteration with forEach / forItem** above.
-- For block properties that must show or pass runtime data, use the placeholder syntax (see **Attribute binding using placeholder syntax** above). Inside a `forEach` block, reference the loop variable (e.g. `{!$item.attrName}`) instead of `{!$attrs.items.attrName}`.
-- Add `"if"` on the `meta` object of any block that should render conditionally (see **Conditional rendering with if** above).
-- For inner arrays on each item, add a nested `forEach` block with a distinct `forItem` name.
-- Use block properties from the schemas retrieved in step 4.
-
-6. **Write output to CLT Bundle**
-- Always write to `lightningTypes/<TypeName>/lightningDesktopGenAi/renderer.json` (or the correct target subfolder for the product surface, e.g. `experienceBuilder/`, `lightningMobileGenAi/`, `enhancedWebChat/` when applicable).
-  Check **required root override pattern** below -
-  `renderer.componentOverrides["$"] = { "type": "mosaic", "definition": "tile/mosaic", "children": [ ... ] — array of UEM nodes - contains the widget UEM generated using the **Workflow** steps 1-5 above }`
+| Issue | Resolution |
+|-------|-----------|
+| `getUiComponentSchemas` returns a partial-failure entry for a block | Pick a different block from `discoverUiComponents` results; do not silently continue without a schema |
+| Output written to the wrong surface subfolder | Default to `lightningDesktopGenAi/`; switch only when the user names the surface |
 
 ---
 
-## ⚠️ Important Notes
+## Reference File Index
 
-- **widget spec** includes both required and optional attributes - review carefully to ensure valid configuration.
-- When using **`execute_metadata_action`** tool, always supply **`parameters`** with the required fields above; missing `parameters` or required keys causes hard failures, not partial results.
-- Block definitions always follow the `{namespace}/{blockName}` convention.
-- Use the same definition format returned by `discoverUiComponents` when calling `getUiComponentSchemas`
-- Placeholder syntax for non-list properties is `{!$attrs.<attrName>}` and for list properties is `{!$attrs.<listAttrName>.item}`.
-- **`forEach` + `forItem` are required together.** Never use one without the other.
-- **`forItem` values must start with `$`** (e.g. `"$item"`, `"$order"`, `"$line"`).
-- Inside a `forEach` block, children **must** reference the loop variable (`{!$item.attrName}`), not the original array path.
-- Nested `forEach` blocks must use a **different** `forItem` name from the outer loop.
-- `"if"` expressions must be boolean. Use comparison or logic expressions (e.g. `{!$item.isActive}`).
-- `"if"` and `"forEach"` can coexist on the same `meta` object.
+| File | When to read |
+|------|--------------|
+| `references/widget-meta-directives.md` | For the `forEach` / `forItem` (iteration) and `if` (conditional rendering) directives — including patterns not shown in examples (nested `forEach`, container-vs-child placement) |
+| `examples/widgets/single-object-profile.renderer.json` | For the single-object pattern (root binding via `{!$attrs.X}`, no iteration) |
+| `examples/widgets/list-of-products.renderer.json` | For the collection pattern (root-level `lightning__listType` iterated with `forEach`); also covers a nested `forEach` over an array per item |
+| `examples/widgets/conditional-rendering.renderer.json` | For the conditional pattern (`if` on a `meta` object, including `if` + `forEach` on the same block) |
+
+A complex widget often combines several of these patterns (e.g. collection + nested `forEach` + conditional). Read every applicable row.

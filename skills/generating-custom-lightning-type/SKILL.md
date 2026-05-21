@@ -1,6 +1,6 @@
 ---
 name: generating-custom-lightning-type
-description: "Use this skill when users need to create Custom Lightning Types (CLTs) for Einstein Agent actions or structured input/output schemas. Trigger when users mention CLT, Custom Lightning Types, custom lightning type with widget renderer, custom lightning type with widget, CLT with widget renderer, CLT with widget, JSON schemas for agents, type definitions, lightning__objectType, or editor/renderer configurations. When a widget renderer is requested, you MUST first read the widget-rendition.md reference file in this skill's references/ directory and follow its complete workflow. This is complex - always use this skill for CLT work."
+description: "Use this skill when users need to create Custom Lightning Types (CLTs) for Einstein Agent actions or structured input/output schemas, and their editor/renderer configurations. TRIGGER when: users mention CLT, Custom Lightning Types, JSON schemas for agents, type definitions, lightning__objectType, editor/renderer configurations; users ask for a CLT with a 'widget', 'mosaic' or 'fragment' renderer (synonymous — all route to the widget rendition path)."
 metadata:
   version: "1.0"
 ---
@@ -26,8 +26,7 @@ Custom Lightning Types (CLTs) are JSON Schema-based type definitions used by the
 - **Choose referenced CLT pattern for nested objects** - When you need a **reusable** or **separately deployed** nested type, create a CLT for that shape and reference it with `"lightning:type": "c__<CLTName>"`. That string is the referenced type’s **`lightning:type` value / FQN / registered identifier** — not the JSON Schema `title`.
 - **Choose standard Lightning types** when the structure is simple and can be expressed with properties and supported primitive `lightning:type` identifiers.
 - **Choose Apex class types** (`@apexClassType/...`) when the structure already exists server-side and you want the Apex class to define the shape.
-- **Include editor/renderer config** only when you need custom UI behavior (custom LWC input/output components). Otherwise, omit.
-- **Widget rendition**: After `schema.json` is drafted, you **must read references/widget-rendition.md and follow the "Widget renderer pattern"** section below for complete guidance. Do NOT attempt widget generation without reading the reference file first.
+- **Include editor/renderer config** only when you need custom UI behavior (custom LWC input/output components, or widget renderer). Otherwise, omit.
 
 ## Critical Rules (Read First)
 - **Root object schemas MUST include**:
@@ -96,9 +95,6 @@ When strict validation is enabled (`unevaluatedProperties: false`), keep each pr
 
 ## Generation Workflow
 
-> **⚠️ Widget renderer requested? STOP before step 1.**
-> If the user requested a "widget renderer", "mosaic", "widget", or "fragment": you MUST read `references/widget-rendition.md` NOW before doing anything else — before drafting schema, before creating any files, before planning steps. The API context examples show `c/<componentName>` renderers — those are the custom LWC pattern, NOT the widget pattern. Do not follow them for widget rendition.
-
 1. **Confirm the CLT approach**
    - If referencing Apex: capture the exact class reference (`@apexClassType/namespace__ClassName$InnerClass`).
    - If using standard primitives: list the fields, their Lightning primitive types, and which fields are required.
@@ -133,25 +129,13 @@ When strict validation is enabled (`unevaluatedProperties: false`), keep each pr
    - **Avoid known-invalid patterns**:
      - Do not use `es_property_editors/inputList`.
      - Do not use `itemSchema` attributes.
-4. **(Optional) Draft `renderer.json`** (only if custom UI or mosaic rendition is required)
-   - **⚠️ DECIDE FIRST — widget or custom LWC?** Before writing any renderer code or planning any steps:
-     - If the user requested "widget", "mosaic", "fragment", or "cross-platform rendering": you MUST use the **Widget renderer pattern** below. Do NOT create a custom LWC. Do NOT use the root override pattern with `c/<componentName>`. Skip directly to the Widget renderer pattern now.
-     - Otherwise: use the root override pattern or property-level overrides described below.
-   - **Supported shape:** Top-level `renderer` object with `renderer.componentOverrides` and `renderer.layout`.
-     - Top-level `renderer` object.
-     - Use `renderer.componentOverrides` for component overrides.
-     - Use `renderer.layout` for layout.
-     - **DEPRECATED**: Do NOT use `propertyRenderers` or `view` — these are legacy keys. Always use `componentOverrides` and `layout` instead.
-   - **Widget renderer pattern** (for widget rendition — use when user requests "widget", "mosaic", "fragment", or "cross-platform rendering"):
-       - **Structure:** `renderer.componentOverrides["$"] = { "type": "mosaic", "definition": "tile/mosaic", "children": [ /* UEM tree of blocks and regions */ ] }`
-       - **CRITICAL**: Do NOT create a custom LWC component (e.g. `c/<componentName>`) for widget rendering. Widget rendition uses a `tile/mosaic` UEM block tree — not a custom component. Creating a custom LWC here is always wrong.
-       - **REQUIRED workflow:**
-           - **STOP**: Do NOT attempt to build the UEM tree yourself.
-           - **MANDATORY FIRST STEP**: You MUST fetch the reference file `references/widget-rendition.md` located in this skill's directory before proceeding.
-           - Follow the complete workflow documented in `widget-rendition.md` using the generated CLT schema as the grounding schema.
-           - The `widget-rendition.md` reference contains the full widget generation workflow: discovering UEM blocks via discoverUiComponents, calling getUiComponentSchemas, building the UEM tree, and writing renderer.json.
-           - **Do not** attempt to generate widget rendition without first fetching the `widget-rendition.md` reference file.
-   - **Root override pattern** (for custom LWC rendering — only when widget/mosaic was NOT requested):
+4. **(Optional) Draft `renderer.json`** (only if custom UI or widget rendition is required)
+   - **Decide first — widget or custom LWC?**
+     - If the user requested `widget`, `mosaic`, or `fragment`: read `references/widget-rendition.md` and follow its workflow. The reference file owns the entire widget path — discovering blocks, fetching schemas, building the UEM tree, and writing `renderer.json`. Do not create a custom LWC for this path.
+     - Otherwise: use the custom LWC patterns below.
+   - **Supported shape (custom LWC path):** Top-level `renderer` object with `renderer.componentOverrides` and `renderer.layout`.
+     - **DEPRECATED**: Do NOT use `propertyRenderers` or `view`. Use `componentOverrides` and `layout`.
+   - **Root override pattern**:
      - `renderer.componentOverrides["$"] = { "definition": "c/<yourRendererComponent>", "attributes": { ... } }`
      - Use `{!$attrs.<name>}` in attribute mappings when binding schema data to custom renderer component attributes.
      - **CRITICAL**: Attribute mappings like `{!$attrs.propertyName}` must reference properties that **actually exist** in your type schema. Referencing non-existent properties will fail validation.
@@ -219,3 +203,11 @@ When strict validation is enabled (`unevaluatedProperties: false`), keep each pr
 - [ ] Layout configurations use `lightning/propertyLayout` with ONLY the `property` attribute (no `label`, `title`, or other attributes)
 - [ ] All attribute mappings (`{!$attrs.propertyName}`) reference properties that exist in the type schema
 - [ ] Custom LWC components have correct targets in `-meta.xml`: `lightning__AgentforceInput` for editors, `lightning__AgentforceOutput` for renderers
+
+---
+
+## Reference File Index
+
+| File | When to read |
+|------|--------------|
+| `references/widget-rendition.md` | When the user requests a CLT with a 'widget', 'mosaic', or 'fragment' renderer — read at workflow step 4 to follow the widget rendition path (block discovery, schema fetching, UEM tree, `renderer.json`). |
