@@ -1,3 +1,12 @@
+# [1.10.0](https://github.com/forcedotcom/sf-skills/compare/1.9.1...1.10.0) (2026-05-22)
+
+
+### Features
+
+* @W-22580976 Run test only for affected domains when a skill is updated + Fail the test if new skill added without any domains in eval ([0ec19a3](https://github.com/forcedotcom/sf-skills/commit/0ec19a3b25401a3a74339fc8e7486d3cae14e850))
+
+
+
 ## [1.9.1](https://github.com/forcedotcom/sf-skills/compare/1.9.0...1.9.1) (2026-05-19)
 
 
