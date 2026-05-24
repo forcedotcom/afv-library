@@ -1,3 +1,12 @@
+# [1.11.0](https://github.com/forcedotcom/sf-skills/compare/1.10.0...1.11.0) (2026-05-24)
+
+
+### Features
+
+* @W-22618269@ release 3 new skills: applying-cms-brand, integrating-b2b-commerce-open-code-components, running-code-analyzer ([30417ef](https://github.com/forcedotcom/sf-skills/commit/30417ef445f184ff8cc91e2208e1dcf418b75907))
+
+
+
 # [1.10.0](https://github.com/forcedotcom/sf-skills/compare/1.9.1...1.10.0) (2026-05-22)
 
 
