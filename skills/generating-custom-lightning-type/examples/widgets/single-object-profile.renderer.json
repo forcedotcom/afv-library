@@ -1,0 +1,131 @@
+{
+  "renderer": {
+    "componentOverrides": {
+      "$": {
+        "type": "mosaic",
+        "definition": "tile/mosaic",
+        "children": [
+          {
+            "definition": "tile/card",
+            "attributes": {
+              "padding": "lg",
+              "variant": "elevated"
+            },
+            "children": [
+              {
+                "definition": "tile/text",
+                "attributes": {
+                  "text": "User Profile",
+                  "variant": "h2"
+                }
+              },
+              {
+                "definition": "tile/divider"
+              },
+              {
+                "definition": "tile/column",
+                "attributes": {
+                  "gap": "sm"
+                },
+                "children": [
+                  {
+                    "definition": "tile/row",
+                    "attributes": {
+                      "gap": "sm"
+                    },
+                    "children": [
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "Name:",
+                          "variant": "body",
+                          "weight": "semibold"
+                        }
+                      },
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "{!$attrs.name}",
+                          "variant": "body"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "definition": "tile/row",
+                    "attributes": {
+                      "gap": "sm"
+                    },
+                    "children": [
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "Email:",
+                          "variant": "body",
+                          "weight": "semibold"
+                        }
+                      },
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "{!$attrs.email}",
+                          "variant": "body"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "definition": "tile/row",
+                    "attributes": {
+                      "gap": "sm"
+                    },
+                    "children": [
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "Role:",
+                          "variant": "body",
+                          "weight": "semibold"
+                        }
+                      },
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "{!$attrs.role}",
+                          "variant": "body"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "definition": "tile/row",
+                    "attributes": {
+                      "gap": "sm"
+                    },
+                    "children": [
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "Location:",
+                          "variant": "body",
+                          "weight": "semibold"
+                        }
+                      },
+                      {
+                        "definition": "tile/text",
+                        "attributes": {
+                          "text": "{!$attrs.location}",
+                          "variant": "body"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
