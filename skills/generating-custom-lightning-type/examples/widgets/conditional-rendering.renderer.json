@@ -97,7 +97,7 @@
                         "definition": "tile/badge",
                         "attributes": {
                           "label": "{!$task.priority}",
-                          "variant": "{!IF($task.priority = 'high', 'error', 'secondary')}"
+                          "variant": "secondary"
                         }
                       }
                     ]
