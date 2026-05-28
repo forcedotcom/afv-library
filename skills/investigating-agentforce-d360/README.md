@@ -123,6 +123,12 @@ investigating-agentforce-d360/
 
 ---
 
+## Authored by
+
+Raghul Jayagopal (RJ), Salesforce ANZ FDE.
+
+---
+
 ## License
 
 Apache-2.0. See repository root `LICENSE`.
