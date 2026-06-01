@@ -3,7 +3,7 @@
     "defaultAssignee": "skip",
     "assignments": {
       "Property_Management_Access": { "assignee": "currentUser" },
-      "Tenant_Maintenance_Access": { "assignee": "currentUser" }
+      "Tenant_Maintenance_Access": { "assignee": "skip" }
     }
   }
 }
